@@ -645,5 +645,26 @@
     "metaTitle": "",
     "metaDescription": "",
     "createdAt": "2025-12-12T09:52:31.846Z"
+  },
+  {
+    "id": 1765537423768,
+    "name": "Flower Vase Book Shaped Vase",
+    "price": 3500,
+    "image": "/images/1765537411257-bookShapedVase.jpg",
+    "category": "vases",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 0,
+    "status": "active",
+    "slug": "1765537423768",
+    "metaTitle": "",
+    "metaDescription": "",
+    "createdAt": "2025-12-12T11:03:43.768Z"
   }
 ]
