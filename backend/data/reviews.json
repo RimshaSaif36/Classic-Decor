@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1765017450683,
+    "productId": "2000000000002",
+    "rating": 4,
+    "title": "",
+    "comment": "It's fantastic.",
+    "name": "Rimsha ",
+    "userId": null,
+    "status": "pending",
+    "createdAt": "2025-12-06T10:37:30.683Z",
+    "approvedAt": null
+  },
+  {
+    "id": 1765018747010,
+    "productId": "2000000005002",
+    "rating": 5,
+    "title": "",
+    "comment": "It's fantastic.",
+    "name": "Rimsha ",
+    "userId": null,
+    "status": "approved",
+    "createdAt": "2025-12-06T10:59:07.010Z",
+    "approvedAt": "2025-12-06T10:59:07.010Z"
+  }
+]

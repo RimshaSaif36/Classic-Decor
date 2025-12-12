@@ -1,0 +1,649 @@
+[
+  {
+    "id": 2000000000001,
+    "name": "Modern Landscape Wall Art",
+    "price": 4900,
+    "image": "images/P1.jpg",
+    "category": "wall-art",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 10,
+    "status": "active",
+    "slug": "modern-landscape-wall-art",
+    "metaTitle": "Modern Landscape Wall Art",
+    "metaDescription": "Beautiful landscape acrylic wall art.",
+    "createdAt": "2025-12-02T10:00:00.000Z"
+  },
+  {
+    "id": 2000000000002,
+    "name": "Abstract Geometric Wall Art",
+    "price": 5500,
+    "image": "images/P2.jpg",
+    "category": "wall-art",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Silver/Black"
+      ]
+    },
+    "stock": 8,
+    "status": "active",
+    "slug": "abstract-geometric-wall-art",
+    "metaTitle": "Abstract Geometric Wall Art",
+    "metaDescription": "Contemporary abstract acrylic art.",
+    "createdAt": "2025-12-02T10:00:10.000Z"
+  },
+  {
+    "id": 2000000000003,
+    "name": "Islamic Calligraphy Panel",
+    "price": 6200,
+    "image": "images/P10.jpg",
+    "category": "wall-art",
+    "variants": {
+      "sizes": [
+        "Large 18 inches"
+      ],
+      "colors": [
+        "Black"
+      ]
+    },
+    "stock": 5,
+    "status": "active",
+    "slug": "islamic-calligraphy-panel",
+    "metaTitle": "Islamic Calligraphy Panel",
+    "metaDescription": "Elegant calligraphy acrylic panel.",
+    "createdAt": "2025-12-02T10:00:20.000Z"
+  },
+  {
+    "id": 2000000000004,
+    "name": "Floral Decorative Wall Art",
+    "price": 4800,
+    "image": "images/P9.jpg",
+    "category": "wall-art",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 12,
+    "status": "active",
+    "slug": "floral-decorative-wall-art",
+    "metaTitle": "Floral Decorative Wall Art",
+    "metaDescription": "Bright floral acrylic wall decor.",
+    "createdAt": "2025-12-02T10:00:30.000Z"
+  },
+  {
+    "id": 2000000000005,
+    "name": "Minimalist Line Art",
+    "price": 5300,
+    "image": "images/P11.jpg",
+    "category": "wall-art",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 7,
+    "status": "active",
+    "slug": "minimalist-line-art",
+    "metaTitle": "Minimalist Line Art",
+    "metaDescription": "Sleek minimalist acrylic art.",
+    "createdAt": "2025-12-02T10:00:40.000Z"
+  },
+  {
+    "id": 2000000001001,
+    "name": "Round Acrylic Wall Mirror",
+    "price": 7200,
+    "image": "images/M1.jpg",
+    "category": "wall-mirrors",
+    "variants": {
+      "sizes": [
+        "Large 18 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
+    "stock": 6,
+    "status": "active",
+    "slug": "round-acrylic-wall-mirror",
+    "metaTitle": "Round Acrylic Wall Mirror",
+    "metaDescription": "Elegant round acrylic mirror.",
+    "createdAt": "2025-12-02T10:01:00.000Z"
+  },
+  {
+    "id": 2000000001003,
+    "name": "Ornate Wall Mirror",
+    "price": 9800,
+    "image": "images/P3.jpg",
+    "category": "wall-mirrors",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 5,
+    "status": "active",
+    "slug": "ornate-wall-mirror",
+    "metaTitle": "Ornate Wall Mirror",
+    "metaDescription": "Decorative ornate mirror.",
+    "createdAt": "2025-12-02T10:01:20.000Z"
+  },
+  {
+    "id": 2000000001005,
+    "name": "Decorative Mirror Panel",
+    "price": 7700,
+    "image": "images/P5.jpg",
+    "category": "wall-mirrors",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 3,
+    "status": "active",
+    "slug": "decorative-mirror-panel",
+    "metaTitle": "Decorative Mirror Panel",
+    "metaDescription": "Panel mirror for modern interiors.",
+    "createdAt": "2025-12-02T10:01:40.000Z"
+  },
+  {
+    "id": 2000000002001,
+    "name": "Acrylic Wall Clock Classic",
+    "price": 5900,
+    "image": "images/P8.jpg",
+    "category": "wall-clocks",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Black"
+      ]
+    },
+    "stock": 11,
+    "status": "active",
+    "slug": "acrylic-wall-clock-classic",
+    "metaTitle": "Acrylic Wall Clock Classic",
+    "metaDescription": "Stylish wall clock.",
+    "createdAt": "2025-12-02T10:02:00.000Z"
+  },
+  {
+    "id": 2000000002002,
+    "name": "Modern Gear Wall Clock",
+    "price": 7200,
+    "image": "images/Acrylic Wall Clocks with 12 inches needles.jpg",
+    "category": "wall-clocks",
+    "variants": {
+      "sizes": [
+        "Large 18 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 6,
+    "status": "active",
+    "slug": "modern-gear-wall-clock",
+    "metaTitle": "Modern Gear Wall Clock",
+    "metaDescription": "Large statement wall clock.",
+    "createdAt": "2025-12-02T10:02:10.000Z"
+  },
+  {
+    "id": 2000000002003,
+    "name": "Transparent Acrylic Clock",
+    "price": 6500,
+    "image": "images/Large Acrylic Decorative Wall Clocks.jpg",
+    "category": "wall-clocks",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 7,
+    "status": "active",
+    "slug": "transparent-acrylic-clock",
+    "metaTitle": "Transparent Acrylic Clock",
+    "metaDescription": "Minimal clear clock.",
+    "createdAt": "2025-12-02T10:02:20.000Z"
+  },
+  {
+    "id": 2000000003001,
+    "name": "Custom Name Plate Small",
+    "price": 3500,
+    "image": "images/Acrylic Name Plates.jpg",
+    "category": "name-plates",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
+    "stock": 20,
+    "status": "active",
+    "slug": "custom-name-plate-small",
+    "metaTitle": "Custom Name Plate Small",
+    "metaDescription": "Personalized acrylic name plate.",
+    "createdAt": "2025-12-02T10:03:00.000Z"
+  },
+  {
+    "id": 2000000003003,
+    "name": "Door Name Plate",
+    "price": 3800,
+    "image": "images/P4.jpg",
+    "category": "name-plates",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Black"
+      ]
+    },
+    "stock": 12,
+    "status": "active",
+    "slug": "door-name-plate",
+    "metaTitle": "Door Name Plate",
+    "metaDescription": "Name plate for doors.",
+    "createdAt": "2025-12-02T10:03:20.000Z"
+  },
+  {
+    "id": 2000000003005,
+    "name": "Acrylic Door Sign",
+    "price": 4600,
+    "image": "images/P6.jpg",
+    "category": "name-plates",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 10,
+    "status": "active",
+    "slug": "acrylic-door-sign",
+    "metaTitle": "Acrylic Door Sign",
+    "metaDescription": "Stylish door sign.",
+    "createdAt": "2025-12-02T10:03:40.000Z"
+  },
+  {
+    "id": 2000000004001,
+    "name": "Classic Photo Frame",
+    "price": 2900,
+    "image": "images/P5.jpg",
+    "category": "photo-frames",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 25,
+    "status": "active",
+    "slug": "classic-photo-frame",
+    "metaTitle": "Classic Photo Frame",
+    "metaDescription": "Elegant photo frame.",
+    "createdAt": "2025-12-02T10:04:00.000Z"
+  },
+  {
+    "id": 2000000004002,
+    "name": "Collage Photo Frame",
+    "price": 5200,
+    "image": "images/Five Frames Tree 3D art Decor for Walls.jpg",
+    "category": "photo-frames",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Black"
+      ]
+    },
+    "stock": 8,
+    "status": "active",
+    "slug": "collage-photo-frame",
+    "metaTitle": "Collage Photo Frame",
+    "metaDescription": "Multi-frame collage.",
+    "createdAt": "2025-12-02T10:04:10.000Z"
+  },
+  {
+    "id": 2000000004003,
+    "name": "Floating Photo Frame",
+    "price": 4700,
+    "image": "images/P7.jpg",
+    "category": "photo-frames",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
+    "stock": 14,
+    "status": "active",
+    "slug": "floating-photo-frame",
+    "metaTitle": "Floating Photo Frame",
+    "metaDescription": "Modern floating frame.",
+    "createdAt": "2025-12-02T10:04:20.000Z"
+  },
+  {
+    "id": 2000000004004,
+    "name": "Ornate Photo Frame",
+    "price": 6500,
+    "image": "images/P9.jpg",
+    "category": "photo-frames",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 7,
+    "status": "active",
+    "slug": "ornate-photo-frame",
+    "metaTitle": "Ornate Photo Frame",
+    "metaDescription": "Decorative ornate frame.",
+    "createdAt": "2025-12-02T10:04:30.000Z"
+  },
+  {
+    "id": 2000000004005,
+    "name": "Minimal Frame",
+    "price": 3300,
+    "image": "images/P11.jpg",
+    "category": "photo-frames",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 18,
+    "status": "active",
+    "slug": "minimal-frame",
+    "metaTitle": "Minimal Frame",
+    "metaDescription": "Clean minimal frame.",
+    "createdAt": "2025-12-02T10:04:40.000Z"
+  },
+  {
+    "id": 2000000005001,
+    "name": "Panda Baby Wall Decor",
+    "price": 9999,
+    "image": "images/P6.jpg",
+    "category": "kids-decor",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Multi"
+      ]
+    },
+    "stock": 15,
+    "status": "active",
+    "slug": "panda-baby-wall-decor",
+    "metaTitle": "Panda Baby Wall Decor",
+    "metaDescription": "Playful kids wall decor.",
+    "createdAt": "2025-12-02T10:05:00.000Z"
+  },
+  {
+    "id": 2000000005003,
+    "name": "Cartoon Wall Sticker",
+    "price": 2100,
+    "image": "images/P12.jpg",
+    "category": "kids-decor",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Multi"
+      ]
+    },
+    "stock": 30,
+    "status": "active",
+    "slug": "cartoon-wall-sticker",
+    "metaTitle": "Cartoon Wall Sticker",
+    "metaDescription": "Fun sticker for kids rooms.",
+    "createdAt": "2025-12-02T10:05:20.000Z"
+  },
+  {
+    "id": 2000000005004,
+    "name": "Kids Acrylic Shelf",
+    "price": 4600,
+    "image": "images/P7.jpg",
+    "category": "kids-decor",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 9,
+    "status": "active",
+    "slug": "kids-acrylic-shelf",
+    "metaTitle": "Kids Acrylic Shelf",
+    "metaDescription": "Small shelf for kids room.",
+    "createdAt": "2025-12-02T10:05:30.000Z"
+  },
+  {
+    "id": 2000000006002,
+    "name": "Corner Display Shelf",
+    "price": 5200,
+    "image": "images/P9.jpg",
+    "category": "shelves",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 8,
+    "status": "active",
+    "slug": "corner-display-shelf",
+    "metaTitle": "Corner Display Shelf",
+    "metaDescription": "Stylish corner shelf.",
+    "createdAt": "2025-12-02T10:06:10.000Z"
+  },
+  {
+    "id": 2000000006003,
+    "name": "Wall Organizer Shelf",
+    "price": 4500,
+    "image": "images/P4.jpg",
+    "category": "shelves",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 12,
+    "status": "active",
+    "slug": "wall-organizer-shelf",
+    "metaTitle": "Wall Organizer Shelf",
+    "metaDescription": "Organizer shelf for home.",
+    "createdAt": "2025-12-02T10:06:20.000Z"
+  },
+  {
+    "id": 2000000006004,
+    "name": "Decorative Wall Shelf",
+    "price": 6100,
+    "image": "images/P11.jpg",
+    "category": "shelves",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
+    "stock": 7,
+    "status": "active",
+    "slug": "decorative-wall-shelf",
+    "metaTitle": "Decorative Wall Shelf",
+    "metaDescription": "Display shelf for decor.",
+    "createdAt": "2025-12-02T10:06:30.000Z"
+  },
+  {
+    "id": 2000000006005,
+    "name": "Floating Display Shelf",
+    "price": 4700,
+    "image": "images/P12.jpg",
+    "category": "shelves",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Black"
+      ]
+    },
+    "stock": 10,
+    "status": "active",
+    "slug": "floating-display-shelf",
+    "metaTitle": "Floating Display Shelf",
+    "metaDescription": "Compact display shelf.",
+    "createdAt": "2025-12-02T10:06:40.000Z"
+  },
+  {
+    "id": 2000000007001,
+    "name": "Acrylic Flower Vase Small",
+    "price": 2900,
+    "image": "images/Acrylic Flower Vases.jpg",
+    "category": "vases",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Transparent"
+      ]
+    },
+    "stock": 20,
+    "status": "active",
+    "slug": "acrylic-flower-vase-small",
+    "metaTitle": "Acrylic Flower Vase Small",
+    "metaDescription": "Elegant small vase.",
+    "createdAt": "2025-12-02T10:07:00.000Z"
+  },
+  {
+    "id": 2000000007003,
+    "name": "Tube Inlay Vase",
+    "price": 5200,
+    "image": "images/P11.jpg",
+    "category": "vases",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
+    "stock": 9,
+    "status": "active",
+    "slug": "tube-inlay-vase",
+    "metaTitle": "Tube Inlay Vase",
+    "metaDescription": "Modern tube inlay vase.",
+    "createdAt": "2025-12-02T10:07:20.000Z"
+  },
+  {
+    "id": 2000000007005,
+    "name": "Decorative Acrylic Vase",
+    "price": 4100,
+    "image": "images/P9.jpg",
+    "category": "vases",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 12,
+    "status": "active",
+    "slug": "decorative-acrylic-vase",
+    "metaTitle": "Decorative Acrylic Vase",
+    "metaDescription": "Decorative vase for interiors.",
+    "createdAt": "2025-12-02T10:07:40.000Z"
+  },
+  {
+    "id": 1765532633813,
+    "name": "Desk name plates",
+    "price": 2500,
+    "image": "/images/1765532614426-nameplate.jpg",
+    "category": "name-plates",
+    "variants": {
+      "sizes": [],
+      "colors": []
+    },
+    "stock": 0,
+    "status": "active",
+    "slug": "1765532633813",
+    "metaTitle": "",
+    "metaDescription": "",
+    "createdAt": "2025-12-12T09:43:53.813Z"
+  },
+  {
+    "id": 1765533151846,
+    "name": "Mouse Shaped Custom Wall Decor",
+    "price": 2000,
+    "image": "/images/1765533128224-mouseshaped.jpg",
+    "category": "kids-decor",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Silver/Black"
+      ]
+    },
+    "stock": 0,
+    "status": "active",
+    "slug": "1765533151846",
+    "metaTitle": "",
+    "metaDescription": "",
+    "createdAt": "2025-12-12T09:52:31.846Z"
+  }
+]

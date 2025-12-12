@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout - Classic Decor - Secure Payment</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="checkout.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body class="checkout-page">
+    <header class="header">
+      <div class="logo">
+        <a href="index.html" class="logo-text">Classic Decor</a>
+      </div>
+      <nav>
+        <ul></ul>
+      </nav>
+      <div class="header-actions">
+        <a href="shop.html" class="icon-btn" title="Shop"
+          ><i class="fa-solid fa-store"></i
+        ></a>
+        <a href="#" id="search-toggle" class="icon-btn" title="Search"
+          ><i class="fa-solid fa-magnifying-glass"></i
+        ></a>
+        <a href="login.html" class="icon-btn" title="Account"
+          ><i class="fa-regular fa-user"></i
+        ></a>
+        <a href="cart.html" class="icon-btn" title="Cart"
+          ><i class="fa-solid fa-cart-shopping"></i
+          ><span id="nav-cart-count">0</span></a
+        >
+      </div>
+    </header>
+    <div id="search-overlay" class="search-overlay" aria-hidden="true">
+      <div class="search-panel">
+        <button
+          id="search-close"
+          class="search-close"
+          aria-label="Close search"
+        >
+          &times;
+        </button>
+        <form id="search-form" class="search-form" role="search">
+          <input
+            id="search-input"
+            type="search"
+            name="q"
+            placeholder="Search products, categories..."
+            aria-label="Search"
+            autocomplete="off"
+          />
+          <button type="submit" class="search-submit">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <nav class="category-nav">
+      <div class="category-container">
+        <ul>
+          <li><a href="categories.html?category=wall-art">Wall Art</a></li>
+          <li>
+            <a href="categories.html?category=wall-mirrors">Wall Mirrors</a>
+          </li>
+          <li>
+            <a href="categories.html?category=wall-clocks">Wall Clocks</a>
+          </li>
+          <li>
+            <a href="categories.html?category=name-plates">Name Plates</a>
+          </li>
+          <li>
+            <a href="categories.html?category=photo-frames">Photo Frames</a>
+          </li>
+          <li><a href="categories.html?category=kids-decor">Kids Decor</a></li>
+          <li><a href="categories.html?category=shelves">Shelves</a></li>
+          <li><a href="categories.html?category=vases">Flower Vases</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <div class="checkout-container">
+        <h2>Checkout</h2>
+
+        <!-- CART ITEMS -->
+        <div class="checkout-cart">
+          <h3>Your Cart</h3>
+          <div class="cart-items"></div>
+          <div class="cart-summary">
+            <p>Subtotal: <span class="subtotal-price">PKR 0</span></p>
+            <p>Shipping: <span class="shipping-price">PKR 200</span></p>
+            <p>
+              <strong>Total: <span class="total-price">PKR 0</span></strong>
+            </p>
+          </div>
+          <div
+            class="order-preview"
+            style="
+              margin-top: 16px;
+              padding: 12px;
+              border: 1px solid #eee;
+              border-radius: 8px;
+              background: #fff;
+            "
+          >
+            <h3 style="margin: 0 0 8px 0">Order Details</h3>
+            <div id="order-preview" style="display: grid; gap: 6px"></div>
+          </div>
+        </div>
+
+        <!-- CHECKOUT FORM -->
+        <form class="checkout-form" id="checkout-form">
+          <h3>Billing Details</h3>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="name" required />
+          </div>
+
+          <div class="form-group">
+            <label>Address</label>
+            <input type="text" id="address" required />
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" required />
+          </div>
+
+          <!-- PAYMENT OPTIONS -->
+          <div class="form-group">
+            <label>Payment Option</label>
+            <select id="payment">
+              <option value="cod">Cash on Delivery</option>
+              <option value="jazzcash">JazzCash</option>
+              <option value="easypaisa">EasyPaisa</option>
+              <option value="card">Card (Stripe)</option>
+            </select>
+          </div>
+
+          <!-- PAYMENT DETAILS -->
+          <div id="payment-details" style="display: none; margin-top: 15px">
+            <p style="color: green; font-weight: bold">
+              Send payment to this number: <br />
+              JazzCash / EasyPaisa:
+              <span style="color: #000; font-size: 18px">03074040767</span>
+            </p>
+
+            <div class="form-group">
+              <label>Your JazzCash/EasyPaisa Number</label>
+              <input type="tel" id="senderNumber" placeholder="03XXXXXXXXX" />
+            </div>
+
+            <div class="form-group">
+              <label>Transaction ID</label>
+              <input
+                type="text"
+                id="transactionId"
+                placeholder="Enter Transaction ID"
+              />
+            </div>
+
+            <p style="color: #c00; font-size: 14px">
+              Please send payment to the above number and enter the details.
+            </p>
+          </div>
+
+          <button type="submit" class="place-order-btn">Place Order</button>
+        </form>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-container">
+        <div class="footer-column">
+          <h3 class="logo-text">Classic Decor</h3>
+          <p>Your one-stop shop for premium acrylic products.</p>
+        </div>
+        <div class="footer-column">
+          <h3>Customer Service</h3>
+          <ul>
+            <li><a href="#">Shipping & Returns</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Classic Decor. All Rights Reserved.</p>
+      </div>
+    </footer>
+
+    <script src="cart.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+        const cartItemsContainer = document.querySelector(".cart-items");
+        const subtotalPriceElement = document.querySelector(".subtotal-price");
+        const totalPriceElement = document.querySelector(".total-price");
+        const shippingPrice = 200;
+        const previewBox = document.getElementById("order-preview");
+        const API_BASE = "http://localhost:3001"; // Always point to backend
+
+        // Render cart items
+        const renderCartItems = () => {
+          cartItemsContainer.innerHTML = "";
+          if (cart.length === 0) {
+            cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
+            subtotalPriceElement.textContent = "PKR 0";
+            totalPriceElement.textContent = `PKR ${shippingPrice}`;
+            updateOrderPreview();
+            return;
+          }
+
+          let subtotal = 0;
+          cart.forEach((item) => {
+            const itemTotal = item.price * item.quantity;
+            subtotal += itemTotal;
+
+            const div = document.createElement("div");
+            div.classList.add("checkout-cart-item");
+            div.innerHTML = `
+            <div class="item-name">${item.name} x ${item.quantity}${
+              item.sizeLabel || item.colorLabel
+                ? ` (${item.sizeLabel || ""}${
+                    item.colorLabel ? ", " + item.colorLabel : ""
+                  })`
+                : ""
+            }</div>
+            <div class="item-price">PKR ${itemTotal.toFixed(0)}</div>
+          `;
+            cartItemsContainer.appendChild(div);
+          });
+
+          subtotalPriceElement.textContent = `PKR ${subtotal}`;
+          totalPriceElement.textContent = `PKR ${subtotal + shippingPrice}`;
+          updateOrderPreview();
+        };
+
+        renderCartItems();
+
+        function updateOrderPreview() {
+          const name = document.getElementById("name").value || "";
+          const address = document.getElementById("address").value || "";
+          const phone = document.getElementById("phone").value || "";
+          const payment = document.getElementById("payment").value;
+          const subtotal =
+            Number(subtotalPriceElement.textContent.replace("PKR ", "")) || 0;
+          const total =
+            Number(totalPriceElement.textContent.replace("PKR ", "")) || 0;
+
+          const itemsHtml = cart
+            .map((i) => {
+              return `<div style="display:flex;justify-content:space-between;gap:8px;"><span>${
+                i.name
+              } x ${i.quantity}${i.sizeLabel ? " (" + i.sizeLabel + ")" : ""}${
+                i.colorLabel ? " (" + i.colorLabel + ")" : ""
+              }</span><span>PKR ${(i.price * i.quantity).toFixed(
+                0
+              )}</span></div>`;
+            })
+            .join("");
+
+          previewBox.innerHTML = `
+          <div><strong>Name:</strong> ${name}</div>
+          <div><strong>Phone:</strong> ${phone}</div>
+          <div><strong>Address:</strong> ${address}</div>
+          <div><strong>Payment:</strong> ${
+            payment === "card" ? "Card (Stripe)" : payment
+          }</div>
+          <div style="margin-top:6px;border-top:1px solid #eee;padding-top:6px;">${
+            itemsHtml || "<em>No items</em>"
+          }</div>
+          <div style="display:flex;justify-content:space-between;margin-top:6px;"><span>Subtotal</span><span>PKR ${subtotal}</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>Shipping</span><span>PKR ${shippingPrice}</span></div>
+          <div style="display:flex;justify-content:space-between;font-weight:600;"><span>Total</span><span>PKR ${total}</span></div>
+        `;
+        }
+
+        // Show/hide payment details
+        document.getElementById("payment").addEventListener("change", () => {
+          const box = document.getElementById("payment-details");
+          const val = document.getElementById("payment").value;
+          box.style.display =
+            val === "jazzcash" || val === "easypaisa" ? "block" : "none";
+          updateOrderPreview();
+        });
+
+        ["name", "address", "phone"].forEach((id) => {
+          document
+            .getElementById(id)
+            .addEventListener("input", updateOrderPreview);
+        });
+
+        // Checkout form submission: single reusable handler used by form submit and button click
+        (function () {
+          const formEl = document.getElementById("checkout-form");
+          if (!formEl) return console.error("[checkout] form not found");
+
+          const placeBtn = formEl.querySelector(".place-order-btn");
+
+          let inProgress = false;
+
+          async function placeOrder(e) {
+            if (e && typeof e.preventDefault === "function") e.preventDefault();
+            if (inProgress) return; // prevent double submit
+            try {
+              inProgress = true;
+              if (placeBtn) placeBtn.disabled = true;
+
+              if (!Array.isArray(cart) || cart.length === 0) {
+                alert("Your cart is empty!");
+                return;
+              }
+
+              const paymentMethod = document.getElementById("payment").value;
+              let senderNumber = "";
+              let transactionId = "";
+
+              if (paymentMethod !== "cod" && paymentMethod !== "card") {
+                senderNumber = document
+                  .getElementById("senderNumber")
+                  .value.trim();
+                transactionId = document
+                  .getElementById("transactionId")
+                  .value.trim();
+                if (!senderNumber || !transactionId) {
+                  alert("Enter Payment Number and Transaction ID.");
+                  return;
+                }
+              }
+
+              const order = {
+                name: document.getElementById("name").value,
+                address: document.getElementById("address").value,
+                phone: document.getElementById("phone").value,
+                payment: paymentMethod,
+                senderNumber,
+                transactionId,
+                items: cart
+                  .map((i) => `${i.name} x ${i.quantity} (PKR ${i.price})`)
+                  .join(", "),
+                subtotal:
+                  Number(
+                    subtotalPriceElement.textContent.replace("PKR ", "")
+                  ) || 0,
+                shipping: shippingPrice,
+                total:
+                  Number(totalPriceElement.textContent.replace("PKR ", "")) ||
+                  0,
+                date: new Date().toLocaleString(),
+              };
+
+              console.log("[checkout] placing order", order);
+
+              if (paymentMethod === "card") {
+                const res = await fetch(API_BASE + "/create-checkout-session", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ ...order, cart }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (data && data.url) {
+                  if (window.showMessage)
+                    window.showMessage("Redirecting to Stripe...", "success");
+                  else alert("Redirecting to Stripe...");
+                  try {
+                    localStorage.setItem("lastOrder", JSON.stringify(order));
+                  } catch (_) {}
+                  window.location.href = data.url;
+                  return;
+                }
+                throw new Error(
+                  "Stripe Error: " + (data.error || "Failed to create session")
+                );
+              }
+
+              try {
+                localStorage.setItem("lastOrder", JSON.stringify(order));
+              } catch (_) {}
+              const res = await fetch(API_BASE + "/orders", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(order),
+              });
+              if (!res.ok) {
+                const t = await res.text().catch(() => "");
+                throw new Error(t || "Order failed");
+              }
+
+              alert("Order placed successfully!");
+              cart.length = 0;
+              try {
+                localStorage.setItem("cart", JSON.stringify(cart));
+              } catch (_) {}
+              window.location.href = "success.html?cod=1";
+            } catch (err) {
+              console.error("[checkout] placeOrder error:", err);
+              alert(
+                "Error placing order: " +
+                  (err && err.message ? err.message : err)
+              );
+            } finally {
+              inProgress = false;
+              if (placeBtn) placeBtn.disabled = false;
+            }
+          }
+
+          formEl.addEventListener("submit", placeOrder);
+          if (placeBtn) placeBtn.addEventListener("click", placeOrder);
+        })();
+
+        updateOrderPreview();
+      });
+    </script>
+  </body>
+</html>
