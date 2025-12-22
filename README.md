@@ -10,4 +10,21 @@
 API SheetDB: https://sheetdb.io/api/v1/rxqrvvtgxbndk
              https://sheetdb.io/app/apis
 
-> Note: These links are for reference/documentation purposes only. They are not actively used in the HTML/CSS/JS project.
+## Backend / MongoDB Setup
+
+This project can run with MongoDB (recommended for production). To enable MongoDB support:
+
+1. Create a MongoDB database and get the connection URI (e.g., from MongoDB Atlas). Set it in the backend `.env` as `MONGODB_URI`.
+2. From `backend` run:
+
+```bash
+npm install
+npm run seed    # will import data/products.json into MongoDB
+npm run dev     # run the dev server (nodemon)
+```
+
+If `MONGODB_URI` is not set, the backend will fall back to the existing file-based store under `backend/data/`.
+
+> You can also set `FRONTEND_URL` env var so Stripe and other redirects point to your deployed frontend.
+
+> Note: Make sure to set `STRIPE_SECRET_KEY` and other env variables when running payment flows.

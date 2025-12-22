@@ -666,5 +666,33 @@
     "metaTitle": "",
     "metaDescription": "",
     "createdAt": "2025-12-12T11:03:43.768Z"
+  },
+  {
+    "id": 1766139630290,
+    "name": "Premium Majestic Roman Clock",
+    "price": 1999,
+    "image": "/images/1766139618884-clock.jpg",
+    "category": "wall-clocks",
+    "variants": [],
+    "stock": 12,
+    "status": "active",
+    "slug": "1766139630290",
+    "metaTitle": "",
+    "metaDescription": "",
+    "createdAt": "2025-12-19T10:20:30.290Z"
+  },
+  {
+    "id": 1766139874816,
+    "name": "Eternal Motion – Black & Gold Cyclist Sculpture",
+    "price": 2499,
+    "image": "/images/1766139868966-cycle.jpg",
+    "category": "Accessories",
+    "variants": [],
+    "stock": 10,
+    "status": "active",
+    "slug": "1766139874816",
+    "metaTitle": "",
+    "metaDescription": "",
+    "createdAt": "2025-12-19T10:24:34.816Z"
   }
 ]

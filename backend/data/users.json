@@ -88,5 +88,32 @@
     "password": "$2a$10$3QoIqMf6TJPD.kx5k.ljze49S.MPk6KSl7Uj2lYGZWmHRb1MIqqp2",
     "role": "admin",
     "createdAt": "2025-12-12T09:36:35.059Z"
+  },
+  {
+    "id": 1766131155545,
+    "name": "Saba",
+    "email": "sabazulfiqar@gmail.com",
+    "phone": "03285625474",
+    "password": "$2a$10$e8Uz2hC7mjpXGzi6dAt6Du5VPKsNNaJD.LLS7Juy2BxizNvsqpn62",
+    "role": "admin",
+    "createdAt": "2025-12-19T07:59:15.545Z"
+  },
+  {
+    "id": 1766132474782,
+    "name": "Zunaira",
+    "email": "zunaira@gmail.com",
+    "phone": "03285625474",
+    "password": "$2a$10$yFDt1P.9xpqCTRS6/4Bq2OfOHiNPoxCLt4TacAp8Oj4b41PgIX4si",
+    "role": "admin",
+    "createdAt": "2025-12-19T08:21:14.782Z"
+  },
+  {
+    "id": 1766391547085,
+    "name": "Saba",
+    "email": "sabasaba@gmail.com",
+    "phone": "03285625474",
+    "password": "$2a$10$JC/M7vQdFp4bup33ozVdPuWiwiDq7y7ZBkkcrHT61ZmzSuEqyFnwq",
+    "role": "admin",
+    "createdAt": "2025-12-22T08:19:07.085Z"
   }
 ]

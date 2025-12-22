@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   try {
-    const imagesDir = path.resolve(__dirname, '..', '..', 'images');
+    const imagesDir = path.resolve(__dirname, '..', '..', 'frontend', 'images');
     if (!fs.existsSync(imagesDir)) return res.json([]);
     const files = fs.readdirSync(imagesDir).filter(f => {
       const ext = path.extname(f).toLowerCase();
