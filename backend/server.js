@@ -56,6 +56,7 @@ try {
 // Security
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
+const router = require("./routes/test");
 app.use(helmet());
 app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
 
@@ -77,6 +78,7 @@ app.get("/config-status", (req, res) => {
 // Stripe order details moved to ./routes/payments.js -> paymentsController.stripeOrder
 
 // ------------------- API ROUTES -------------------
+app.use("/api/test", router);
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/products", require("./routes/products"));
