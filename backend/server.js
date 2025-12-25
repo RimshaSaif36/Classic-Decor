@@ -43,15 +43,15 @@ const FX_PKR_TO_USD = Number(
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.resolve(__dirname, "..", "frontend", "dist")));
+// app.use(express.static(path.resolve(__dirname, "..", "frontend", "dist")));
 
-// Serve images from frontend/images at /images
-try {
-  const imagesDir = path.resolve(__dirname, "..", "frontend", "images");
-  if (fs.existsSync(imagesDir)) {
-    app.use("/images", express.static(imagesDir));
-  }
-} catch (_) {}
+// // Serve images from frontend/images at /images
+// try {
+//   const imagesDir = path.resolve(__dirname, "..", "frontend", "images");
+//   if (fs.existsSync(imagesDir)) {
+//     app.use("/images", express.static(imagesDir));
+//   }
+// } catch (_) {}
 
 // Security
 const helmet = require("helmet");
