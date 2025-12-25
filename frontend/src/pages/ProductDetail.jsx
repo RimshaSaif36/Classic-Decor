@@ -51,13 +51,29 @@ export default function ProductDetail() {
     return items && items.length ? items[0] : null;
   }, [items]);
 
+  const availableSizes = useMemo(() => {
+    if (!product) return [];
+    // User requested specific standard options to always be shown
+    return ['Small', 'Medium', 'Large'];
+  }, [product]);
+
+  const availableColors = useMemo(() => {
+    if (!product) return [];
+    // User requested specific standard options to always be shown
+    return ['Transparent', 'Black', 'Silver', 'Golden', 'Golden Black', 'Silver Black'];
+  }, [product]);
+
   useEffect(() => {
     if (!product) return;
-    // sizes/colors may be at top-level or inside variants
-    const vs = Array.isArray(product.sizes) ? product.sizes : (product.variants && product.variants.sizes) ? product.variants.sizes : [];
-    const vc = Array.isArray(product.colors) ? product.colors : (product.variants && product.variants.colors) ? product.variants.colors : [];
-    setSize(vs && Array.isArray(vs) && vs.length ? String(vs[0]) : '');
-    setColor(vc && Array.isArray(vc) && vc.length ? String(vc[0]) : '');
+    
+    // Initialize state if not already set or if switching products
+    // Use the computed available options
+    const vs = availableSizes;
+    const vc = availableColors;
+
+    setSize(prev => prev || (vs && vs.length ? String(vs[0]) : ''));
+    setColor(prev => prev || (vc && vc.length ? String(vc[0]) : ''));
+    
     (async () => {
       try {
         const r = await fetch(API_BASE + '/api/reviews?productId=' + encodeURIComponent(product.id) + '&onlyApproved=true');
@@ -74,7 +90,7 @@ export default function ProductDetail() {
         if (Array.isArray(list)) setRelated(list);
       } catch { void 0; }
     })();
-  }, [product]);
+  }, [product, availableSizes, availableColors]);
 
   function addToCartDetail(p) {
     const sizeLabel = String(size || '');
@@ -172,19 +188,19 @@ export default function ProductDetail() {
               <p className="product-price">PKR {Number(product.price) || 0}</p>
 
               <div className="product-options">
-                {(product.variants && Array.isArray(product.variants.sizes) && product.variants.sizes.length > 0) && (
+                {availableSizes.length > 0 && (
                   <div className="option-group">
                     <label>Size</label>
                     <select value={size} onChange={e=>setSize(e.target.value)}>
-                      {product.variants.sizes.map(s => <option key={s} value={s}>{s}</option>)}
+                      {availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                   </div>
                 )}
-                {(product.variants && Array.isArray(product.variants.colors) && product.variants.colors.length > 0) && (
+                {availableColors.length > 0 && (
                   <div className="option-group">
                     <label>Color</label>
                     <select value={color} onChange={e=>setColor(e.target.value)}>
-                      {product.variants.colors.map(c => <option key={c} value={c}>{c}</option>)}
+                      {availableColors.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 )}

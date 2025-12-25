@@ -105,6 +105,8 @@ export default function Checkout() {
               {cart.map(i => (
                 <div className="checkout-cart-item" key={i.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, padding: '6px 0', borderBottom: '1px solid #eee' }}>
                   <div className="item-name">{i.name} x {i.quantity || 1}</div>
+                  {i.size && <div className="item-size">Size: {i.size}</div>}
+                  {i.color && <div className="item-color">Color: {i.color}</div>}
                   <div className="item-price">PKR {(Number(i.price)||0) * (i.quantity||1)}</div>
                 </div>
               ))}

@@ -126,6 +126,27 @@
     "createdAt": "2025-12-02T10:01:00.000Z"
   },
   {
+    "id": 2000000001002,
+    "name": "3D Crystals Acrylic Mirrors",
+    "price": 999,
+    "image": "images/3D-Crystals-Acrylic-Mirrors.jpg",
+    "category": "wall-mirrors",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
+    "stock": 10,
+    "status": "active",
+    "slug": "3d-crystals-acrylic-mirrors",
+    "metaTitle": "3D Crystals Acrylic Mirrors",
+    "metaDescription": "Stunning 3D crystal acrylic mirrors.",
+    "createdAt": "2025-12-02T10:01:10.000Z"
+  },
+  {
     "id": 2000000001003,
     "name": "Ornate Wall Mirror",
     "price": 9800,
@@ -192,7 +213,7 @@
     "id": 2000000002002,
     "name": "Modern Gear Wall Clock",
     "price": 7200,
-    "image": "images/Acrylic Wall Clocks with 12 inches needles.jpg",
+    "image": "images/Acrylic-Wall-Clocks-with-12-inches-needles.jpg",
     "category": "wall-clocks",
     "variants": {
       "sizes": [
@@ -213,7 +234,7 @@
     "id": 2000000002003,
     "name": "Transparent Acrylic Clock",
     "price": 6500,
-    "image": "images/Large Acrylic Decorative Wall Clocks.jpg",
+    "image": "images/Large-Acrylic-Decorative-Wall-Clocks.jpg",
     "category": "wall-clocks",
     "variants": {
       "sizes": [
@@ -234,7 +255,7 @@
     "id": 2000000003001,
     "name": "Custom Name Plate Small",
     "price": 3500,
-    "image": "images/Acrylic Name Plates.jpg",
+    "image": "images/Acrylic-Name-Plates.jpg",
     "category": "name-plates",
     "variants": {
       "sizes": [
@@ -318,7 +339,7 @@
     "id": 2000000004002,
     "name": "Collage Photo Frame",
     "price": 5200,
-    "image": "images/Five Frames Tree 3D art Decor for Walls.jpg",
+    "image": "images/Five-Frames-Tree-3D-art-Decor-for-Walls.jpg",
     "category": "photo-frames",
     "variants": {
       "sizes": [
@@ -500,13 +521,13 @@
     "status": "active",
     "slug": "wall-organizer-shelf",
     "metaTitle": "Wall Organizer Shelf",
-    "metaDescription": "Organizer shelf for home.",
+    "metaDescription": "Shelf for organizing items.",
     "createdAt": "2025-12-02T10:06:20.000Z"
   },
   {
     "id": 2000000006004,
-    "name": "Decorative Wall Shelf",
-    "price": 6100,
+    "name": "Floating Bookshelf",
+    "price": 6200,
     "image": "images/P11.jpg",
     "category": "shelves",
     "variants": {
@@ -514,42 +535,21 @@
         "Medium 16 inches"
       ],
       "colors": [
-        "Silver"
-      ]
-    },
-    "stock": 7,
-    "status": "active",
-    "slug": "decorative-wall-shelf",
-    "metaTitle": "Decorative Wall Shelf",
-    "metaDescription": "Display shelf for decor.",
-    "createdAt": "2025-12-02T10:06:30.000Z"
-  },
-  {
-    "id": 2000000006005,
-    "name": "Floating Display Shelf",
-    "price": 4700,
-    "image": "images/P12.jpg",
-    "category": "shelves",
-    "variants": {
-      "sizes": [
-        "Small 12 inches"
-      ],
-      "colors": [
         "Black"
       ]
     },
-    "stock": 10,
+    "stock": 9,
     "status": "active",
-    "slug": "floating-display-shelf",
-    "metaTitle": "Floating Display Shelf",
-    "metaDescription": "Compact display shelf.",
-    "createdAt": "2025-12-02T10:06:40.000Z"
+    "slug": "floating-bookshelf",
+    "metaTitle": "Floating Bookshelf",
+    "metaDescription": "Modern floating bookshelf.",
+    "createdAt": "2025-12-02T10:06:30.000Z"
   },
   {
     "id": 2000000007001,
-    "name": "Acrylic Flower Vase Small",
-    "price": 2900,
-    "image": "images/Acrylic Flower Vases.jpg",
+    "name": "Modern Flower Vase",
+    "price": 3800,
+    "image": "images/P3.jpg",
     "category": "vases",
     "variants": {
       "sizes": [
@@ -559,39 +559,18 @@
         "Transparent"
       ]
     },
-    "stock": 20,
+    "stock": 15,
     "status": "active",
-    "slug": "acrylic-flower-vase-small",
-    "metaTitle": "Acrylic Flower Vase Small",
-    "metaDescription": "Elegant small vase.",
+    "slug": "modern-flower-vase",
+    "metaTitle": "Modern Flower Vase",
+    "metaDescription": "Elegant flower vase.",
     "createdAt": "2025-12-02T10:07:00.000Z"
   },
   {
-    "id": 2000000007003,
-    "name": "Tube Inlay Vase",
-    "price": 5200,
-    "image": "images/P11.jpg",
-    "category": "vases",
-    "variants": {
-      "sizes": [
-        "Medium 16 inches"
-      ],
-      "colors": [
-        "Silver"
-      ]
-    },
-    "stock": 9,
-    "status": "active",
-    "slug": "tube-inlay-vase",
-    "metaTitle": "Tube Inlay Vase",
-    "metaDescription": "Modern tube inlay vase.",
-    "createdAt": "2025-12-02T10:07:20.000Z"
-  },
-  {
-    "id": 2000000007005,
-    "name": "Decorative Acrylic Vase",
-    "price": 4100,
-    "image": "images/P9.jpg",
+    "id": 2000000007002,
+    "name": "Geometric Vase",
+    "price": 4200,
+    "image": "images/P8.jpg",
     "category": "vases",
     "variants": {
       "sizes": [
@@ -601,57 +580,61 @@
         "Golden/Black"
       ]
     },
-    "stock": 12,
+    "stock": 10,
     "status": "active",
-    "slug": "decorative-acrylic-vase",
-    "metaTitle": "Decorative Acrylic Vase",
-    "metaDescription": "Decorative vase for interiors.",
-    "createdAt": "2025-12-02T10:07:40.000Z"
+    "slug": "geometric-vase",
+    "metaTitle": "Geometric Vase",
+    "metaDescription": "Stylish geometric vase.",
+    "createdAt": "2025-12-02T10:07:10.000Z"
   },
   {
-    "id": 1765532633813,
-    "name": "Desk name plates",
-    "price": 2500,
-    "image": "/images/1765532614426-nameplate.jpg",
-    "category": "name-plates",
-    "variants": {
-      "sizes": [],
-      "colors": []
-    },
-    "stock": 0,
-    "status": "active",
-    "slug": "1765532633813",
-    "metaTitle": "",
-    "metaDescription": "",
-    "createdAt": "2025-12-12T09:43:53.813Z"
-  },
-  {
-    "id": 1765533151846,
-    "name": "Mouse Shaped Custom Wall Decor",
-    "price": 2000,
-    "image": "/images/1765533128224-mouseshaped.jpg",
-    "category": "kids-decor",
+    "id": 2000000007003,
+    "name": "Minimalist Bud Vase",
+    "price": 2900,
+    "image": "images/P1.jpg",
+    "category": "vases",
     "variants": {
       "sizes": [
         "Small 12 inches"
       ],
       "colors": [
-        "Silver/Black"
+        "Silver"
       ]
     },
-    "stock": 0,
+    "stock": 20,
     "status": "active",
-    "slug": "1765533151846",
-    "metaTitle": "",
-    "metaDescription": "",
-    "createdAt": "2025-12-12T09:52:31.846Z"
+    "slug": "minimalist-bud-vase",
+    "metaTitle": "Minimalist Bud Vase",
+    "metaDescription": "Small bud vase.",
+    "createdAt": "2025-12-02T10:07:20.000Z"
   },
   {
-    "id": 1765537423768,
-    "name": "Flower Vase Book Shaped Vase",
-    "price": 3500,
-    "image": "/images/1765537411257-bookShapedVase.jpg",
-    "category": "vases",
+    "id": 2000000008001,
+    "name": "Decorative Tray",
+    "price": 3400,
+    "image": "images/P2.jpg",
+    "category": "accessories",
+    "variants": {
+      "sizes": [
+        "Small 12 inches"
+      ],
+      "colors": [
+        "Golden/Black"
+      ]
+    },
+    "stock": 18,
+    "status": "active",
+    "slug": "decorative-tray",
+    "metaTitle": "Decorative Tray",
+    "metaDescription": "Elegant decorative tray.",
+    "createdAt": "2025-12-02T10:08:00.000Z"
+  },
+  {
+    "id": 2000000008002,
+    "name": "Acrylic Coaster Set",
+    "price": 2500,
+    "image": "images/P10.jpg",
+    "category": "accessories",
     "variants": {
       "sizes": [
         "Small 12 inches"
@@ -660,39 +643,77 @@
         "Transparent"
       ]
     },
-    "stock": 0,
+    "stock": 25,
     "status": "active",
-    "slug": "1765537423768",
-    "metaTitle": "",
-    "metaDescription": "",
-    "createdAt": "2025-12-12T11:03:43.768Z"
+    "slug": "acrylic-coaster-set",
+    "metaTitle": "Acrylic Coaster Set",
+    "metaDescription": "Set of acrylic coasters.",
+    "createdAt": "2025-12-02T10:08:10.000Z"
   },
   {
-    "id": 1766139630290,
-    "name": "Premium Majestic Roman Clock",
-    "price": 1999,
-    "image": "/images/1766139618884-clock.jpg",
-    "category": "wall-clocks",
-    "variants": [],
+    "id": 2000000008003,
+    "name": "Jewelry Stand",
+    "price": 4800,
+    "image": "images/P12.jpg",
+    "category": "accessories",
+    "variants": {
+      "sizes": [
+        "Medium 16 inches"
+      ],
+      "colors": [
+        "Silver"
+      ]
+    },
     "stock": 12,
     "status": "active",
-    "slug": "1766139630290",
-    "metaTitle": "",
-    "metaDescription": "",
-    "createdAt": "2025-12-19T10:20:30.290Z"
+    "slug": "jewelry-stand",
+    "metaTitle": "Jewelry Stand",
+    "metaDescription": "Acrylic jewelry stand.",
+    "createdAt": "2025-12-02T10:08:20.000Z"
   },
   {
-    "id": 1766139874816,
-    "name": "Eternal Motion – Black & Gold Cyclist Sculpture",
+    "id": 1766485474386,
+    "name": "Bird Acrylic Wall Art",
     "price": 2499,
-    "image": "/images/1766139868966-cycle.jpg",
-    "category": "Accessories",
+    "image": "images/acrylic wall art.jpg",
+    "category": "wall-art",
     "variants": [],
     "stock": 10,
     "status": "active",
-    "slug": "1766139874816",
+    "slug": "1766485474386",
     "metaTitle": "",
     "metaDescription": "",
-    "createdAt": "2025-12-19T10:24:34.816Z"
+    "description": "Elegant bird acrylic wall art that adds a modern and artistic touch to any space.",
+    "createdAt": "2025-12-23T10:24:34.386Z"
+  },
+  {
+    "id": 1766672066946,
+    "name": "Bird Acrylic Wall Art",
+    "price": 2499,
+    "image": "/images/1766671947858-1766485389189-bird.jpg",
+    "category": "wall-art",
+    "variants": [],
+    "stock": 50,
+    "status": "active",
+    "slug": "1766672066946",
+    "metaTitle": "",
+    "metaDescription": "",
+    "description": "Elevate your home or office with this stunning Bird Acrylic Wall Art—a beautiful blend of contemporary design and nature-inspired charm. Crafted with high-quality acrylic, this piece brings depth, clarity, and a vibrant finish that captivates attention from every angle.",
+    "createdAt": "2025-12-25T14:14:26.946Z"
+  },
+  {
+    "id": 1766674276288,
+    "name": "Bird Acrylic Wall Art",
+    "price": 2499,
+    "image": "/images/1766674250734-1766485389189-bird.jpg",
+    "category": "wall-art",
+    "variants": [],
+    "stock": 50,
+    "status": "active",
+    "slug": "1766674276288",
+    "metaTitle": "",
+    "metaDescription": "",
+    "description": "Elevate your home or office with this stunning Bird Acrylic Wall Art—a beautiful blend of contemporary design and nature-inspired charm. Crafted with high-quality acrylic, this piece brings depth, clarity, and a vibrant finish that captivates attention from every angle.",
+    "createdAt": "2025-12-25T14:51:16.288Z"
   }
 ]

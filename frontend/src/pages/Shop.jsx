@@ -133,21 +133,20 @@ export default function Shop() {
   return (
     <>
       <Header />
-      <div className="bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold tracking-tight" style={{color: '#d4af37'}}>Shop Our Collection</h1>
-            <p className="mt-4 max-w-2xl mx-auto text-lg text-gray-500">
+      <div className="shop-container">
+        <div className="shop-header">
+          <h1 className="shop-title">Shop Our Collection</h1>
+          <p className="shop-subtitle">
               Find the perfect acrylic decor to elevate your space.
             </p>
-          </div>
+        </div>
 
-          {/* Filters */}
-          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Filters */}
+        <div className="filters-section">
+            <div className="filter-grid">
               {/* Search */}
               <div>
-                <label htmlFor="search" className="block text-sm font-medium text-gray-700">Search</label>
+                <label htmlFor="search" className="filter-label">Search</label>
                 <input
                   type="text"
                   id="search"
@@ -155,18 +154,18 @@ export default function Shop() {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') applyFilters(); }}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                  className="filter-input"
                 />
               </div>
 
               {/* Category */}
               <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
+                <label htmlFor="category" className="filter-label">Category</label>
                 <select
                   id="category"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                  className="filter-input"
                 >
                   <option value="">All Categories</option>
                   {categories.map(cat => (
@@ -179,12 +178,12 @@ export default function Shop() {
 
               {/* Sort By */}
               <div>
-                <label htmlFor="sort" className="block text-sm font-medium text-gray-700">Sort By</label>
+                <label htmlFor="sort" className="filter-label">Sort By</label>
                 <select
                   id="sort"
                   value={sort}
                   onChange={(e) => setSort(e.target.value)}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500"
+                  className="filter-input"
                 >
                   <option value="newest">Newest</option>
                   <option value="price_asc">Price: Low to High</option>
@@ -193,13 +192,12 @@ export default function Shop() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex items-end space-x-3">
+              <div className="filter-actions">
                 <button
                     onClick={applyFilters}
-                    style={{backgroundColor: '#d4af37'}}
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                    className="apply-btn"
                   >
-                  Apply
+                  Apply Filters
                 </button>
                 <button
                     onClick={() => {
@@ -214,85 +212,89 @@ export default function Shop() {
                       qs.set('sort', 'newest');
                       window.history.pushState({}, '', '?' + qs.toString());
                     }}
-                    style={{borderColor: '#d4af37', color: '#d4af37'}}
-                    className="w-full flex justify-center py-2 px-4 border rounded-md shadow-sm text-sm font-medium bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                    className="reset-btn"
                   >
-                  Reset
+                  Reset Filters
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Products Grid */}
-          {loading ? (
-            <div className="text-center py-20">Loading products...</div>
-          ) : error ? (
-            <div className="text-center py-20 text-red-500">Error: {error}</div>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {/* Products Grid */}
+        {loading ? (
+          <div className="loading-state">Loading products...</div>
+        ) : error ? (
+          <div className="error-state">Error: {error}</div>
+        ) : (
+          <>
+            <div className="products-grid">
                 {filtered.map(p => (
-                  <div key={p.id} className="group relative bg-white border rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300">
-                    <div className="w-full h-56 bg-gray-200 overflow-hidden">
-                      <a href={`/product/${encodeURIComponent(p.id)}`} className="block w-full h-full">
+                  <div key={p.id} className="shop-product-card">
+                    <div className="product-image-wrapper">
+                      <a href={`/product/${encodeURIComponent(p.id)}`} className="product-link">
                         <img
                           src={imgUrl(p.image)}
                           alt={p.name}
-                          className="w-full h-full object-cover object-center group-hover:opacity-75 transition-opacity"
+                          className="product-img"
                         />
                       </a>
+                      <div className="product-overlay-action">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            addToCart(p);
+                          }}
+                          className="quick-add-btn"
+                        >
+                          <i className="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+                      </div>
                     </div>
-                    <div className="p-4 flex flex-col">
-                      <h3 className="text-base font-semibold flex-grow" style={{color: '#d4af37'}}>
+                    <div className="product-info">
+                      <h3 className="product-title">
                         <a href={`/product/${encodeURIComponent(p.id)}`}>
                           {p.name}
                         </a>
                       </h3>
-                      <p className="mt-2 text-lg font-bold text-gray-900">PKR {Number(p.price) || 0}</p>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          addToCart(p);
-                        }}
-                        style={{backgroundColor: '#d4af37'}}
-                        className="mt-4 w-full text-white py-2 px-4 rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
-                      >
-                        Add to Cart
-                      </button>
+                      <p className="product-price">PKR {Number(p.price).toLocaleString()}</p>
+                      <div className="product-actions">
+                        <a href={`/product/${encodeURIComponent(p.id)}`} className="view-details-btn">
+                          View Details
+                        </a>
+                      </div>
                     </div>
                   </div>
                 ))}
-              </div>
+            </div>
 
-              {filtered.length === 0 && (
-                <div className="text-center py-20">
-                  <h3 className="text-2xl font-semibold" style={{color: '#d4af37'}}>No Products Found</h3>
-                  <p className="mt-2 text-gray-500">Try adjusting your filters or search term.</p>
-                </div>
-              )}
-
-              {/* Pagination */}
-              <div className="flex justify-center items-center gap-4 mt-12">
-                <button
-                  onClick={() => setPage(Math.max(1, page - 1))}
-                  disabled={page <= 1 || loading}
-                  className="px-4 py-2 border rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-gray-700">Page {page}</span>
-                <button
-                  onClick={() => setPage(page + 1)}
-                  disabled={filtered.length < limit || loading}
-                  className="px-4 py-2 border rounded-md bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
+            {filtered.length === 0 && (
+              <div className="no-products-found">
+                <h3>No Products Found</h3>
+                <p>Try adjusting your filters or search term.</p>
               </div>
-            </>
-          )}
-        </div>
+            )}
+
+            {/* Pagination */}
+            <div className="pagination-controls">
+              <button
+                onClick={() => setPage(Math.max(1, page - 1))}
+                disabled={page <= 1 || loading}
+                className="pagination-btn"
+              >
+                ← Previous
+              </button>
+              <span className="pagination-info">Page {page}</span>
+              <button
+                onClick={() => setPage(page + 1)}
+                disabled={filtered.length < limit || loading}
+                className="pagination-btn"
+              >
+                Next →
+              </button>
+            </div>
+          </>
+        )}
       </div>
       <Footer />
     </>

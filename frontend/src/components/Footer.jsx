@@ -3,7 +3,10 @@ export default function Footer() {
     <footer>
       <div className="footer-container">
         <div className="footer-column">
-          <h3 className="logo-text">Classic Decor</h3>
+          <div className="footer-logo">
+            <img src="/images/brandlogo.png" alt="The Classic Decor Logo" className="footer-logo-img" />
+            <span className="footer-logo-text"></span>
+          </div>
           <p>
             Your trusted destination for premium acrylic home décor. Explore
             modern wall art, elegant mirrors, clocks, and customized designs
@@ -15,23 +18,65 @@ export default function Footer() {
           <ul>
             <li><a href="/about">About Us</a></li>
             <li><a href="/contact">Contact Us</a></li>
-            <li><a href="#">Shipping & Returns</a></li>
-            <li><a href="#">FAQ</a></li>
+            <li><a href="/shipping-returns">Shipping & Returns</a></li>
+            <li><a href="/faq">FAQ</a></li>
           </ul>
         </div>
         <div className="footer-column">
           <h3>Legal</h3>
           <ul>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
           </ul>
         </div>
         <div className="footer-column">
           <h3>Stay Connected</h3>
           <div className="social-media">
-            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
-            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path></svg></a>
+            <a 
+              href="https://www.facebook.com/people/The-Classic-Decor/61585245614907/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Follow us on Facebook"
+              aria-label="Facebook"
+            >
+              <i className="fab fa-facebook-f"></i>
+            </a>
+            <a 
+              href="https://www.instagram.com/theclassicdecorofficial/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Follow us on Instagram"
+              aria-label="Instagram"
+            >
+              <i className="fab fa-instagram"></i>
+            </a>
+            <a 
+              href="https://www.tiktok.com/@theclassicdecorofficial?lang=en" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Follow us on TikTok"
+              aria-label="TikTok"
+            >
+              <i className="fab fa-tiktok"></i>
+            </a>
+            <a 
+              href="https://www.youtube.com/@TheClassicDecor" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Subscribe on YouTube"
+              aria-label="YouTube"
+            >
+              <i className="fab fa-youtube"></i>
+            </a>
+            <a 
+              href="https://www.linkedin.com/company/theclassicdecor/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Connect on LinkedIn"
+              aria-label="LinkedIn"
+            >
+              <i className="fab fa-linkedin-in"></i>
+            </a>
           </div>
           <div className="newsletter">
             <p>Sign up for our newsletter to get the latest updates.</p>
@@ -43,7 +88,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; 2025 Classic Decor. All Rights Reserved.</p>
+        <p>&copy; 2025 The Classic Decor. All Rights Reserved.</p>
       </div>
     </footer>
   );

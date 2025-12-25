@@ -17,7 +17,7 @@ async function listProducts(req, res) {
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.max(1, Number(req.query.limit) || 24);
 
-  if (ProductModel && mongoose.connection.readyState === 1) {
+  if (ProductModel && req.app.locals.dbConnected) {
     const filter = { status: "active" };
     if (q) filter.$text = { $search: q };
     if (category) filter.category = category;
@@ -83,7 +83,7 @@ async function listProducts(req, res) {
 
 async function getProduct(req, res) {
   const id = req.params.id;
-  if (ProductModel && mongoose.connection.readyState === 1) {
+  if (ProductModel && req.app.locals.dbConnected) {
     const numeric = Number(id);
     const q = isNaN(numeric)
       ? { slug: id }
@@ -108,7 +108,7 @@ async function getProduct(req, res) {
 async function relatedProducts(req, res) {
   const id = req.params.id;
   try {
-    if (ProductModel && mongoose.connection.readyState === 1) {
+    if (ProductModel && req.app.locals.dbConnected) {
       const main = await ProductModel.findOne({
         $or: [{ slug: id }, { id: Number(id) }],
       }).lean();
@@ -143,7 +143,7 @@ async function relatedProducts(req, res) {
 
 async function listFeaturedProducts(req, res) {
   try {
-    if (ProductModel && mongoose.connection.readyState === 1) {
+    if (ProductModel && req.app.locals.dbConnected) {
       const featured = await ProductModel.find({
         isFeatured: true,
         status: "active",
@@ -165,9 +165,59 @@ async function listFeaturedProducts(req, res) {
   }
 }
 
+async function createProduct(req, res) {
+  const p = req.body || {};
+  if (ProductModel && req.app.locals.dbConnected) {
+    try {
+      const product = await ProductModel.create({
+        name: p.name || "Untitled",
+        price: Number(p.price) || 0,
+        image: p.image || "",
+        category: p.category || "",
+        variants: p.variants || [],
+        stock: Number(p.stock) || 0,
+        status: p.status || "active",
+        slug: p.slug || String(Date.now()),
+        metaTitle: p.metaTitle || "",
+        metaDescription: p.metaDescription || "",
+        description: p.description || "",
+      });
+      return res.status(201).json(product);
+    } catch (err) {
+      console.error(
+        "[products] db create error:",
+        err && err.message ? err.message : err
+      );
+      return res.status(500).json({ error: "Failed to create product" });
+    }
+  }
+
+  const products = read("products");
+  const id = Date.now();
+  const product = {
+    id,
+    name: p.name || "Untitled",
+    price: Number(p.price) || 0,
+    image: p.image || "",
+    category: p.category || "",
+    variants: p.variants || [],
+    stock: Number(p.stock) || 0,
+    status: p.status || "active",
+    slug: p.slug || String(id),
+    metaTitle: p.metaTitle || "",
+    metaDescription: p.metaDescription || "",
+    description: p.description || "",
+    createdAt: new Date().toISOString(),
+  };
+  products.push(product);
+  write("products", products);
+  res.status(201).json(product);
+}
+
 module.exports = {
   listProducts,
   getProduct,
   relatedProducts,
   listFeaturedProducts,
+  createProduct,
 };

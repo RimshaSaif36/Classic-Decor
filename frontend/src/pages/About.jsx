@@ -8,10 +8,10 @@ export default function About() {
       <Header />
       <CategoryNav />
       <main>
-        <section className="about-overlay-section" aria-label="About Classic Decor">
+        <section className="about-overlay-section" aria-label="About The Classic Decor">
           <div className="about-overlay">
             <div className="about-card">
-              <h2>About Classic Decor</h2>
+              <h2>About The Classic Decor</h2>
               <p>
                 Our culture is founded on partnership, respect, and passion. From
                 the designer who crafts fresh ideas, to the makers who bring them

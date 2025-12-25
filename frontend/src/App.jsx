@@ -12,6 +12,10 @@ import Admin from './pages/Admin.jsx'
 import ProductDetail from './pages/ProductDetail.jsx'
 import Success from './pages/Success.jsx';
 import Profile from './pages/Profile.jsx';
+import FAQ from './pages/FAQ.jsx';
+import ShippingReturns from './pages/ShippingReturns.jsx';
+import TermsOfService from './pages/TermsOfService.jsx';
+import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 
 function App() {
   return (
@@ -29,6 +33,11 @@ function App() {
         <Route path="/success" element={<Success />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/shipping-returns" element={<ShippingReturns />} />
+        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
       </Routes>
     </BrowserRouter>
   )

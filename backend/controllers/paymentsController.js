@@ -1,4 +1,5 @@
 const Stripe = require('stripe');
+const Joi = require('joi');
 const fetch = (...args) => import('node-fetch').then(({ default: f }) => f(...args));
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const stripe = STRIPE_SECRET_KEY ? new Stripe(STRIPE_SECRET_KEY) : null;

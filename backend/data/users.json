@@ -115,5 +115,23 @@
     "password": "$2a$10$JC/M7vQdFp4bup33ozVdPuWiwiDq7y7ZBkkcrHT61ZmzSuEqyFnwq",
     "role": "admin",
     "createdAt": "2025-12-22T08:19:07.085Z"
+  },
+  {
+    "id": 1766477118699,
+    "name": "hyper",
+    "email": "hyper@gmail.com",
+    "phone": "038635245676",
+    "password": "$2a$10$5B5zjFsL5jt2Mu69WMNeien.EcYnFsNzmwZQvODEFDQc8SQ6LSAem",
+    "role": "user",
+    "createdAt": "2025-12-23T08:05:18.699Z"
+  },
+  {
+    "id": 1766570169362,
+    "name": "Zubair",
+    "email": "zubair@gmail.com",
+    "phone": "03285625474",
+    "password": "$2a$10$M3FRrQnEX5YE0mfrxJNHTu0BfzGbc6O8oeEasCrHhozd13TXyd7x6",
+    "role": "user",
+    "createdAt": "2025-12-24T09:56:09.362Z"
   }
 ]
