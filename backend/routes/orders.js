@@ -6,7 +6,7 @@ const {
   checkTransaction,
   myOrders,
   updateOrder,
-  deleteOrder
+  deleteOrder,
 } = require("../controllers/ordersController");
 const { requireAuth, requireAdmin } = require("../middleware/auth");
 

@@ -57,18 +57,20 @@ const rateLimit = require("express-rate-limit");
 const router = require("./routes/test");
 
 // Configure helmet to allow images and other media
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:", "http:"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https:"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https:"],
-      connectSrc: ["'self'", "https:", "http:"]
-    }
-  }
-}));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:", "http:"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https:"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "https:"],
+        connectSrc: ["'self'", "https:", "http:"],
+      },
+    },
+  })
+);
 app.use(rateLimit({ windowMs: 60 * 1000, max: 300 }));
 
 // ------------------- HEALTH CHECK -------------------

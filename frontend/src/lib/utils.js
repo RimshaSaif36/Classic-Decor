@@ -1,4 +1,3 @@
-
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 export function imgUrl(path) {
@@ -10,14 +9,14 @@ export function imgUrl(path) {
   }
   // Normalize path separators
   let sanitizedPath = path.replace(/\\/g, "/");
-  
+
   // Remove leading slashes
-  sanitizedPath = sanitizedPath.replace(/^\/+/, '');
-  
+  sanitizedPath = sanitizedPath.replace(/^\/+/, "");
+
   // If path doesn't start with 'images/', prepend it
-  if (!sanitizedPath.startsWith('images/')) {
-    sanitizedPath = 'images/' + sanitizedPath;
+  if (!sanitizedPath.startsWith("images/")) {
+    sanitizedPath = "images/" + sanitizedPath;
   }
-  
+
   return `${API_URL}/${sanitizedPath}`;
 }
