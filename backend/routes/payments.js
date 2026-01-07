@@ -1,10 +1,11 @@
 const express = require('express');
-const { createCheckoutSession, stripeSuccess, stripeOrder } = require('../controllers/paymentsController');
+const { payfastInitiate, payfastReturn, payfastNotify } = require('../controllers/paymentsController');
 
 const router = express.Router();
 
-router.post('/create-checkout-session', createCheckoutSession);
-router.get('/stripe-success', stripeSuccess);
-router.get('/stripe-order', stripeOrder);
+// PayFast endpoints
+router.post('/payfast/initiate', payfastInitiate);
+router.get('/payfast/return', payfastReturn);
+router.post('/payfast/notify', payfastNotify);
 
 module.exports = router;

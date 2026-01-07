@@ -126,27 +126,6 @@
     "createdAt": "2025-12-02T10:01:00.000Z"
   },
   {
-    "id": 2000000001002,
-    "name": "3D Crystals Acrylic Mirrors",
-    "price": 999,
-    "image": "images/3D-Crystals-Acrylic-Mirrors.jpg",
-    "category": "wall-mirrors",
-    "variants": {
-      "sizes": [
-        "Small 12 inches"
-      ],
-      "colors": [
-        "Silver"
-      ]
-    },
-    "stock": 10,
-    "status": "active",
-    "slug": "3d-crystals-acrylic-mirrors",
-    "metaTitle": "3D Crystals Acrylic Mirrors",
-    "metaDescription": "Stunning 3D crystal acrylic mirrors.",
-    "createdAt": "2025-12-02T10:01:10.000Z"
-  },
-  {
     "id": 2000000001003,
     "name": "Ornate Wall Mirror",
     "price": 9800,
@@ -210,69 +189,6 @@
     "createdAt": "2025-12-02T10:02:00.000Z"
   },
   {
-    "id": 2000000002002,
-    "name": "Modern Gear Wall Clock",
-    "price": 7200,
-    "image": "images/Acrylic-Wall-Clocks-with-12-inches-needles.jpg",
-    "category": "wall-clocks",
-    "variants": {
-      "sizes": [
-        "Large 18 inches"
-      ],
-      "colors": [
-        "Golden/Black"
-      ]
-    },
-    "stock": 6,
-    "status": "active",
-    "slug": "modern-gear-wall-clock",
-    "metaTitle": "Modern Gear Wall Clock",
-    "metaDescription": "Large statement wall clock.",
-    "createdAt": "2025-12-02T10:02:10.000Z"
-  },
-  {
-    "id": 2000000002003,
-    "name": "Transparent Acrylic Clock",
-    "price": 6500,
-    "image": "images/Large-Acrylic-Decorative-Wall-Clocks.jpg",
-    "category": "wall-clocks",
-    "variants": {
-      "sizes": [
-        "Medium 16 inches"
-      ],
-      "colors": [
-        "Transparent"
-      ]
-    },
-    "stock": 7,
-    "status": "active",
-    "slug": "transparent-acrylic-clock",
-    "metaTitle": "Transparent Acrylic Clock",
-    "metaDescription": "Minimal clear clock.",
-    "createdAt": "2025-12-02T10:02:20.000Z"
-  },
-  {
-    "id": 2000000003001,
-    "name": "Custom Name Plate Small",
-    "price": 3500,
-    "image": "images/Acrylic-Name-Plates.jpg",
-    "category": "name-plates",
-    "variants": {
-      "sizes": [
-        "Small 12 inches"
-      ],
-      "colors": [
-        "Silver"
-      ]
-    },
-    "stock": 20,
-    "status": "active",
-    "slug": "custom-name-plate-small",
-    "metaTitle": "Custom Name Plate Small",
-    "metaDescription": "Personalized acrylic name plate.",
-    "createdAt": "2025-12-02T10:03:00.000Z"
-  },
-  {
     "id": 2000000003003,
     "name": "Door Name Plate",
     "price": 3800,
@@ -334,27 +250,6 @@
     "metaTitle": "Classic Photo Frame",
     "metaDescription": "Elegant photo frame.",
     "createdAt": "2025-12-02T10:04:00.000Z"
-  },
-  {
-    "id": 2000000004002,
-    "name": "Collage Photo Frame",
-    "price": 5200,
-    "image": "images/Five-Frames-Tree-3D-art-Decor-for-Walls.jpg",
-    "category": "photo-frames",
-    "variants": {
-      "sizes": [
-        "Medium 16 inches"
-      ],
-      "colors": [
-        "Black"
-      ]
-    },
-    "stock": 8,
-    "status": "active",
-    "slug": "collage-photo-frame",
-    "metaTitle": "Collage Photo Frame",
-    "metaDescription": "Multi-frame collage.",
-    "createdAt": "2025-12-02T10:04:10.000Z"
   },
   {
     "id": 2000000004003,
@@ -685,35 +580,5 @@
     "metaDescription": "",
     "description": "Elegant bird acrylic wall art that adds a modern and artistic touch to any space.",
     "createdAt": "2025-12-23T10:24:34.386Z"
-  },
-  {
-    "id": 1766672066946,
-    "name": "Bird Acrylic Wall Art",
-    "price": 2499,
-    "image": "/images/1766671947858-1766485389189-bird.jpg",
-    "category": "wall-art",
-    "variants": [],
-    "stock": 50,
-    "status": "active",
-    "slug": "1766672066946",
-    "metaTitle": "",
-    "metaDescription": "",
-    "description": "Elevate your home or office with this stunning Bird Acrylic Wall Art—a beautiful blend of contemporary design and nature-inspired charm. Crafted with high-quality acrylic, this piece brings depth, clarity, and a vibrant finish that captivates attention from every angle.",
-    "createdAt": "2025-12-25T14:14:26.946Z"
-  },
-  {
-    "id": 1766674276288,
-    "name": "Bird Acrylic Wall Art",
-    "price": 2499,
-    "image": "/images/1766674250734-1766485389189-bird.jpg",
-    "category": "wall-art",
-    "variants": [],
-    "stock": 50,
-    "status": "active",
-    "slug": "1766674276288",
-    "metaTitle": "",
-    "metaDescription": "",
-    "description": "Elevate your home or office with this stunning Bird Acrylic Wall Art—a beautiful blend of contemporary design and nature-inspired charm. Crafted with high-quality acrylic, this piece brings depth, clarity, and a vibrant finish that captivates attention from every angle.",
-    "createdAt": "2025-12-25T14:51:16.288Z"
   }
 ]

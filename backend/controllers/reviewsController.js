@@ -55,9 +55,24 @@ async function createReview(req, res) {
     if (!productId) return res.status(400).json({ error: 'productId required' });
     if (!comment) return res.status(400).json({ error: 'comment required' });
 
+    // If user is authenticated, auto-approve; otherwise mark as pending for moderation
+    const isAuth = req.user && req.user.id;
+    const status = isAuth ? 'approved' : 'pending';
+    const approvedAt = isAuth ? new Date() : null;
+
     if (ReviewModel && mongoose.connection.readyState === 1) {
       const now = new Date();
-      const r = new ReviewModel({ productId, rating, title, comment, name, userId: req.user && req.user.id && String(req.user.id).match(/^[0-9a-fA-F]{24}$/) ? req.user.id : null, status: 'approved', createdAt: now, approvedAt: now });
+      const r = new ReviewModel({
+        productId,
+        rating,
+        title,
+        comment,
+        name,
+        userId: isAuth && String(req.user.id).match(/^[0-9a-fA-F]{24}$/) ? req.user.id : null,
+        status,
+        createdAt: now,
+        approvedAt
+      });
       await r.save();
       return res.status(201).json(r);
     }
@@ -73,9 +88,9 @@ async function createReview(req, res) {
       comment,
       name,
       userId: body.userId || null,
-      status: 'approved',
+      status,
       createdAt: now,
-      approvedAt: now
+      approvedAt: approvedAt ? now : null
     };
     arr.push(review);
     write('reviews', arr);
@@ -86,4 +101,61 @@ async function createReview(req, res) {
   }
 }
 
-module.exports = { listReviews, getSummary, createReview };
+// Admin: update review (e.g., approve/reject)
+async function updateReview(req, res) {
+  try {
+    const id = req.params.id;
+    const body = req.body || {};
+
+    if (ReviewModel && mongoose.connection.readyState === 1) {
+      const updates = { ...body };
+      if (updates.status === 'approved') updates.approvedAt = new Date();
+      const conds = [];
+      if (mongoose.Types.ObjectId.isValid(id)) conds.push({ _id: id });
+      const numeric = Number(id);
+      if (!isNaN(numeric)) conds.push({ id: numeric });
+      const query = conds.length > 1 ? { $or: conds } : conds[0];
+      const updated = await ReviewModel.findOneAndUpdate(query, updates, { new: true }).lean();
+      if (!updated) return res.status(404).json({ error: 'Not found' });
+      return res.json(updated);
+    }
+
+    const list = read('reviews') || [];
+    const idx = list.findIndex(r => String(r.id) === String(id));
+    if (idx === -1) return res.status(404).json({ error: 'Not found' });
+    list[idx] = { ...list[idx], ...body };
+    if (list[idx].status === 'approved' && !list[idx].approvedAt) list[idx].approvedAt = new Date().toISOString();
+    write('reviews', list);
+    res.json(list[idx]);
+  } catch (e) {
+    console.error('[reviews] update error', e && e.message ? e.message : e);
+    res.status(500).json({ error: 'Failed' });
+  }
+}
+
+// Admin: delete review
+async function deleteReview(req, res) {
+  try {
+    const id = req.params.id;
+    if (ReviewModel && mongoose.connection.readyState === 1) {
+      const conds = [];
+      if (mongoose.Types.ObjectId.isValid(id)) conds.push({ _id: id });
+      const numeric = Number(id);
+      if (!isNaN(numeric)) conds.push({ id: numeric });
+      const query = conds.length > 1 ? { $or: conds } : conds[0];
+      const result = await ReviewModel.deleteOne(query);
+      if (result.deletedCount === 0) return res.status(404).json({ error: 'Not found' });
+      return res.status(204).end();
+    }
+
+    const list = read('reviews') || [];
+    const next = list.filter(r => String(r.id) !== String(id));
+    write('reviews', next);
+    res.status(204).end();
+  } catch (e) {
+    console.error('[reviews] delete error', e && e.message ? e.message : e);
+    res.status(500).json({ error: 'Failed' });
+  }
+}
+
+module.exports = { listReviews, getSummary, createReview, updateReview, deleteReview }

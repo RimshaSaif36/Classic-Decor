@@ -83,49 +83,80 @@ async function listProducts(req, res) {
 
 async function getProduct(req, res) {
   const id = req.params.id;
+  
+  // Try MongoDB first if connected
   if (ProductModel && req.app.locals.dbConnected) {
-    const numeric = Number(id);
-    const q = isNaN(numeric)
-      ? { slug: id }
-      : { $or: [{ id: numeric }, { slug: id }] };
     try {
+        const conds = [];
+      if (mongoose.Types.ObjectId.isValid(id)) conds.push({ _id: id });
+      const numeric = Number(id);
+      if (!isNaN(numeric)) conds.push({ id: numeric });
+      conds.push({ slug: id });
+      const q = conds.length > 1 ? { $or: conds } : conds[0];
       const p = await ProductModel.findOne(q).lean();
-      if (!p) return res.status(404).json({ error: "Not found" });
-      return res.json(p);
+      if (p) return res.json(p);
+      // If not found in MongoDB, fall through to JSON
     } catch (e) {
-      console.error("[products] get error", e && e.message ? e.message : e);
-      return res.status(500).json({ error: "Failed" });
+      console.error("[products] get error (db)", e && e.message ? e.message : e);
+      // Continue to JSON fallback on error
     }
   }
-  const products = read("products") || [];
-  const found = products.find(
-    (p) => String(p.id) === String(id) || String(p.slug) === String(id)
-  );
-  if (!found) return res.status(404).json({ error: "Not found" });
-  res.json(found);
+  
+  // Fallback to JSON file
+  try {
+    const products = read("products") || [];
+    const found = products.find(
+      (p) => String(p.id) === String(id) || String(p.slug) === String(id)
+    );
+    if (!found) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+    return res.json(found);
+  } catch (e) {
+    console.error("[products] get error (file)", e && e.message ? e.message : e);
+    return res.status(500).json({ error: "Failed to fetch product" });
+  }
 }
 
 async function relatedProducts(req, res) {
   const id = req.params.id;
   try {
+    // Try MongoDB first if connected
     if (ProductModel && req.app.locals.dbConnected) {
-      const main = await ProductModel.findOne({
-        $or: [{ slug: id }, { id: Number(id) }],
-      }).lean();
-      if (!main) return res.json([]);
-      const filter = {
-        _id: { $ne: main._id },
-        status: "active",
-        $or: [{ category: main.category }, { tags: { $in: main.tags || [] } }],
-      };
-      const related = await ProductModel.find(filter).limit(8).lean();
-      return res.json(related);
+      try {
+        const conds = [];
+        if (mongoose.Types.ObjectId.isValid(id)) conds.push({ _id: id });
+        const numeric = Number(id);
+        if (!isNaN(numeric)) conds.push({ id: numeric });
+        conds.push({ slug: id });
+        const q = conds.length > 1 ? { $or: conds } : conds[0];
+        const main = await ProductModel.findOne(q).lean();
+        if (main) {
+          const filter = {
+            _id: { $ne: main._id },
+            status: "active",
+            $or: [
+              { category: main.category },
+              { tags: { $in: main.tags || [] } }
+            ]
+          };
+          const related = await ProductModel.find(filter).limit(8).lean();
+          return res.json(related);
+        }
+        // If not found, fall through to JSON
+      } catch (e) {
+        console.error("[products] related db error", e && e.message ? e.message : e);
+        // Continue to JSON fallback
+      }
     }
+    
+    // Fallback to JSON file
     const products = read("products") || [];
     const main = products.find(
       (p) => String(p.id) === String(id) || String(p.slug) === String(id)
     );
     if (!main) return res.json([]);
+    
     const related = products
       .filter(
         (p) =>
@@ -137,7 +168,7 @@ async function relatedProducts(req, res) {
     return res.json(related);
   } catch (e) {
     console.error("[products] related error", e && e.message ? e.message : e);
-    return res.status(500).json({ error: "Failed" });
+    return res.status(500).json({ error: "Failed to load related products" });
   }
 }
 

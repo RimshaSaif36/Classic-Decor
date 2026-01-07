@@ -14,6 +14,8 @@ export default function Checkout() {
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [city, setCity] = useState('');
   const [payment, setPayment] = useState('cod');
   const [senderNumber, setSenderNumber] = useState('');
   const [transactionId, setTransactionId] = useState('');
@@ -34,6 +36,27 @@ export default function Checkout() {
     } catch { void 0; }
   }, [cart]);
 
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+      if (!token) return;
+      fetch(API_BASE + '/api/users/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(u => {
+          if (u && typeof u === 'object') {
+            if (u.name) setName(prev => prev || u.name);
+            if (u.email) setEmail(prev => prev || u.email);
+            if (u.phone) setPhone(prev => prev || u.phone);
+            if (u.address) setAddress(prev => prev || u.address);
+            if (u.city) setCity(prev => prev || u.city);
+          }
+        })
+        .catch(() => void 0);
+    } catch { void 0; }
+  }, []);
+
   async function placeOrder(e){
     e.preventDefault();
     if (!Array.isArray(cart) || cart.length === 0) return alert('Your cart is empty');
@@ -42,8 +65,13 @@ export default function Checkout() {
     }
     setPlacing(true);
     try {
+      const cleanEmail = String(email || '').trim();
+      const cleanPhone = String(phone || '').replace(/[^\d+]/g, '').trim();
+      const cleanName = String(name || '').trim();
+      const cleanAddress = String(address || '').trim();
+      const cleanCity = String(city || '').trim();
       const payload = {
-        name, address, phone,
+        name: cleanName, address: cleanAddress, city: cleanCity, phone: cleanPhone, email: cleanEmail,
         payment,
         senderNumber: payment === 'card' || payment === 'cod' ? '' : senderNumber,
         transactionId: payment === 'card' || payment === 'cod' ? '' : transactionId,
@@ -54,9 +82,9 @@ export default function Checkout() {
         createdAt: new Date().toISOString(),
       };
 
-      // If payment is Card (Stripe), create a checkout session and redirect
+      // If payment is Card (PayFast), initiate and redirect
       if (payment === 'card') {
-        const r = await fetch(API_BASE + '/create-checkout-session', {
+        const r = await fetch(API_BASE + '/payfast/initiate', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, cart })
         });
         const data = await r.json().catch(() => ({}));
@@ -65,23 +93,31 @@ export default function Checkout() {
           window.location.href = data.url;
           return;
         }
-        const errMsg = (data && data.error) ? data.error : 'Failed to create Stripe session';
-        alert('Stripe Error: ' + errMsg);
+        const errMsg = (data && data.error) ? data.error : 'Failed to initiate PayFast';
+        alert('PayFast Error: ' + errMsg);
         return;
       }
 
-      // Fallback: create regular order (COD / JazzCash / EasyPaisa)
-      const r = await fetch(API_BASE + '/orders', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+      // Create regular order (COD / JazzCash / EasyPaisa) via authenticated API
+      const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+      const r = await fetch(API_BASE + '/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload)
       });
       if (!r.ok) {
         const t = await r.text().catch(()=> '');
-        alert(t || 'Failed to place order');
+        let msg = t;
+        try {
+          const j = JSON.parse(t);
+          msg = (j && j.error) ? j.error : t;
+        } catch { void 0; }
+        alert(msg || 'Failed to place order');
         return;
       }
       alert('Order placed successfully');
       setCart([]);
-      setName(''); setAddress(''); setPhone(''); setPayment('cod'); setSenderNumber(''); setTransactionId('');
+      setName(''); setAddress(''); setCity(''); setPhone(''); setEmail(''); setPayment('cod'); setSenderNumber(''); setTransactionId('');
     } catch (err) {
       console.error(err);
       alert('Failed to place order');
@@ -120,16 +156,20 @@ export default function Checkout() {
 
           <form id="checkout-form" className="checkout-form" onSubmit={placeOrder}>
             <h3>Billing Details</h3>
-            <div className="form-group"><label>Name</label><input value={name} onChange={e=>setName(e.target.value)} required /></div>
-            <div className="form-group"><label>Address</label><input value={address} onChange={e=>setAddress(e.target.value)} required /></div>
-            <div className="form-group"><label>Phone</label><input value={phone} onChange={e=>setPhone(e.target.value)} required /></div>
-            <div className="form-group"><label>Payment Option</label>
-              <select value={payment} onChange={e=>setPayment(e.target.value)}>
-                <option value="cod">Cash on Delivery</option>
-                <option value="jazzcash">JazzCash</option>
-                <option value="easypaisa">EasyPaisa</option>
-                <option value="card">Card (Stripe)</option>
-              </select>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+              <div className="form-group"><label>Name</label><input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} required /></div>
+              <div className="form-group"><label>Email</label><input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)} required /></div>
+              <div className="form-group"><label>Address</label><input placeholder="Street, area" value={address} onChange={e=>setAddress(e.target.value)} required /></div>
+              <div className="form-group"><label>City</label><input placeholder="City" value={city} onChange={e=>setCity(e.target.value)} required /></div>
+              <div className="form-group"><label>Phone</label><input placeholder="03XXXXXXXXX" value={phone} onChange={e=>setPhone(e.target.value)} required /></div>
+              <div className="form-group"><label>Payment Option</label>
+                <select value={payment} onChange={e=>setPayment(e.target.value)}>
+                  <option value="cod">Cash on Delivery</option>
+                  <option value="jazzcash">JazzCash</option>
+                  <option value="easypaisa">EasyPaisa</option>
+                  <option value="card">Card (PayFast)</option>
+                </select>
+              </div>
             </div>
             {(payment === 'jazzcash' || payment === 'easypaisa') && (
               <div style={{ marginTop: 15 }}>

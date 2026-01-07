@@ -31,27 +31,25 @@ export default function Success() {
   }
 
   useEffect(() => {
-    const sessionId = params.get('session_id')
-    if (sessionId) {
-      fetch(`/stripe-order?session_id=${encodeURIComponent(sessionId)}`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data && data.payment_status === 'paid') {
-            setOrder(data.order || {})
-            clearCart()
-          } else {
-            setMessage('Payment not completed. Please try again.')
-          }
-        })
-        .catch(() => setMessage('Unable to fetch order details.'))
-    } else {
-      if (initialOrderRef.current) {
-        // order already initialized from localStorage — clear cart
+    const cancel = params.get('cancel')
+    const pfReturn = params.get('pf_return')
+    const mPaymentId = params.get('m_payment_id')
+    if (cancel) {
+      setTimeout(() => {
+        setOrder(null)
+        setMessage('Payment cancelled. No charge was made.')
+      }, 0)
+    } else if (pfReturn || mPaymentId) {
+      setTimeout(() => {
+        setOrder(initialOrderRef.current)
         clearCart()
-      } else {
-        // defer setState to avoid synchronous update inside effect
-        setTimeout(() => setMessage('Order details unavailable.'), 0)
-      }
+      }, 0)
+    } else if (initialOrderRef.current) {
+      setTimeout(() => {
+        clearCart()
+      }, 0)
+    } else {
+      setTimeout(() => setMessage('Order details unavailable.'), 0)
     }
     // remove session id from URL
     try { window.history.replaceState(null, '', window.location.pathname) } catch (e) { void e }
@@ -100,7 +98,7 @@ export default function Success() {
       <Header />
       <main>
         <section className="shop-products" style={{ padding: '2rem 1rem' }}>
-          <h2>Order Placed Successfully</h2>
+          <h2>{order ? 'Order Placed Successfully' : 'Payment Status'}</h2>
           <div style={{ maxWidth: 800, margin: '1rem auto', background: '#fff', border: '1px solid #eee', borderRadius: 8, padding: '1rem 1.25rem' }}>
             {order ? renderSummary(order) : <p>{message}</p>}
           </div>

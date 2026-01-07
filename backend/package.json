@@ -7,13 +7,16 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "seed": "node scripts/seedProducts.js",
-    "seed:all": "node scripts/seedProducts.js && node scripts/seedUsersAndReviews.js"
+    "seed:all": "node scripts/seedProducts.js && node scripts/seedUsersAndReviews.js",
+    "test:mongo": "node scripts/testMongoConnection.js",
+    "migrate:mongo": "node scripts/migrateToMongo.js"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.8.0",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.19.2",

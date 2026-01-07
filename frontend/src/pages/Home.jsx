@@ -4,16 +4,11 @@ import Footer from "../components/Footer";
 import { API_BASE } from "../lib/config";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { imgUrl } from "../lib/utils";
 
 function starText(n) {
   const s = Math.max(1, Math.min(5, Number(n) || 0));
   return "★".repeat(s) + "☆".repeat(5 - s);
-}
-
-function imgUrl(src) {
-  const s = String(src || "");
-  if (!s) return "";
-  return s.startsWith("/") ? s : "/" + s;
 }
 
 function initials(name) {
@@ -85,7 +80,7 @@ export default function Home() {
     if (!latest.length) return;
     const id = setInterval(() => {
       if (!paused) setRi((prev) => (prev + 1) % latest.length);
-    }, 5000);
+    }, 2000);
     return () => clearInterval(id);
   }, [latest.length, paused]);
 
@@ -132,7 +127,7 @@ export default function Home() {
               {featuredProducts.map((p) => (
                 <div className="product-item" key={p.id}>
                   <Link
-                    to={`/product/${p.id}`}
+                    to={`/product/${p._id || p.id}`}
                     className="product-image-wrapper"
                   >
                     <img
@@ -229,7 +224,7 @@ export default function Home() {
           <div className="slider-track">
             {newArrivals.map((p, i) => (
               <div className="slide" key={i}>
-                <Link to={`/product/${p.id}`}>
+                <Link to={`/product/${p._id || p.id}`}>
                   <img src={imgUrl(p.image)} alt={p.name} />
                 </Link>
               </div>
@@ -276,9 +271,11 @@ export default function Home() {
             <div className="carousel-row">
               {visible.map((rev, i) => {
                 const isCenter = latest.length >= 3 && i === 1;
-                const prod = products.find(
-                  (p) => String(p.id) === String(rev.productId)
-                );
+                const pid = String(rev.productId || '');
+                const prod = products.find((p) => {
+                  const candidates = [p._id, p.id, p.slug].map(v => String(v || ''));
+                  return candidates.includes(pid);
+                });
                 return (
                   <div
                     className={`carousel-card ${isCenter ? "center" : ""}`}

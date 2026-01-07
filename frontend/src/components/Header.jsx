@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { API_BASE } from '../lib/config';
+import { imgUrl } from '../lib/utils';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -46,6 +48,10 @@ export default function Header() {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('cart');
+      try {
+        window.dispatchEvent(new CustomEvent('cart-updated', { detail: { total: 0 } }));
+      } catch { void 0; }
       setUser(null);
       window.location.href = '/';
     } catch { void 0; }
@@ -72,7 +78,8 @@ export default function Header() {
           id="search-button"
           className="search-button"
           aria-label="Open search"
-          onClick={() => setOpen(true)}
+          aria-expanded={open ? 'true' : 'false'}
+          onClick={() => setOpen(v => !v)}
         >
           <svg
             aria-hidden="true"
@@ -91,6 +98,12 @@ export default function Header() {
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
         </button>
+        {open && (
+          <InlineSearch
+            onSubmit={(q) => { if (!q) return; window.location.href = `/shop?q=${encodeURIComponent(q)}`; }}
+            onClose={() => setOpen(false)}
+          />
+        )}
         {!user ? (
           <Link to="/login" className="icon-btn" title="Account">
             <i className="fa-regular fa-user"></i>
@@ -111,41 +124,7 @@ export default function Header() {
         </Link>
       </div>
 
-      {open && (
-        <div id="search-overlay" className="search-overlay open" aria-hidden="false" onClick={(e) => { if (e.target === e.currentTarget) setOpen(false); }}>
-          <div className="search-panel">
-            <button
-              id="search-close"
-              className="search-close"
-              aria-label="Close search"
-              onClick={() => setOpen(false)}
-            >
-              &times;
-            </button>
-            <form
-              id="search-form"
-              className="search-form"
-              role="search"
-              onSubmit={(e) => {
-                e.preventDefault();
-                const q = new FormData(e.currentTarget).get('q');
-                if (!q) return setOpen(false);
-                window.location.href = `/shop?q=${encodeURIComponent(q)}`;
-              }}
-            >
-              <input
-                id="search-input"
-                type="search"
-                name="q"
-                placeholder="Search products, categories..."
-                aria-label="Search"
-                autoComplete="off"
-              />
-              <button type="submit" className="search-submit">Search</button>
-            </form>
-          </div>
-        </div>
-      )}
+      
 
       {menuOpen && (
         <div className="mobile-drawer open" onClick={(e) => { if (e.target === e.currentTarget) setMenuOpen(false); }}>
@@ -185,5 +164,172 @@ export default function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function SearchBox({ onSubmit }) {
+  const [q, setQ] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch(API_BASE + '/api/categories');
+        const list = await r.json();
+        if (!cancelled) setCategories(Array.isArray(list) ? list : []);
+      } catch { void 0; }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+  useEffect(() => {
+    if (!q || q.trim().length < 2) { setProducts([]); return; }
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const r = await fetch(API_BASE + '/api/products?q=' + encodeURIComponent(q) + '&limit=6', { signal: ctrl.signal });
+        const list = await r.json();
+        setProducts(Array.isArray(list) ? list : []);
+      } catch { void 0; }
+      finally { setLoading(false); }
+    }, 250);
+    return () => { clearTimeout(t); ctrl.abort(); };
+  }, [q]);
+  const matches = (() => {
+    const s = String(q || '').toLowerCase();
+    return (categories || [])
+      .map(c => ({ name: c.name || '', id: c.id || c.name || '' }))
+      .filter(c => c.name.toLowerCase().includes(s))
+      .slice(0, 5);
+  })();
+  return (
+    <form
+      id="search-form"
+      className="search-form"
+      role="search"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const qq = q.trim();
+        if (!qq) return;
+        onSubmit(qq);
+      }}
+    >
+      <input
+        id="search-input"
+        type="search"
+        name="q"
+        placeholder="Search products, categories..."
+        aria-label="Search"
+        autoComplete="off"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+      />
+      <div className="search-results">
+        <div className="search-columns">
+          <div className="search-suggestions">
+            <div className="results-title">Suggestions</div>
+            {q && matches.length === 0 && (
+              <div className="empty-note">No suggestions</div>
+            )}
+            {matches.map(m => (
+              <Link key={m.id} to={`/shop?q=${encodeURIComponent(m.name)}`} className="suggestion-item">
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <span>{m.name}</span>
+              </Link>
+            ))}
+          </div>
+          <div className="search-products">
+            <div className="results-title">Products</div>
+            {loading && <div className="loading-note">Searching…</div>}
+            {!loading && q && products.length === 0 && (
+              <div className="empty-note">No products found</div>
+            )}
+            {products.map(p => (
+              <Link
+                key={p._id || p.id || p.slug}
+                to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}
+                className="product-result"
+              >
+                <img className="product-thumb" src={imgUrl(p.image)} alt={p.name} />
+                <div className="product-meta">
+                  <div className="product-name">{p.name}</div>
+                  <div className="product-price">PKR {Number(p.price) || 0}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+        {q && (
+          <Link to={`/shop?q=${encodeURIComponent(q)}`} className="search-all">
+            Search for "{q}"
+          </Link>
+        )}
+      </div>
+      <button type="submit" className="search-submit">Search</button>
+    </form>
+  );
+}
+
+function InlineSearch({ onSubmit, onClose }) {
+  const [q, setQ] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [products, setProducts] = useState([]);
+  useEffect(() => {
+    if (!q || q.trim().length < 2) { setProducts([]); return; }
+    const ctrl = new AbortController();
+    const t = setTimeout(async () => {
+      try {
+        setLoading(true);
+        const r = await fetch(API_BASE + '/api/products?q=' + encodeURIComponent(q) + '&limit=5', { signal: ctrl.signal });
+        const list = await r.json();
+        setProducts(Array.isArray(list) ? list : []);
+      } catch { void 0; }
+      finally { setLoading(false); }
+    }, 200);
+    return () => { clearTimeout(t); ctrl.abort(); };
+  }, [q]);
+  return (
+    <div className="inline-search">
+      <input
+        className="inline-search-input"
+        type="search"
+        placeholder="Search products…"
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Escape') onClose(); if (e.key === 'Enter') { const qq = q.trim(); if (qq) { onSubmit(qq); onClose(); } } }}
+      />
+      <button className="inline-search-go" onClick={() => { const qq = q.trim(); if (qq) { onSubmit(qq); onClose(); } }}>
+        <i className="fa-solid fa-magnifying-glass"></i>
+      </button>
+      {q && (
+        <div className="inline-search-dropdown">
+          {loading && <div className="inline-note">Searching…</div>}
+          {!loading && products.length === 0 && (
+            <div className="inline-note">No products</div>
+          )}
+          {products.map(p => (
+            <Link
+              key={p._id || p.id || p.slug}
+              to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}
+              className="inline-result"
+              onClick={onClose}
+            >
+              <img src={imgUrl(p.image)} alt={p.name} className="inline-thumb" />
+              <div className="inline-meta">
+                <div className="inline-name">{p.name}</div>
+                <div className="inline-price">PKR {Number(p.price) || 0}</div>
+              </div>
+            </Link>
+          ))}
+          {products.length > 0 && (
+            <Link className="inline-all" to={`/shop?q=${encodeURIComponent(q)}`} onClick={onClose}>
+              See all results
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

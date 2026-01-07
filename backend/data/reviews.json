@@ -46,17 +46,6 @@
     "status": "approved",
     "createdAt": "2025-12-19T07:57:19.125Z",
     "approvedAt": "2025-12-19T07:57:19.125Z"
-  },
-  {
-    "id": 1766551846035,
-    "productId": "2000000005004",
-    "rating": 5,
-    "title": "Perfect Organizer for Daily Use",
-    "comment": "This jewelry stand is compact yet holds a lot. No more tangled necklaces—everything is easy to access and well displayed.",
-    "name": "Sohaib Ahmed",
-    "userId": null,
-    "status": "approved",
-    "createdAt": "2025-12-24T04:50:46.035Z",
-    "approvedAt": "2025-12-24T04:50:46.035Z"
   }
+  
 ]

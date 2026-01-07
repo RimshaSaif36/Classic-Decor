@@ -3,13 +3,8 @@ import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-
-function imgUrl(src) {
-  const s = String(src || '');
-  if (!s) return '';
-  return s.startsWith('/') ? s : '/' + s;
-}
+import { Link, useParams } from 'react-router-dom';
+import { imgUrl } from '../lib/utils';
 
 export default function Categories() {
   const { id } = useParams();
@@ -25,7 +20,8 @@ export default function Categories() {
     (async () => {
       try {
         setLoading(true);
-        const r = await fetch(API_BASE + '/api/products');
+        const key = encodeURIComponent(String(id || '').toLowerCase());
+        const r = await fetch(API_BASE + '/api/products?category=' + key + '&limit=1000');
         const list = await r.json();
         if (!cancelled) setItems(Array.isArray(list) ? list : []);
       } catch {
@@ -35,7 +31,7 @@ export default function Categories() {
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [id]);
 
   const filtered = useMemo(() => {
     const key = String(id || '').toLowerCase();
@@ -92,7 +88,7 @@ export default function Categories() {
                   <h3>{p.name}</h3>
                   <p className="price">PKR {Number(p.price) || 0}</p>
                   <div className="product-actions">
-                    <a className="view-details" href={`/product/${encodeURIComponent(p.id)}`}>View Details</a>
+                    <Link className="view-details" to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}>View Details</Link>
                     <button className="add-to-cart" onClick={() => addToCart(p)}>Add to Cart</button>
                   </div>
                 </div>

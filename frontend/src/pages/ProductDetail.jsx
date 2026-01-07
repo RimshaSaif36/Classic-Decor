@@ -4,12 +4,7 @@ import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-
-function imgUrl(src) {
-  const s = String(src || '');
-  if (!s) return '';
-  return s.startsWith('/') ? s : '/' + s;
-}
+import { imgUrl } from '../lib/utils';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -76,7 +71,8 @@ export default function ProductDetail() {
     
     (async () => {
       try {
-        const r = await fetch(API_BASE + '/api/reviews?productId=' + encodeURIComponent(product.id) + '&onlyApproved=true');
+        const pid = product._id || product.id || product.slug;
+        const r = await fetch(API_BASE + '/api/reviews?productId=' + encodeURIComponent(pid) + '&onlyApproved=true');
         const list = await r.json();
         setReviews(Array.isArray(list) ? list : []);
       } catch { void 0; }
@@ -85,7 +81,8 @@ export default function ProductDetail() {
     // fetch related products
     (async () => {
       try {
-        const r = await fetch(API_BASE + '/api/products/' + encodeURIComponent(product.id) + '/related');
+        const pid = product._id || product.id || product.slug;
+        const r = await fetch(API_BASE + '/api/products/' + encodeURIComponent(pid) + '/related');
         const list = await r.json();
         if (Array.isArray(list)) setRelated(list);
       } catch { void 0; }
@@ -142,7 +139,7 @@ export default function ProductDetail() {
     e.preventDefault();
     if (!product) return;
     const payload = {
-      productId: product.id,
+      productId: product._id || product.id || product.slug,
       name: revForm.name || 'Anonymous',
       rating: Number(revForm.rating) || 5,
       title: revForm.title || '',
@@ -156,13 +153,17 @@ export default function ProductDetail() {
         return;
       }
       const created = await r.json();
-      setReviews(prev => [created, ...prev]);
       setRevForm({ name: '', rating: 5, title: '', comment: '' });
-      const m = document.createElement('div');
-      m.className = 'cart-message success';
-      m.textContent = 'Review submitted';
-      document.body.appendChild(m);
-      setTimeout(() => m.remove(), 2500);
+      if (created.status && String(created.status).toLowerCase() === 'pending') {
+        alert('Review submitted and is pending approval');
+      } else {
+        setReviews(prev => [created, ...prev]);
+        const m = document.createElement('div');
+        m.className = 'cart-message success';
+        m.textContent = 'Review submitted';
+        document.body.appendChild(m);
+        setTimeout(() => m.remove(), 2500);
+      }
     } catch { alert('Failed to submit review'); }
   }
 
@@ -246,8 +247,8 @@ export default function ProductDetail() {
                     <h3>{p.name}</h3>
                     <p className="price">PKR {Number(p.price) || 0}</p>
                     <div className="product-actions">
-                      <a className="view-details" href={`/product/${encodeURIComponent(p.id)}`}>View Details</a>
-                      <button className="add-to-cart" onClick={() => addToCartDetail(p)}>Add to Cart</button>
+                      <a className="view-details" href={`/product/${encodeURIComponent(p._id || p.id)}`}>View Details</a>
+                    <button className="add-to-cart" onClick={() => addToCartDetail(p)}>Add to Cart</button>
                     </div>
                   </div>
                 ))}

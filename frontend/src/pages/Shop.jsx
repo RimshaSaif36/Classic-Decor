@@ -2,13 +2,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
-
-function imgUrl(src) {
-  const s = String(src || '');
-  if (!s) return '';
-  return s.startsWith('/') ? s : '/' + s;
-}
+import { Link, useSearchParams } from 'react-router-dom';
+import { imgUrl } from '../lib/utils';
 
 export default function Shop() {
   const [items, setItems] = useState([]);
@@ -231,13 +226,13 @@ export default function Shop() {
                 {filtered.map(p => (
                   <div key={p.id} className="shop-product-card">
                     <div className="product-image-wrapper">
-                      <a href={`/product/${encodeURIComponent(p.id)}`} className="product-link">
+                      <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="product-link">
                         <img
                           src={imgUrl(p.image)}
                           alt={p.name}
                           className="product-img"
                         />
-                      </a>
+                      </Link>
                       <div className="product-overlay-action">
                         <button
                           onClick={(e) => {
@@ -253,15 +248,15 @@ export default function Shop() {
                     </div>
                     <div className="product-info">
                       <h3 className="product-title">
-                        <a href={`/product/${encodeURIComponent(p.id)}`}>
+                        <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}>
                           {p.name}
-                        </a>
+                        </Link>
                       </h3>
                       <p className="product-price">PKR {Number(p.price).toLocaleString()}</p>
                       <div className="product-actions">
-                        <a href={`/product/${encodeURIComponent(p.id)}`} className="view-details-btn">
+                        <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="view-details-btn">
                           View Details
-                        </a>
+                        </Link>
                       </div>
                     </div>
                   </div>

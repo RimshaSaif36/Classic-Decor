@@ -2,6 +2,7 @@ import Header from '../components/Header';
 import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { useEffect, useMemo, useState } from 'react';
+import { imgUrl } from '../lib/utils';
 
 function formatPrice(n) {
   return Number(n || 0);
@@ -63,7 +64,7 @@ export default function Cart() {
               {cart.map(i => (
                 <div className="cart-item-row" key={i.id}>
                   <div className="product-info-cell">
-                    <img src={String(i.image || '')} alt={i.name} title={i.name} />
+                    <img src={imgUrl(i.image)} alt={i.name} title={i.name} />
                     <div className="item-name">{i.name}</div>
                   </div>
                   <div className="item-price">PKR {formatPrice(i.price)}</div>
