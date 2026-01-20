@@ -26,17 +26,14 @@ async function createOrder(req, res) {
 
     console.log(
       "[orders] Creating order, MongoDB connected:",
-      mongoose.connection.readyState === 1
+      mongoose.connection.readyState === 1,
     );
     console.log("[orders] Request user:", req.user);
 
     // ALWAYS try MongoDB first if configured
     const OrderModel = getOrderModel();
     console.log("[orders] OrderModel available:", !!OrderModel);
-    console.log(
-      "[orders] MongoDB dbConnected:",
-      req.app.locals.dbConnected
-    );
+    console.log("[orders] MongoDB dbConnected:", req.app.locals.dbConnected);
 
     if (OrderModel && req.app.locals.dbConnected) {
       try {
@@ -76,7 +73,7 @@ async function createOrder(req, res) {
         } catch (mailErr) {
           console.error(
             "[orders] mail send error:",
-            mailErr && mailErr.message ? mailErr.message : mailErr
+            mailErr && mailErr.message ? mailErr.message : mailErr,
           );
         }
         return res.status(201).json(saved);
@@ -102,7 +99,12 @@ async function listOrders(req, res) {
     const OrderModel = getOrderModel();
 
     // Log connection state for debugging
-    console.log("[orders] listOrders called - MongoDB dbConnected:", req.app.locals.dbConnected, "OrderModel:", !!OrderModel);
+    console.log(
+      "[orders] listOrders called - MongoDB dbConnected:",
+      req.app.locals.dbConnected,
+      "OrderModel:",
+      !!OrderModel,
+    );
 
     // If MongoDB is connected, use it
     if (OrderModel && req.app.locals.dbConnected) {
@@ -113,7 +115,9 @@ async function listOrders(req, res) {
       } catch (dbErr) {
         console.error("[orders] MongoDB fetch error:", dbErr.message);
         // Return error instead of silently falling back
-        return res.status(500).json({ error: "Database error: " + dbErr.message });
+        return res
+          .status(500)
+          .json({ error: "Database error: " + dbErr.message });
       }
     }
 
@@ -131,7 +135,7 @@ async function listOrders(req, res) {
           console.log(
             "[orders] Fetched from SHEETDB:",
             Array.isArray(list) ? list.length : 0,
-            "orders"
+            "orders",
           );
           return res.json(Array.isArray(list) ? list : []);
         } else {
@@ -143,7 +147,9 @@ async function listOrders(req, res) {
     }
 
     // If neither DB works, return empty array
-    console.log("[orders] No valid data source available - returning empty array");
+    console.log(
+      "[orders] No valid data source available - returning empty array",
+    );
     return res.json([]);
   } catch (e) {
     console.error("[orders] list error:", e && e.message ? e.message : e);
@@ -209,7 +215,7 @@ async function reportOrders(req, res) {
         ) {
           const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(
             2,
-            "0"
+            "0",
           )}`;
           const v = monthlyMap.get(key);
           monthly.push({
@@ -223,7 +229,7 @@ async function reportOrders(req, res) {
       } catch (dbErr) {
         console.error(
           "[orders] report db error:",
-          dbErr && dbErr.message ? dbErr.message : dbErr
+          dbErr && dbErr.message ? dbErr.message : dbErr,
         );
       }
     }
@@ -245,7 +251,7 @@ async function reportOrders(req, res) {
           if (dt < start12m) return;
           const dKey = dt.toISOString().slice(0, 10);
           const mKey = `${dt.getFullYear()}-${String(
-            dt.getMonth() + 1
+            dt.getMonth() + 1,
           ).padStart(2, "0")}`;
           if (dt >= start30) {
             const dv = dailyMap.get(dKey) || { orders: 0, revenue: 0 };
@@ -277,7 +283,7 @@ async function reportOrders(req, res) {
         ) {
           const key = `${m.getFullYear()}-${String(m.getMonth() + 1).padStart(
             2,
-            "0"
+            "0",
           )}`;
           const v = monthlyMap.get(key);
           monthly.push({
@@ -290,7 +296,7 @@ async function reportOrders(req, res) {
       } catch (sheetErr) {
         console.error(
           "[orders] report sheetdb error:",
-          sheetErr && sheetErr.message ? sheetErr.message : sheetErr
+          sheetErr && sheetErr.message ? sheetErr.message : sheetErr,
         );
       }
     }
@@ -386,7 +392,7 @@ async function updateOrder(req, res) {
         items: body.items,
         total: body.total,
       },
-      { new: true }
+      { new: true },
     ).lean();
 
     if (!doc) return res.status(404).json({ error: "Not found" });
