@@ -4,6 +4,7 @@ import Footer from '../components/Footer';
 import AnalyticsCalendar from '../components/AnalyticsCalendar';
 import AnalyticsCharts from '../components/AnalyticsCharts';
 import AnalyticsSummary from '../components/AnalyticsSummary';
+import ReviewsManagement from '../components/ReviewsManagement';
 import { API_BASE } from '../lib/config';
 import { useEffect, useState, useMemo, Fragment } from 'react';
 import { imgUrl } from '../lib/utils';
@@ -362,6 +363,12 @@ export default function Admin() {
                     <i className="fa-solid fa-box"></i> Products
                   </button>
                   <button 
+                    className={`admin-tab ${activeTab === 'reviews' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('reviews')}
+                  >
+                    <i className="fa-solid fa-star"></i> Reviews
+                  </button>
+                  <button 
                     className={`admin-tab ${activeTab === 'reports' ? 'active' : ''}`}
                     onClick={() => setActiveTab('reports')}
                   >
@@ -688,6 +695,17 @@ export default function Admin() {
                         })}
                       </div>
                     </div>
+                  </div>
+                )}
+
+                {/* REVIEWS TAB */}
+                {activeTab === 'reviews' && (
+                  <div className="admin-section">
+                    <h3 className="admin-title">Review Management</h3>
+                    <ReviewsManagement 
+                      token={auth.token}
+                      onReviewUpdate={() => {}}
+                    />
                   </div>
                 )}
 
