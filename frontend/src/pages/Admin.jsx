@@ -1,6 +1,9 @@
 import Header from '../components/Header';
 import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
+import AnalyticsCalendar from '../components/AnalyticsCalendar';
+import AnalyticsCharts from '../components/AnalyticsCharts';
+import AnalyticsSummary from '../components/AnalyticsSummary';
 import { API_BASE } from '../lib/config';
 import { useEffect, useState, useMemo, Fragment } from 'react';
 import { imgUrl } from '../lib/utils';
@@ -692,62 +695,15 @@ export default function Admin() {
                 {activeTab === 'reports' && (
                   <div className="admin-section">
                     <h3 className="admin-title">Order Analytics</h3>
-                    <div className="admin-grid">
-                      <div className="admin-panel">
-                        <h4 className="admin-subtitle">Daily (Last 30 days)</h4>
-                        <div className="admin-table-wrapper">
-                          <table className="admin-table">
-                            <thead>
-                              <tr>
-                                <th>Date</th>
-                                <th>Orders</th>
-                                <th>Revenue</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(report.daily || []).length > 0 ? (
-                                report.daily.map((d) => (
-                                  <tr key={d.date}>
-                                    <td>{d.date}</td>
-                                    <td>{d.orders}</td>
-                                    <td>PKR {Number(d.revenue || 0).toLocaleString()}</td>
-                                  </tr>
-                                ))
-                              ) : (
-                                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px' }}>No data</td></tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                      <div className="admin-panel">
-                        <h4 className="admin-subtitle">Monthly (Last 12 months)</h4>
-                        <div className="admin-table-wrapper">
-                          <table className="admin-table">
-                            <thead>
-                              <tr>
-                                <th>Month</th>
-                                <th>Orders</th>
-                                <th>Revenue</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {(report.monthly || []).length > 0 ? (
-                                report.monthly.map((m) => (
-                                  <tr key={m.month}>
-                                    <td>{m.month}</td>
-                                    <td>{m.orders}</td>
-                                    <td>PKR {Number(m.revenue || 0).toLocaleString()}</td>
-                                  </tr>
-                                ))
-                              ) : (
-                                <tr><td colSpan="3" style={{ textAlign: 'center', padding: '20px' }}>No data</td></tr>
-                              )}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
+                    <AnalyticsSummary 
+                      dailyData={report.daily || []} 
+                      monthlyData={report.monthly || []} 
+                    />
+                    <AnalyticsCharts 
+                      dailyData={report.daily || []} 
+                      monthlyData={report.monthly || []} 
+                    />
+                    <AnalyticsCalendar dailyData={report.daily || []} />
                   </div>
                 )}
               </>

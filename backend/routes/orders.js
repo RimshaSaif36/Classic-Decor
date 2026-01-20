@@ -7,6 +7,7 @@ const {
   myOrders,
   updateOrder,
   deleteOrder,
+  reportOrders,
 } = require("../controllers/ordersController");
 const { requireAuth, requireAdmin } = require("../middleware/auth");
 
@@ -14,6 +15,7 @@ const router = express.Router();
 
 router.post("/", requireAuth, createOrder);
 router.get("/", requireAuth, requireAdmin, listOrders);
+router.get("/report", requireAuth, requireAdmin, reportOrders);
 // Public check endpoint (kept for legacy clients) - must come before /:id
 router.get("/check", checkTransaction);
 router.get("/my", requireAuth, myOrders);
