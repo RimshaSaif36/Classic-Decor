@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { read, write } = require("../utils/store");
+const { sendWelcomeEmail } = require("../utils/mailer");
 const Joi = require("joi");
 const mongoose = require("mongoose");
 let UserModel = null;
@@ -63,6 +64,10 @@ router.post("/register", async (req, res) => {
       const token = jwt.sign({ id: saved.id, role: saved.role }, JWT_SECRET, {
         expiresIn: "7d",
       });
+      // Send welcome email
+      sendWelcomeEmail({ name: saved.name, email: saved.email }).catch(err => 
+        console.error("[auth] Failed to send welcome email:", err.message)
+      );
       return res.json({
         token,
         user: {
@@ -96,6 +101,10 @@ router.post("/register", async (req, res) => {
       };
       users.push(user);
       write("users", users);
+      // Send welcome email
+      sendWelcomeEmail({ name: user.name, email: user.email }).catch(err => 
+        console.error("[auth] Failed to send welcome email:", err.message)
+      );
       const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
         expiresIn: "7d",
       });

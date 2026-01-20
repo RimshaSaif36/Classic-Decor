@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { sendOrderConfirmation } = require("../utils/mailer");
+const { sendOrderConfirmation, sendPaymentConfirmation } = require("../utils/mailer");
 const Joi = require("joi");
 const fetch = (...args) =>
   import("node-fetch").then(({ default: f }) => f(...args));
@@ -69,6 +69,7 @@ async function createOrder(req, res) {
             total: orderData.total,
             items: orderData.items,
             email: orderData.email,
+            orderId: saved._id || saved.id,
           });
         } catch (mailErr) {
           console.error(
@@ -396,6 +397,25 @@ async function updateOrder(req, res) {
     ).lean();
 
     if (!doc) return res.status(404).json({ error: "Not found" });
+    
+    // Send payment confirmation email if payment status is updated to "paid" or "completed"
+    if (body.paymentStatus && (body.paymentStatus === 'paid' || body.paymentStatus === 'completed')) {
+      try {
+        sendPaymentConfirmation({
+          name: doc.name,
+          email: doc.email,
+          total: doc.total,
+          items: doc.items,
+          orderId: doc._id || doc.id,
+          transactionId: doc.transactionId || 'N/A',
+        }).catch(err => {
+          console.error("[orders] Failed to send payment confirmation:", err.message);
+        });
+      } catch (err) {
+        console.error("[orders] Error in payment email:", err.message);
+      }
+    }
+    
     return res.json(doc);
   } catch (e) {
     console.error("[orders] update error:", e && e.message ? e.message : e);
