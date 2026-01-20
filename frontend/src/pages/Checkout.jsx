@@ -36,6 +36,14 @@ export default function Checkout() {
     } catch { void 0; }
   }, [cart]);
 
+  function removeItem(item){
+    setCart(prev => prev.filter(i => !(
+      i.id === item.id &&
+      String(i.size || '') === String(item.size || '') &&
+      String(i.color || '') === String(item.color || '')
+    )));
+  }
+
   useEffect(() => {
     try {
       const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
@@ -144,6 +152,7 @@ export default function Checkout() {
                   {i.size && <div className="item-size">Size: {i.size}</div>}
                   {i.color && <div className="item-color">Color: {i.color}</div>}
                   <div className="item-price">PKR {(Number(i.price)||0) * (i.quantity||1)}</div>
+                  <button onClick={() => removeItem(i)} style={{ justifySelf: 'end', color: '#c62828', background: 'transparent', border: 'none', cursor: 'pointer' }}>Remove</button>
                 </div>
               ))}
             </div>
@@ -167,7 +176,6 @@ export default function Checkout() {
                   <option value="cod">Cash on Delivery</option>
                   <option value="jazzcash">JazzCash</option>
                   <option value="easypaisa">EasyPaisa</option>
-                  <option value="card">Card (PayFast)</option>
                 </select>
               </div>
             </div>

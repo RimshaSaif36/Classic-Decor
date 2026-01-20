@@ -113,7 +113,7 @@ export default function Header() {
           <Link to="/admin" className="action-link" id="nav-admin">Admin</Link>
         )}
         {user && user.name && (
-          <span className="action-text" id="nav-account">Hi, {String(user.name).split(' ')[0]}</span>
+          <Link to="/profile" className="action-link" id="nav-account">Hi, {String(user.name).split(' ')[0]}</Link>
         )}
         {user ? (
           <a href="#" className="action-link" id="nav-logout" onClick={(e)=>{ e.preventDefault(); logout(); }}>Logout</a>

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { API_BASE } from '../lib/config';
+import './Profile.css';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function Profile() {
   const [user, setUser] = useState(() => {
@@ -7,6 +10,11 @@ export default function Profile() {
       return JSON.parse(localStorage.getItem('user') || localStorage.getItem('currentUser') || 'null');
     } catch { return null; }
   });
+  const token = (() => {
+    try {
+      return localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+    } catch { return ''; }
+  })();
   const [orders, setOrders] = useState([]);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -16,9 +24,9 @@ export default function Profile() {
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    if (user && user.token) {
+    if (token) {
       fetch(API_BASE + '/api/users/me', {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
         .then(u => {
@@ -31,7 +39,7 @@ export default function Profile() {
         })
         .catch(() => void 0);
       fetch(API_BASE + '/api/orders/my', {
-        headers: { Authorization: `Bearer ${user.token}` }
+        headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => {
           if (!res.ok) throw new Error('Failed');
@@ -40,13 +48,21 @@ export default function Profile() {
         .then(setOrders)
         .catch(() => setOrders([]));
     }
-  }, [user]);
+  }, [token]);
 
   if (!user) {
     return (
-      <div className="profile-page p-4">
-        <h1 className="text-2xl font-bold">Profile</h1>
-        <p>Please log in to view your profile and order history.</p>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <Header />
+        <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="profile-section" style={{ textAlign: 'center', maxWidth: '500px', margin: '0 auto' }}>
+            <h1 className="profile-title">Profile</h1>
+            <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>
+              Please log in to view your profile and order history.
+            </p>
+          </div>
+        </main>
+        <Footer />
       </div>
     );
   }
@@ -58,7 +74,7 @@ export default function Profile() {
     try {
       const r = await fetch(API_BASE + '/api/users/me', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${user.token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name, phone, address, city })
       });
       const data = await r.json();
@@ -79,47 +95,80 @@ export default function Profile() {
   }
 
   return (
-    <div className="profile-page p-4">
-      <h1 className="text-2xl font-bold">{user.name}'s Profile</h1>
-      <form onSubmit={saveProfile} className="mt-4" style={{ maxWidth: 520 }}>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm mb-1">Name</label>
-            <input value={name} onChange={e=>setName(e.target.value)} className="border p-2 w-full" />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Phone</label>
-            <input value={phone} onChange={e=>setPhone(e.target.value)} className="border p-2 w-full" placeholder="03XXXXXXXXX" />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">Address</label>
-            <input value={address} onChange={e=>setAddress(e.target.value)} className="border p-2 w-full" />
-          </div>
-          <div>
-            <label className="block text-sm mb-1">City</label>
-            <input value={city} onChange={e=>setCity(e.target.value)} className="border p-2 w-full" />
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Header />
+      <main style={{ flex: 1 }}>
+        <div className="profile-section">
+          <div className="profile-container">
+            <div className="profile-header">
+              <h1 className="profile-title">{user.name}'s Profile</h1>
+              <p className="profile-subtitle">Manage your account and view your orders</p>
+            </div>
+            <div className="profile-grid">
+              <div className="profile-card">
+                <form onSubmit={saveProfile} className="profile-form">
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Name</label>
+                      <input value={name} onChange={e=>setName(e.target.value)} className="form-input" />
+                    </div>
+                    <div className="form-field">
+                      <label>Phone</label>
+                      <input value={phone} onChange={e=>setPhone(e.target.value)} className="form-input" placeholder="03XXXXXXXXX" />
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-field">
+                      <label>Address</label>
+                      <input value={address} onChange={e=>setAddress(e.target.value)} className="form-input" />
+                    </div>
+                    <div className="form-field">
+                      <label>City</label>
+                      <input value={city} onChange={e=>setCity(e.target.value)} className="form-input" />
+                    </div>
+                  </div>
+                  <div className="profile-actions">
+                    <button type="submit" className="btn-primary" disabled={saving}>
+                      {saving ? 'Saving…' : 'Save Changes'}
+                    </button>
+                    {message && <div className="form-message">{message}</div>}
+                  </div>
+                </form>
+              </div>
+              <div className="profile-card">
+                <div className="orders-header">
+                  <h2 className="section-title">Order History</h2>
+                </div>
+                {orders.length === 0 ? (
+                  <div className="empty-note">No orders yet.</div>
+                ) : (
+                  <ul className="order-list">
+                    {orders.map((o) => (
+                      <li key={o._id} className="order-card">
+                        <div className="order-head">
+                          <span className="order-id">#{String(o._id).slice(-8)}</span>
+                          <span className={"status-badge " + String(o.paymentStatus || 'pending').toLowerCase()}>{o.paymentStatus}</span>
+                        </div>
+                        <div className="order-meta">
+                          <div className="order-line">
+                            <span className="label">Total</span>
+                            <span className="value">PKR {Number(o.total || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="order-line">
+                            <span className="label">Date</span>
+                            <span className="value">{new Date(o.createdAt).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-        <button type="submit" className="mt-3 border p-2 rounded bg-black text-white" disabled={saving}>
-          {saving ? 'Saving...' : 'Save Changes'}
-        </button>
-        {message && <div className="mt-2 text-sm">{message}</div>}
-      </form>
-      <h2 className="text-xl mt-4">Order History</h2>
-      {orders.length === 0 ? (
-        <p>No orders yet.</p>
-      ) : (
-        <ul className="mt-2">
-          {orders.map((o) => (
-            <li key={o._id} className="border-b py-2">
-              <div>Order ID: {o._id}</div>
-              <div>Total: PKR {o.total}</div>
-              <div>Status: {o.paymentStatus}</div>
-              <div>Date: {new Date(o.createdAt).toLocaleDateString()}</div>
-            </li>
-          ))}
-        </ul>
-      )}
+      </main>
+      <Footer />
     </div>
   );
 }

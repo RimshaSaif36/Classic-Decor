@@ -44,20 +44,35 @@ export default function Admin() {
         localStorage.setItem('currentUser', JSON.stringify(user));
       }
     } catch { void 0; }
+    console.log('[Admin] Auth initialized - Token present:', !!token, 'User:', user?.email);
     setAuth({ token, user });
   }, []);
 
   async function api(path, options) {
+    const token = auth.token || '';
+    if (!token && path !== '/api/products') {
+      console.warn('[Admin] API called without token for:', path);
+    }
     const r = await fetch(API_BASE + path, {
       ...(options || {}),
       headers: {
         'Content-Type': 'application/json',
-        Authorization: 'Bearer ' + (auth.token || ''),
+        Authorization: 'Bearer ' + token,
         ...(options && options.headers ? options.headers : {})
       }
     });
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(data.error || 'Request failed');
+    if (!r.ok) {
+      if (r.status === 401) {
+        console.error('[Admin] Unauthorized - token invalid or expired');
+        localStorage.removeItem('token');
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('currentUser');
+        window.location.href = '/login?redirect=/admin';
+      }
+      throw new Error(data.error || 'Request failed');
+    }
     return data;
   }
 
@@ -73,6 +88,10 @@ export default function Admin() {
 
   async function loadOrders() {
     try {
+      if (!auth.token) {
+        setStatus('Please login to view orders');
+        return;
+      }
       const list = await api('/api/orders');
       setOrders(Array.isArray(list) ? list : []);
       calculateStats(Array.isArray(list) ? list : [], products);
@@ -87,9 +106,11 @@ export default function Admin() {
 
   async function loadUsers() {
     try {
+      if (!auth.token) return;
       const list = await api('/api/users');
       setUsers(Array.isArray(list) ? list : []);
-    } catch {
+    } catch (e) {
+      console.error('Failed to load users:', e);
       setStatus('Failed to load users');
     }
   }
@@ -137,8 +158,7 @@ export default function Admin() {
       loadUsers();
       loadReport();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.token, auth.user && auth.user.role]);
+  }, [auth.token, auth.user]);
 
   useEffect(() => {
     // Recalculate stats whenever products, orders or users change
@@ -298,7 +318,7 @@ export default function Admin() {
     return Array.from(m.entries()).map(([email, orders]) => ({ email, orders }));
   }, [filteredOrders]);
 
-  const recentOrders = orders.slice(0, 5);
+  const recentOrders = orders;
 
   return (
     <div>
@@ -503,7 +523,7 @@ export default function Admin() {
                                     <td>
                                       <div className="order-image">
                                         {(order.items && order.items[0] && order.items[0].image) ? (
-                                          <img src={imgUrl(order.items[0].image)} alt={order.items[0].name || ''} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }} />
+                                          <img src={imgUrl(order.items[0].image)} alt={order.items[0].name || ''} />
                                         ) : (
                                           <span>—</span>
                                         )}

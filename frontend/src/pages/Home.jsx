@@ -222,8 +222,8 @@ export default function Home() {
         <h2>New Arrivals</h2>
         <div className="arrival-slider">
           <div className="slider-track">
-            {newArrivals.map((p, i) => (
-              <div className="slide" key={i}>
+            {newArrivals.map((p) => (
+              <div className="slide" key={p._id || p.id}>
                 <Link to={`/product/${p._id || p.id}`}>
                   <img src={imgUrl(p.image)} alt={p.name} />
                 </Link>

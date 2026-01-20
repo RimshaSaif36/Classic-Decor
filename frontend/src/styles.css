@@ -2127,6 +2127,7 @@ footer {
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding: 0;
 }
 
 .shop-products .product-item:hover {
@@ -2139,7 +2140,7 @@ footer {
   height: 220px;
   object-fit: cover;
   margin-bottom: 0;
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: 0;
   transition: transform var(--transition-base);
 }
 
@@ -2151,6 +2152,11 @@ footer {
   font-size: 1.2rem;
   margin: 1rem 1rem 0.5rem;
   color: var(--text-primary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 48px;
 }
 
 .shop-products .product-item .price {
@@ -2164,19 +2170,22 @@ footer {
   display: flex;
   justify-content: center;
   gap: 0.8rem;
-  margin: 1rem;
+  margin: 0 1rem 1rem;
   padding: 1rem;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: var(--radius-md);
-  background: rgba(212, 175, 55, 0.04);
+  background: rgba(212, 175, 55, 0.06);
   flex-wrap: wrap;
+  box-sizing: border-box;
+  align-items: center;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
 }
 
 .shop-products .product-actions .view-details {
   display: inline-block;
   padding: 0.7rem 1.2rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   font-weight: 600;
   text-decoration: none;
@@ -2185,6 +2194,7 @@ footer {
   color: white;
   flex: 1;
   min-width: 120px;
+  min-height: 44px;
 }
 
 .shop-products .product-actions .view-details:hover {
@@ -2197,17 +2207,24 @@ footer {
   color: white;
   padding: 0.7rem 1.2rem;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   font-weight: 600;
   transition: all var(--transition-base);
   flex: 1;
   min-width: 120px;
+  min-height: 44px;
 }
 
 .shop-products .product-actions .add-to-cart:hover {
   box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
   transform: translateY(-2px);
+}
+
+.shop-products .product-actions .view-details:focus,
+.shop-products .product-actions .add-to-cart:focus {
+  outline: 2px solid rgba(212, 175, 55, 0.4);
+  outline-offset: 2px;
 }
 
 .cart-container {
@@ -2748,10 +2765,9 @@ footer {
 
 .product-image-gallery .main-image {
   width: 100%;
-  height: auto;
-  max-height: 500px;
-  object-fit: contain;
-  border-radius: var(--radius-lg);
+  height: 500px;
+  object-fit: cover;
+  border-radius: 0;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-color);
 }
@@ -2850,7 +2866,9 @@ footer {
     padding: 1rem;
   }
   .product-image-gallery .main-image {
-    max-height: 300px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 0;
   }
   .product-info {
     min-width: unset;
@@ -4509,7 +4527,7 @@ footer {
 }
 
 .admin-table th {
-  padding: 1.2rem 1.5rem;
+  padding: 1.4rem 1.5rem;
   text-align: left;
   font-weight: 800;
   color: #1a1a1a;
@@ -4519,9 +4537,11 @@ footer {
 }
 
 .admin-table td {
-  padding: 1.2rem 1.5rem;
+  padding: 1.8rem 1.5rem;
   border-bottom: 1px solid #f0f0f0;
   color: #555;
+  vertical-align: middle;
+  height: auto;
 }
 
 .admin-table tbody tr {
@@ -4553,24 +4573,38 @@ footer {
 }
 
 .order-product {
-  max-width: 280px;
+  max-width: 400px;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  line-height: 1.35;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.order-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
 }
 
 .order-image img {
-  width: 64px;
-  height: 64px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 0;
   border: 1px solid #e8e8e8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
+  display: block;
 }
 
 .order-status-select {
-  padding: 0.65rem 0.9rem;
+  padding: 0.75rem 1rem;
   border: 2px solid #e8e8e8;
   border-radius: 6px;
   font-size: 0.9rem;
@@ -4579,6 +4613,36 @@ footer {
   transition: all 0.2s ease;
   background: white;
   color: #333;
+  min-width: 150px;
+  width: 100%;
+}
+
+.order-status-select:hover {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.02);
+}
+
+.order-status-select:focus {
+  outline: none;
+  border-color: #d4af37;
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* Column width adjustments */
+.admin-table thead tr th:nth-child(5),
+.admin-table tbody tr td:nth-child(5) {
+  min-width: 200px;
+  max-width: 400px;
+}
+
+.admin-table thead tr th:nth-child(6),
+.admin-table tbody tr td:nth-child(6) {
+  min-width: 110px;
+}
+
+.admin-table thead tr th:nth-child(12),
+.admin-table tbody tr td:nth-child(12) {
+  min-width: 170px;
 }
 
 .order-status-select:hover {
