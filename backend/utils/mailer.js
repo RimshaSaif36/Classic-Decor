@@ -5,7 +5,8 @@ const MAIL_HOST = process.env.MAIL_HOST || "smtp-relay.brevo.com";
 const MAIL_PORT = process.env.MAIL_PORT || 587;
 const MAIL_USERNAME = process.env.MAIL_USERNAME || "";
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD || "";
-const BREVO_SENDEREMAIL = process.env.BREVO_SENDEREMAIL || "support@theclassicdecor.com";
+const BREVO_SENDEREMAIL =
+  process.env.BREVO_SENDEREMAIL || "support@theclassicdecor.com";
 
 // Fallback to older env vars if Brevo not configured
 const GMAIL_USER = process.env.GMAIL_USER || "";
@@ -24,9 +25,9 @@ const transporter = (() => {
         host: MAIL_HOST,
         port: Number(MAIL_PORT) || 587,
         secure: false,
-        auth: { 
-          user: MAIL_USERNAME, 
-          pass: MAIL_PASSWORD 
+        auth: {
+          user: MAIL_USERNAME,
+          pass: MAIL_PASSWORD,
         },
       });
       console.log("[mailer] Brevo SMTP transporter configured");
@@ -55,7 +56,7 @@ const transporter = (() => {
   } catch (e) {
     console.error(
       "[mailer] transporter init failed:",
-      e && e.message ? e.message : e
+      e && e.message ? e.message : e,
     );
   }
   console.log("[mailer] Email not configured (missing env)");
@@ -74,7 +75,11 @@ async function sendWelcomeEmail(userDetails) {
     return false;
   }
 
-  const fromAddress = BREVO_SENDEREMAIL || GMAIL_USER || SMTP_USER || "no-reply@classic-decor.local";
+  const fromAddress =
+    BREVO_SENDEREMAIL ||
+    GMAIL_USER ||
+    SMTP_USER ||
+    "no-reply@classic-decor.local";
   const mailOptions = {
     from: fromAddress,
     to: email,
@@ -139,7 +144,7 @@ async function sendOrderConfirmation(orderDetails) {
   }
 
   const { name, email, total, items, orderId } = orderDetails;
-  
+
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
     return false;
@@ -169,11 +174,15 @@ async function sendOrderConfirmation(orderDetails) {
     itemRows = `<tr><td colspan="4" style="padding: 10px; text-align: center;">See order details for items</td></tr>`;
   }
 
-  const fromAddress = BREVO_SENDEREMAIL || GMAIL_USER || SMTP_USER || "no-reply@classic-decor.local";
+  const fromAddress =
+    BREVO_SENDEREMAIL ||
+    GMAIL_USER ||
+    SMTP_USER ||
+    "no-reply@classic-decor.local";
   const mailOptions = {
     from: fromAddress,
     to: email,
-    subject: `Order Confirmation #${orderId || 'N/A'} - Classic Decore`,
+    subject: `Order Confirmation #${orderId || "N/A"} - Classic Decore`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -189,8 +198,8 @@ async function sendOrderConfirmation(orderDetails) {
           </p>
           
           <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0;">
-            <p style="margin: 5px 0; color: #666;"><strong>Order ID:</strong> #${orderId || 'N/A'}</p>
-            <p style="margin: 5px 0; color: #666;"><strong>Order Date:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p style="margin: 5px 0; color: #666;"><strong>Order ID:</strong> #${orderId || "N/A"}</p>
+            <p style="margin: 5px 0; color: #666;"><strong>Order Date:</strong> ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
           </div>
           
           <h3 style="color: #1a1a1a; border-bottom: 2px solid #d4af37; padding-bottom: 10px;">Order Summary</h3>
@@ -248,7 +257,10 @@ async function sendOrderConfirmation(orderDetails) {
     console.log("[mailer] Order confirmation email sent to", email);
     return true;
   } catch (error) {
-    console.error("[mailer] Error sending order confirmation email:", error.message);
+    console.error(
+      "[mailer] Error sending order confirmation email:",
+      error.message,
+    );
     return false;
   }
 }
@@ -260,7 +272,7 @@ async function sendPaymentConfirmation(orderDetails) {
   }
 
   const { name, email, total, items, orderId, transactionId } = orderDetails;
-  
+
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
     return false;
@@ -290,11 +302,15 @@ async function sendPaymentConfirmation(orderDetails) {
     itemRows = `<tr><td colspan="4" style="padding: 10px; text-align: center;">See order details for items</td></tr>`;
   }
 
-  const fromAddress = BREVO_SENDEREMAIL || GMAIL_USER || SMTP_USER || "no-reply@classic-decor.local";
+  const fromAddress =
+    BREVO_SENDEREMAIL ||
+    GMAIL_USER ||
+    SMTP_USER ||
+    "no-reply@classic-decor.local";
   const mailOptions = {
     from: fromAddress,
     to: email,
-    subject: `Payment Confirmed #${orderId || 'N/A'} - Classic Decore`,
+    subject: `Payment Confirmed #${orderId || "N/A"} - Classic Decore`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 30px;">
@@ -318,10 +334,10 @@ async function sendPaymentConfirmation(orderDetails) {
           <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50;">
             <h3 style="color: #2e7d32; margin-top: 0;">Payment Verified ✓</h3>
             <p style="margin: 8px 0; color: #555;">
-              <strong>Order ID:</strong> #${orderId || 'N/A'}
+              <strong>Order ID:</strong> #${orderId || "N/A"}
             </p>
             <p style="margin: 8px 0; color: #555;">
-              <strong>Transaction ID:</strong> ${transactionId || 'N/A'}
+              <strong>Transaction ID:</strong> ${transactionId || "N/A"}
             </p>
             <p style="margin: 8px 0; color: #555;">
               <strong>Amount Paid:</strong> <span style="font-size: 20px; color: #4caf50; font-weight: bold;">PKR ${Number(total || 0).toLocaleString()}</span>
@@ -378,9 +394,16 @@ async function sendPaymentConfirmation(orderDetails) {
     console.log("[mailer] Payment confirmation email sent to", email);
     return true;
   } catch (error) {
-    console.error("[mailer] Error sending payment confirmation email:", error.message);
+    console.error(
+      "[mailer] Error sending payment confirmation email:",
+      error.message,
+    );
     return false;
   }
 }
 
-module.exports = { sendWelcomeEmail, sendOrderConfirmation, sendPaymentConfirmation };
+module.exports = {
+  sendWelcomeEmail,
+  sendOrderConfirmation,
+  sendPaymentConfirmation,
+};

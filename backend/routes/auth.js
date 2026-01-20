@@ -65,8 +65,8 @@ router.post("/register", async (req, res) => {
         expiresIn: "7d",
       });
       // Send welcome email
-      sendWelcomeEmail({ name: saved.name, email: saved.email }).catch(err => 
-        console.error("[auth] Failed to send welcome email:", err.message)
+      sendWelcomeEmail({ name: saved.name, email: saved.email }).catch((err) =>
+        console.error("[auth] Failed to send welcome email:", err.message),
       );
       return res.json({
         token,
@@ -102,8 +102,8 @@ router.post("/register", async (req, res) => {
       users.push(user);
       write("users", users);
       // Send welcome email
-      sendWelcomeEmail({ name: user.name, email: user.email }).catch(err => 
-        console.error("[auth] Failed to send welcome email:", err.message)
+      sendWelcomeEmail({ name: user.name, email: user.email }).catch((err) =>
+        console.error("[auth] Failed to send welcome email:", err.message),
       );
       const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
         expiresIn: "7d",
@@ -164,7 +164,7 @@ router.post("/login", async (req, res) => {
     } else {
       const users = read("users") || [];
       const user = users.find(
-        (u) => u.email.toLowerCase() === String(email).toLowerCase()
+        (u) => u.email.toLowerCase() === String(email).toLowerCase(),
       );
       if (!user) return res.status(401).json({ error: "Invalid credentials" });
       const ok = await bcrypt.compare(password, user.password);
