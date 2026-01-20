@@ -4915,7 +4915,7 @@ code {
 }
 
 .analytics-panel .admin-subtitle::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 4px;
   height: 20px;
@@ -4959,7 +4959,11 @@ code {
 }
 
 .analytics-table tbody tr:hover {
-  background: linear-gradient(90deg, rgba(212, 175, 55, 0.05) 0%, rgba(212, 175, 55, 0.02) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(212, 175, 55, 0.05) 0%,
+    rgba(212, 175, 55, 0.02) 100%
+  );
 }
 
 .analytics-table tbody tr:last-child {
@@ -5008,7 +5012,11 @@ code {
   color: #999;
   font-size: 1rem;
   font-weight: 400;
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.01) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.02) 0%,
+    rgba(0, 0, 0, 0.01) 100%
+  );
 }
 
 @media (max-width: 1200px) {
@@ -5142,7 +5150,7 @@ code {
 }
 
 .stat-card::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -5176,22 +5184,38 @@ code {
 }
 
 .stat-icon.gold {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.2) 0%,
+    rgba(212, 175, 55, 0.1) 100%
+  );
   color: #d4af37;
 }
 
 .stat-icon.green {
-  background: linear-gradient(135deg, rgba(34, 177, 76, 0.2) 0%, rgba(34, 177, 76, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(34, 177, 76, 0.2) 0%,
+    rgba(34, 177, 76, 0.1) 100%
+  );
   color: #22b14c;
 }
 
 .stat-icon.blue {
-  background: linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(33, 150, 243, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(33, 150, 243, 0.2) 0%,
+    rgba(33, 150, 243, 0.1) 100%
+  );
   color: #2196f3;
 }
 
 .stat-icon.purple {
-  background: linear-gradient(135deg, rgba(156, 39, 176, 0.2) 0%, rgba(156, 39, 176, 0.1) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(156, 39, 176, 0.2) 0%,
+    rgba(156, 39, 176, 0.1) 100%
+  );
   color: #9c27b0;
 }
 
@@ -5262,8 +5286,6 @@ code {
     font-size: 1.5rem;
   }
 }
-
-
 
 /* ===== PROFESSIONAL ANALYTICS CALENDAR ===== */
 
@@ -5365,7 +5387,11 @@ code {
 }
 
 .calendar-day.has-data {
-  background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 175, 55, 0.1) 0%,
+    rgba(212, 175, 55, 0.05) 100%
+  ) !important;
   border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
