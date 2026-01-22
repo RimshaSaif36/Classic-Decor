@@ -1,4 +1,4 @@
-import Header from "../components/Header";
+﻿import Header from "../components/Header";
 import CategoryNav from "../components/CategoryNav";
 import Footer from "../components/Footer";
 import { API_BASE } from "../lib/config";
@@ -6,20 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { imgUrl } from "../lib/utils";
 
-function starText(n) {
-  const s = Math.max(1, Math.min(5, Number(n) || 0));
-  return "★".repeat(s) + "☆".repeat(5 - s);
-}
-
-function initials(name) {
-  const t = String(name || "").trim();
-  if (!t) return "A";
-  const parts = t.split(/\s+/).slice(0, 2);
-  return parts.map((p) => p[0]?.toUpperCase() || "").join("") || "A";
-}
-
 export default function Home() {
-  const [summary, setSummary] = useState({ count: 0, average: 0 });
   const [latest, setLatest] = useState([]);
   const [ri, setRi] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -31,14 +18,6 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      try {
-        const s = await fetch(API_BASE + "/api/reviews/summary");
-        const summary = await s.json();
-        if (!cancelled) setSummary(summary || { count: 0, average: 0 });
-      } catch (e) {
-        console.error(e);
-      }
-
       try {
         const r = await fetch(API_BASE + "/api/reviews");
         const list = await r.json();
@@ -80,14 +59,42 @@ export default function Home() {
     if (!latest.length) return;
     const id = setInterval(() => {
       if (!paused) setRi((prev) => (prev + 1) % latest.length);
-    }, 2000);
+    }, 3000);
     return () => clearInterval(id);
   }, [latest.length, paused]);
 
   const visible = useMemo(() => {
     const len = latest.length;
     if (len === 0) return [];
-    return [latest[ri % len]];
+    
+    // Show reviews without duplication
+    const itemsToShow = Math.min(3, len); // Don't show more items than available
+    const result = [];
+    const usedIndices = new Set();
+    
+    for (let i = 0; i < itemsToShow; i++) {
+      let index = (ri + i) % len;
+      // Avoid duplicates in small arrays
+      if (len <= 3) {
+        index = i < len ? i : (ri % len);
+        if (usedIndices.has(index)) {
+          // Find next available index
+          for (let j = 0; j < len; j++) {
+            if (!usedIndices.has(j)) {
+              index = j;
+              break;
+            }
+          }
+        }
+      }
+      
+      if (!usedIndices.has(index) && index < len) {
+        usedIndices.add(index);
+        result.push(latest[index]);
+      }
+    }
+    
+    return result;
   }, [latest, ri]);
 
   return (
@@ -211,7 +218,7 @@ export default function Home() {
                 Our culture is founded on partnership, respect, and passion.
                 From the designer who crafts fresh ideas, to the makers who
                 bring them to life, to the customers who choose our work for
-                their homes — we are united by a commitment to quality acrylic
+                their homes we are united by a commitment to quality acrylic
                 decor. We collaborate with care to deliver the very best.
               </p>
             </div>
@@ -251,26 +258,23 @@ export default function Home() {
       </section>
       <section className="reviews-section" aria-label="Latest Reviews">
         <div className="reviews-header">
-          <div className="reviews-heading">
-            <h3>Let customers speak for us</h3>
-            <div className="reviews-topline">
-              <span className="stars">★★★★★</span>{" "}
-              <span className="from-text">
-                from {summary.count || 0} reviews
-              </span>
-            </div>
-          </div>
-          <div className="reviews-summary">{summary.average || 0}/5</div>
+          <h3>Let customers speak for us</h3>
         </div>
         <div
-          className="reviews-carousel"
+          className="reviews-carousel-wrapper"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
-          <div className="carousel-viewport">
+          <button
+            className="carousel-arrow carousel-arrow-prev"
+            onClick={() => setRi((prev) => (prev - 1 + latest.length) % latest.length)}
+            aria-label="Previous reviews"
+          >
+            &lt;
+          </button>
+          <div className="reviews-carousel">
             <div className="carousel-row">
               {visible.map((rev, i) => {
-                const isCenter = latest.length >= 3 && i === 1;
                 const pid = String(rev.productId || '');
                 const prod = products.find((p) => {
                   const candidates = [p._id, p.id, p.slug].map(v => String(v || ''));
@@ -278,39 +282,32 @@ export default function Home() {
                 });
                 return (
                   <div
-                    className={`carousel-card ${isCenter ? "center" : ""}`}
-                    key={`${rev.title}-${i}-${ri}`}
+                    className="carousel-card"
+                    key={`${rev._id || rev.id}-${i}`}
                   >
-                    <div className="review-content">
-                      <div className="review-header">
-                        <div className="review-avatar">
-                          {initials(rev.name)}
-                        </div>
-                        <div className="review-head-text">
-                          <div className="review-title">
-                            {rev.title || "Untitled"}
-                          </div>
-                          <div className="review-meta">
-                            <span className="stars">
-                              {starText(rev.rating)}
-                            </span>{" "}
-                            • {rev.name || "Anonymous"}
-                          </div>
-                        </div>
+                    {prod && prod.image && (
+                      <div className="review-card-image">
+                        <img
+                          src={imgUrl(prod.image)}
+                          alt={prod.name}
+                          title={prod.name}
+                        />
                       </div>
-                      <div className="review-body">
-                        <div className="review-comment">
-                          “{rev.comment || ""}”
+                    )}
+                    <div className="review-card-content">
+                      <div className="review-card-title">
+                        {rev.title || "Review"}
+                      </div>
+                      <div className="review-card-comment">
+                        "{rev.comment || ""}"
+                      </div>
+                      {prod && (
+                        <div className="review-product-info">
+                          {prod.name}
                         </div>
-                        {prod && prod.image ? (
-                          <div className="review-product-mini">
-                            <img
-                              src={imgUrl(prod.image)}
-                              alt={prod.name}
-                              title={prod.name}
-                            />
-                          </div>
-                        ) : null}
+                      )}
+                      <div className="review-card-author">
+                        {rev.name || "Anonymous"}
                       </div>
                     </div>
                   </div>
@@ -318,6 +315,13 @@ export default function Home() {
               })}
             </div>
           </div>
+          <button
+            className="carousel-arrow carousel-arrow-next"
+            onClick={() => setRi((prev) => (prev + 1) % latest.length)}
+            aria-label="Next reviews"
+          >
+            &gt;
+          </button>
         </div>
       </section>
       <Footer />

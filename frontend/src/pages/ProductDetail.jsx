@@ -14,6 +14,7 @@ export default function ProductDetail() {
   const [size, setSize] = useState('');
   const [color, setColor] = useState('');
   const [reviews, setReviews] = useState([]);
+  const [reviewProducts, setReviewProducts] = useState({});
   const [related, setRelated] = useState([]);
   const [revForm, setRevForm] = useState({ name: '', rating: 5, title: '', comment: '' });
 
@@ -75,6 +76,23 @@ export default function ProductDetail() {
         const r = await fetch(API_BASE + '/api/reviews?productId=' + encodeURIComponent(pid) + '&onlyApproved=true');
         const list = await r.json();
         setReviews(Array.isArray(list) ? list : []);
+        
+        // Fetch product images for all reviews
+        const productMap = {};
+        for (const review of (Array.isArray(list) ? list : [])) {
+          if (review.productId && !productMap[review.productId]) {
+            try {
+              const productRes = await fetch(API_BASE + '/api/products/' + encodeURIComponent(review.productId));
+              if (productRes.ok) {
+                const productData = await productRes.json();
+                productMap[review.productId] = productData;
+              }
+            } catch (err) {
+              console.error('Failed to fetch product for review:', err);
+            }
+          }
+        }
+        setReviewProducts(productMap);
       } catch { void 0; }
     })();
 
@@ -226,13 +244,26 @@ export default function ProductDetail() {
               <div className="reviews-summary">{reviews.length} reviews</div>
             </div>
             <div className="reviews-grid">
-              {reviews.map((rev) => (
-                <div className="review-card" key={rev.id}>
-                  <div className="review-title">{rev.title || 'Untitled'}</div>
-                  <div className="review-meta"><span className="stars">{'★'.repeat(Number(rev.rating)||5)}</span> • {rev.name || 'Anonymous'}</div>
-                  <div className="review-comment">“{rev.comment || ''}”</div>
-                </div>
-              ))}
+              {reviews.map((rev) => {
+                const reviewProduct = reviewProducts[rev.productId];
+                return (
+                  <div className="review-card" key={rev.id}>
+                    {reviewProduct && (
+                      <div className="review-product-img">
+                        <img src={imgUrl(reviewProduct.image)} alt={reviewProduct.name} title={reviewProduct.name} />
+                      </div>
+                    )}
+                    <div className="review-title">{rev.title || 'Untitled'}</div>
+                    <div className="review-meta"><span className="stars">{'★'.repeat(Number(rev.rating)||5)}</span> • {rev.name || 'Anonymous'}</div>
+                    <div className="review-comment">"{rev.comment || ''}"</div>
+                    {reviewProduct && (
+                      <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '0.5rem' }}>
+                        Product: <strong>{reviewProduct.name}</strong>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
               {reviews.length === 0 && <div className="review-card">No reviews yet</div>}
             </div>
           </section>

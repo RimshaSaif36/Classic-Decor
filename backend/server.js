@@ -108,6 +108,6 @@ app.use("/", require("./routes/payments"));
 app.use("/", require("./routes/legacyOrders"));
 
 app.listen(PORT, () => {
-  console.log(`Backend running on http://localhost:${PORT}`);
+  // console.log(`Backend running on http://localhost:${PORT}`);
   console.log(`Health check available at http://localhost:${PORT}/health`);
 });
