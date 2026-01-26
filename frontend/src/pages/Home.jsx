@@ -14,6 +14,7 @@ export default function Home() {
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [loadingFeatured, setLoadingFeatured] = useState(true);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -21,10 +22,14 @@ export default function Home() {
       try {
         const r = await fetch(API_BASE + "/api/reviews");
         const list = await r.json();
-        const latest = (Array.isArray(list) ? list : []).slice(-3).reverse();
-        if (!cancelled) setLatest(latest);
+        const latest = (Array.isArray(list) ? list : []).reverse(); // Show all reviews
+        if (!cancelled) {
+          setLatest(latest);
+          setLoadingReviews(false);
+        }
       } catch (e) {
         console.error(e);
+        setLoadingReviews(false);
       }
 
       try {
@@ -67,31 +72,19 @@ export default function Home() {
     const len = latest.length;
     if (len === 0) return [];
     
-    // Show reviews without duplication
-    const itemsToShow = Math.min(3, len); // Don't show more items than available
+    // Show 3 reviews at a time, cycling through all available reviews
+    const reviewsPerSlide = Math.min(3, len);
     const result = [];
-    const usedIndices = new Set();
     
-    for (let i = 0; i < itemsToShow; i++) {
-      let index = (ri + i) % len;
-      // Avoid duplicates in small arrays
-      if (len <= 3) {
-        index = i < len ? i : (ri % len);
-        if (usedIndices.has(index)) {
-          // Find next available index
-          for (let j = 0; j < len; j++) {
-            if (!usedIndices.has(j)) {
-              index = j;
-              break;
-            }
-          }
-        }
-      }
-      
-      if (!usedIndices.has(index) && index < len) {
-        usedIndices.add(index);
-        result.push(latest[index]);
-      }
+    // If we have fewer than 3 reviews, show all without repetition
+    if (len <= 3) {
+      return latest.slice();
+    }
+    
+    // For more than 3 reviews, show 3 at a time with proper cycling
+    for (let i = 0; i < reviewsPerSlide; i++) {
+      const index = (ri + i) % len;
+      result.push(latest[index]);
     }
     
     return result;
@@ -240,19 +233,66 @@ export default function Home() {
         </div>
       </section>
       <section className="why-us">
-        <h2>Why Choose The Classic Decor?</h2>
-        <div className="why-grid">
-          <div className="why-item">
-            <h3>Premium Quality</h3>
-            <p>
-              We use premium quality materials to ensure durability and elegance.
-            </p>
+        <div className="why-us-container">
+          <div className="why-us-header">
+            <h2>Why Choose The Classic Decor?</h2>
+            <p>Experience excellence in every detail with our premium acrylic decor solutions</p>
           </div>
-          <div className="why-item">
-            <h3>Fast Delivery</h3>
-            <p>
-              Delivery available across Pakistan with 100% safety packaging.
-            </p>
+          <div className="why-grid">
+            <div className="why-item">
+              <div className="why-icon">
+                <i className="fas fa-award"></i>
+              </div>
+              <h3>Premium Quality</h3>
+              <p>
+                Crafted with premium grade acrylic materials, ensuring durability, clarity, and long-lasting elegance for your space.
+              </p>
+            </div>
+            <div className="why-item">
+              <div className="why-icon">
+                <i className="fas fa-shipping-fast"></i>
+              </div>
+              <h3>Fast & Safe Delivery</h3>
+              <p>
+                Nationwide delivery across Pakistan with premium packaging and tracking, ensuring your items arrive safely and on time.
+              </p>
+            </div>
+            <div className="why-item">
+              <div className="why-icon">
+                <i className="fas fa-palette"></i>
+              </div>
+              <h3>Custom Designs</h3>
+              <p>
+                Personalized acrylic solutions tailored to your unique style and requirements with professional design consultation.
+              </p>
+            </div>
+            <div className="why-item">
+              <div className="why-icon">
+                <i className="fas fa-headset"></i>
+              </div>
+              <h3>24/7 Support</h3>
+              <p>
+                Dedicated customer support team available round the clock to assist you with orders, queries, and after-sales service.
+              </p>
+            </div>
+            <div className="why-item">
+              <div className="why-icon">
+                <i className="fas fa-shield-alt"></i>
+              </div>
+              <h3>Quality Guarantee</h3>
+              <p>
+                100% satisfaction guarantee with quality assurance on all products and hassle-free return policy for your peace of mind.
+              </p>
+            </div>
+            <div className="why-item">
+              <div className="why-icon">
+                <i className="fas fa-tools"></i>
+              </div>
+              <h3>Expert Craftsmanship</h3>
+              <p>
+                Handcrafted by skilled artisans with years of experience in acrylic fabrication and modern design techniques.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -260,69 +300,95 @@ export default function Home() {
         <div className="reviews-header">
           <h3>Let customers speak for us</h3>
         </div>
-        <div
-          className="reviews-carousel-wrapper"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-        >
-          <button
-            className="carousel-arrow carousel-arrow-prev"
-            onClick={() => setRi((prev) => (prev - 1 + latest.length) % latest.length)}
-            aria-label="Previous reviews"
-          >
-            &lt;
-          </button>
-          <div className="reviews-carousel">
-            <div className="carousel-row">
-              {visible.map((rev, i) => {
-                const pid = String(rev.productId || '');
-                const prod = products.find((p) => {
-                  const candidates = [p._id, p.id, p.slug].map(v => String(v || ''));
-                  return candidates.includes(pid);
-                });
-                return (
-                  <div
-                    className="carousel-card"
-                    key={`${rev._id || rev.id}-${i}`}
-                  >
-                    {prod && prod.image && (
-                      <div className="review-card-image">
-                        <img
-                          src={imgUrl(prod.image)}
-                          alt={prod.name}
-                          title={prod.name}
-                        />
-                      </div>
-                    )}
-                    <div className="review-card-content">
-                      <div className="review-card-title">
-                        {rev.title || "Review"}
-                      </div>
-                      <div className="review-card-comment">
-                        "{rev.comment || ""}"
-                      </div>
-                      {prod && (
-                        <div className="review-product-info">
-                          {prod.name}
-                        </div>
-                      )}
-                      <div className="review-card-author">
-                        {rev.name || "Anonymous"}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        
+        {loadingReviews ? (
+          <div className="reviews-loading">
+            <div className="loading-spinner">Loading customer reviews...</div>
           </div>
-          <button
-            className="carousel-arrow carousel-arrow-next"
-            onClick={() => setRi((prev) => (prev + 1) % latest.length)}
-            aria-label="Next reviews"
-          >
-            &gt;
-          </button>
-        </div>
+        ) : latest.length === 0 ? (
+          <div className="no-reviews">
+            <p>No reviews available yet. Be the first to leave a review!</p>
+          </div>
+        ) : (
+          <>
+            <div
+              className="reviews-carousel-wrapper"
+              onMouseEnter={() => setPaused(true)}
+              onMouseLeave={() => setPaused(false)}
+            >
+              <button
+                className="carousel-arrow carousel-arrow-prev"
+                onClick={() => setRi((prev) => (prev - 1 + latest.length) % latest.length)}
+                aria-label="Previous reviews"
+              >
+                &lt;
+              </button>
+              <div className="reviews-carousel">
+                <div className="carousel-row" data-animation={ri}>
+                  {visible.map((rev, i) => {
+                    const pid = String(rev.productId || '');
+                    const prod = products.find((p) => {
+                      const candidates = [p._id, p.id, p.slug].map(v => String(v || ''));
+                      return candidates.includes(pid);
+                    });
+                    return (
+                      <div
+                        className="carousel-card"
+                        key={`${rev._id || rev.id}-${i}-${ri}`}
+                      >
+                        {prod && prod.image && (
+                          <div className="review-card-image">
+                            <img
+                              src={imgUrl(prod.image)}
+                              alt={prod.name}
+                              title={prod.name}
+                            />
+                          </div>
+                        )}
+                        <div className="review-card-content">
+                          <div className="review-card-title">
+                            {rev.title || "Review"}
+                          </div>
+                          <div className="review-card-comment">
+                            "{rev.comment || ""}"
+                          </div>
+                          {prod && (
+                            <div className="review-product-info">
+                              {prod.name}
+                            </div>
+                          )}
+                          <div className="review-card-author">
+                            {rev.name || "Anonymous"}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              <button
+                className="carousel-arrow carousel-arrow-next"
+                onClick={() => setRi((prev) => (prev + 1) % latest.length)}
+                aria-label="Next reviews"
+              >
+                &gt;
+              </button>
+            </div>
+            {/* Progress indicators */}
+            {latest.length > 3 && (
+              <div className="carousel-indicators">
+                {Array.from({ length: latest.length }, (_, index) => (
+                  <button
+                    key={index}
+                    className={`indicator-dot ${ri % latest.length === index ? 'active' : ''}`}
+                    onClick={() => setRi(index)}
+                    aria-label={`Go to review ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        )}
       </section>
       <Footer />
     </div>

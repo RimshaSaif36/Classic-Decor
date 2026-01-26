@@ -157,7 +157,9 @@ export default function Header() {
                 <Link to="/categories/photo-frames">Photo Frames</Link>
                 <Link to="/categories/kids-decor">Kids Decor</Link>
                 <Link to="/categories/shelves">Shelves</Link>
-                <Link to="/categories/vases">Flower Vases</Link>
+                <Link to="/categories/vases">Vases</Link>
+                <Link to="/categories/accessories">Accessories</Link>
+                <Link to="/categories/office-decor">Office Decor</Link>
               </div>
             </div>
           </aside>

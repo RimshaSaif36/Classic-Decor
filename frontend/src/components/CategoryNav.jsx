@@ -10,7 +10,9 @@ const defaultCats = [
   { id: 'photo-frames', name: 'Photo Frames' },
   { id: 'kids-decor', name: 'Kids Decor' },
   { id: 'shelves', name: 'Shelves' },
-  { id: 'vases', name: 'Flower Vases' },
+  { id: 'vases', name: 'Vases' },
+  { id: 'accessories', name: 'Accessories' },
+  { id: 'office-decor', name: 'Office Decor' },
 ];
 
 function mergeCategories(defaults, server) {
