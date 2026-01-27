@@ -63,7 +63,7 @@ export default function Header() {
       </button>
       <div className="logo">
         <Link to="/" className="logo-link">
-          <img src="/images/brandlogo.png" alt="The Classic Decor Logo" className="logo-img" />
+          <img src="/brandlogo.png" alt="The Classic Decor Logo" className="logo-img" />
           <span className="logo-text"></span>
         </Link>
       </div>
