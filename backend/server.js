@@ -90,6 +90,11 @@ app.get("/config-status", (req, res) => {
 
 // Stripe order details moved to ./routes/payments.js -> paymentsController.stripeOrder
 
+app.get("/", (req, res) => {
+  res.send("Backend is running successfully 🚀");
+});
+
+
 // ------------------- API ROUTES -------------------
 app.use("/api/test", router);
 app.use("/api/auth", require("./routes/auth"));
