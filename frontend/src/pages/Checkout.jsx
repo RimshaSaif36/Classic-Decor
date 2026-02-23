@@ -181,7 +181,7 @@ export default function Checkout() {
             </div>
             {(payment === 'jazzcash' || payment === 'easypaisa') && (
               <div style={{ marginTop: 15 }}>
-                <p style={{ color: 'green', fontWeight: 'bold' }}>Send payment to this number: JazzCash / EasyPaisa: <span style={{ color: '#000', fontSize: 18 }}>03074040767</span></p>
+                <p style={{ color: 'green', fontWeight: 'bold' }}>Send payment to this number: JazzCash / EasyPaisa: <span style={{ color: '#000', fontSize: 18 }}>03003395535</span></p>
                 <div className="form-group"><label>Your JazzCash/EasyPaisa Number</label><input value={senderNumber} onChange={e=>setSenderNumber(e.target.value)} placeholder="03XXXXXXXXX" /></div>
                 <div className="form-group"><label>Transaction ID</label><input value={transactionId} onChange={e=>setTransactionId(e.target.value)} placeholder="Enter Transaction ID" /></div>
               </div>
