@@ -106,11 +106,15 @@ export default function Checkout() {
         return;
       }
 
-      // Create regular order (COD / JazzCash / EasyPaisa) via authenticated API
+      // Create regular order (COD / JazzCash / EasyPaisa)
       const token = localStorage.getItem('token') || localStorage.getItem('authToken') || '';
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
       const r = await fetch(API_BASE + '/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers,
         body: JSON.stringify(payload)
       });
       if (!r.ok) {
@@ -147,7 +151,7 @@ export default function Checkout() {
             <div className="cart-items">
               {cart.length === 0 && <p>Your cart is empty.</p>}
               {cart.map(i => (
-                <div className="checkout-cart-item" key={i.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, padding: '6px 0', borderBottom: '1px solid #eee' }}>
+                <div className="checkout-cart-item" key={`${i.id}-${i.size || ''}-${i.color || ''}`} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, padding: '6px 0', borderBottom: '1px solid #eee' }}>
                   <div className="item-name">{i.name} x {i.quantity || 1}</div>
                   {i.size && <div className="item-size">Size: {i.size}</div>}
                   {i.color && <div className="item-color">Color: {i.color}</div>}

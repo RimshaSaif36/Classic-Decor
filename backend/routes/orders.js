@@ -13,7 +13,7 @@ const { requireAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.post("/", requireAuth, createOrder);
+router.post("/", createOrder);
 router.get("/", requireAuth, requireAdmin, listOrders);
 router.get("/report", requireAuth, requireAdmin, reportOrders);
 // Public check endpoint (kept for legacy clients) - must come before /:id

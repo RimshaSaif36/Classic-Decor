@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="footer-container">
         <div className="footer-column">
           <div className="footer-logo">
-            <img src="/images/brandlogo.png" alt="The Classic Decor Logo" className="footer-logo-img" />
+            <img src="/brandlogo.png" alt="The Classic Decor Logo" className="footer-logo-img" />
             <span className="footer-logo-text"></span>
           </div>
           <p>
