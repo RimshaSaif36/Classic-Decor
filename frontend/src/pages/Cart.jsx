@@ -65,7 +65,11 @@ export default function Cart() {
                 <div className="cart-item-row" key={i.id}>
                   <div className="product-info-cell">
                     <img src={imgUrl(i.image)} alt={i.name} title={i.name} />
-                    <div className="item-name">{i.name}</div>
+                    <div className="item-name">
+                      {i.name}
+                      {i.size && <div className="item-size" style={{fontSize: '0.85rem', color: '#666', marginTop: '0.25rem'}}>Size: {i.size}</div>}
+                      {i.color && <div className="item-color" style={{fontSize: '0.85rem', color: '#666'}}>Color: {i.color}</div>}
+                    </div>
                   </div>
                   <div className="item-price">PKR {formatPrice(i.price)}</div>
                   <div className="quantity-control">

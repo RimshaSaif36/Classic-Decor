@@ -20,6 +20,7 @@ export default function Checkout() {
   const [senderNumber, setSenderNumber] = useState('');
   const [transactionId, setTransactionId] = useState('');
   const [placing, setPlacing] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const shippingPrice = 200;
   const subtotal = useMemo(() => cart.reduce((s, i) => s + (Number(i.price)||0) * (i.quantity||1), 0), [cart]);
@@ -67,19 +68,53 @@ export default function Checkout() {
 
   async function placeOrder(e){
     e.preventDefault();
+    const newErrors = {};
+    
+    // Validate required fields
+    const cleanName = String(name || '').trim();
+    const cleanEmail = String(email || '').trim();
+    const cleanPhone = String(phone || '').trim();
+    const cleanAddress = String(address || '').trim();
+    const cleanCity = String(city || '').trim();
+
+    if (!cleanName) newErrors.name = 'Name is required';
+    
+    if (!cleanEmail) {
+      newErrors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+      newErrors.email = 'Email must be valid';
+    }
+    
+    if (!cleanPhone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/.test(cleanPhone)) {
+      newErrors.phone = 'Phone number must be 11 digits (03XXXXXXXXX)';
+    }
+    
+    if (!cleanAddress) {
+      newErrors.address = 'Address is required';
+    } else if (cleanAddress.length < 5) {
+      newErrors.address = 'Address must be at least 5 characters';
+    }
+    
+    if (!cleanCity) newErrors.city = 'City is required';
+    
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      alert(Object.values(newErrors).join('\n'));
+      return;
+    }
+    
     if (!Array.isArray(cart) || cart.length === 0) return alert('Your cart is empty');
     if ((payment === 'jazzcash' || payment === 'easypaisa') && (!senderNumber || !transactionId)) {
       return alert('Enter Payment Number and Transaction ID.');
     }
     setPlacing(true);
+    setErrors({});
     try {
-      const cleanEmail = String(email || '').trim();
-      const cleanPhone = String(phone || '').replace(/[^\d+]/g, '').trim();
-      const cleanName = String(name || '').trim();
-      const cleanAddress = String(address || '').trim();
-      const cleanCity = String(city || '').trim();
+      const cleanPhoneNumbers = cleanPhone.replace(/[^\d+]/g, '').trim();
       const payload = {
-        name: cleanName, address: cleanAddress, city: cleanCity, phone: cleanPhone, email: cleanEmail,
+        name: cleanName, address: cleanAddress, city: cleanCity, phone: cleanPhoneNumbers, email: cleanEmail,
         payment,
         senderNumber: payment === 'card' || payment === 'cod' ? '' : senderNumber,
         transactionId: payment === 'card' || payment === 'cod' ? '' : transactionId,
@@ -170,11 +205,31 @@ export default function Checkout() {
           <form id="checkout-form" className="checkout-form" onSubmit={placeOrder}>
             <h3>Billing Details</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
-              <div className="form-group"><label>Name</label><input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} required /></div>
-              <div className="form-group"><label>Email</label><input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)} required /></div>
-              <div className="form-group"><label>Address</label><input placeholder="Street, area" value={address} onChange={e=>setAddress(e.target.value)} required /></div>
-              <div className="form-group"><label>City</label><input placeholder="City" value={city} onChange={e=>setCity(e.target.value)} required /></div>
-              <div className="form-group"><label>Phone</label><input placeholder="03XXXXXXXXX" value={phone} onChange={e=>setPhone(e.target.value)} required /></div>
+              <div className="form-group">
+                <label>Name</label>
+                <input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} required style={{ borderColor: errors.name ? '#c62828' : undefined }} />
+                {errors.name && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.name}</span>}
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)} required style={{ borderColor: errors.email ? '#c62828' : undefined }} />
+                {errors.email && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.email}</span>}
+              </div>
+              <div className="form-group">
+                <label>Address</label>
+                <input placeholder="Street, area" value={address} onChange={e=>setAddress(e.target.value)} required style={{ borderColor: errors.address ? '#c62828' : undefined }} />
+                {errors.address && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.address}</span>}
+              </div>
+              <div className="form-group">
+                <label>City</label>
+                <input placeholder="City" value={city} onChange={e=>setCity(e.target.value)} required style={{ borderColor: errors.city ? '#c62828' : undefined }} />
+                {errors.city && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.city}</span>}
+              </div>
+              <div className="form-group">
+                <label>Phone</label>
+                <input placeholder="03XXXXXXXXX" value={phone} onChange={e=>setPhone(e.target.value)} required style={{ borderColor: errors.phone ? '#c62828' : undefined }} />
+                {errors.phone && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.phone}</span>}
+              </div>
               <div className="form-group"><label>Payment Option</label>
                 <select value={payment} onChange={e=>setPayment(e.target.value)}>
                   <option value="cod">Cash on Delivery</option>

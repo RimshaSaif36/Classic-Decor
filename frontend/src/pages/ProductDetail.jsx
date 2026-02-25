@@ -6,6 +6,22 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { imgUrl } from '../lib/utils';
 
+// Standard product sizes
+const PRODUCT_SIZES = [
+  {
+    id: 's',
+    label: 'Small (S) - 8 × 8'
+  },
+  {
+    id: 'm',
+    label: 'Medium (M) - 12 × 12'
+  },
+  {
+    id: 'l',
+    label: 'Large (L) - 15 × 15'
+  }
+];
+
 export default function ProductDetail() {
   const { id } = useParams();
   const [items, setItems] = useState([]);
@@ -49,8 +65,12 @@ export default function ProductDetail() {
 
   const availableSizes = useMemo(() => {
     if (!product) return [];
-    // User requested specific standard options to always be shown
-    return ['Small', 'Medium', 'Large'];
+    // Use sizeDetails from product if available, otherwise use default sizes
+    if (product.sizeDetails && product.sizeDetails.length > 0) {
+      return product.sizeDetails.filter(s => s.available !== false);
+    }
+    // Fallback to a default set of all standard sizes
+    return PRODUCT_SIZES;
   }, [product]);
 
   const availableColors = useMemo(() => {
@@ -63,11 +83,10 @@ export default function ProductDetail() {
     if (!product) return;
     
     // Initialize state if not already set or if switching products
-    // Use the computed available options
     const vs = availableSizes;
     const vc = availableColors;
 
-    setSize(prev => prev || (vs && vs.length ? String(vs[0]) : ''));
+    setSize(prev => prev || (vs && vs.length ? String(vs[0].label || vs[0]) : ''));
     setColor(prev => prev || (vc && vc.length ? String(vc[0]) : ''));
     
     (async () => {
@@ -211,7 +230,10 @@ export default function ProductDetail() {
                   <div className="option-group">
                     <label>Size</label>
                     <select value={size} onChange={e=>setSize(e.target.value)}>
-                      {availableSizes.map(s => <option key={s} value={s}>{s}</option>)}
+                      {availableSizes.map(s => {
+                        const sizeLabel = s.label || s;
+                        return <option key={sizeLabel} value={sizeLabel}>{sizeLabel}</option>
+                      })}
                     </select>
                   </div>
                 )}

@@ -16,11 +16,35 @@ const OrderItemSchema = new mongoose.Schema(
 const OrderSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", default: null },
   legacyUserId: { type: Number, default: null },
-  name: { type: String },
-  address: { type: String },
-  city: { type: String },
-  phone: { type: String },
-  email: { type: String },
+  name: { type: String, required: true },
+  address: { 
+    type: String, 
+    required: [true, "Address is required"],
+    trim: true,
+    minlength: [5, "Address must be at least 5 characters long"]
+  },
+  city: { type: String, required: true },
+  phone: { 
+    type: String, 
+    required: [true, "Phone number is required"],
+    validate: {
+      validator: function(v) {
+        return /^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/.test(v);
+      },
+      message: "Phone number must be 11 digits (03XXXXXXXXX)"
+    }
+  },
+  email: { 
+    type: String, 
+    required: [true, "Email is required"],
+    lowercase: true,
+    validate: {
+      validator: function(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      },
+      message: "Email must be valid"
+    }
+  },
   payment: { type: String },
   items: { type: [OrderItemSchema], default: [] },
   subtotal: { type: Number, default: 0 },

@@ -33,6 +33,29 @@ async function createOrder(req, res) {
     );
     console.log("[orders] Request user:", req.user);
 
+    // Validation schema for required fields
+    const schema = Joi.object({
+      name: Joi.string().required().messages({'any.required': 'Name is required'}),
+      email: Joi.string().email().required().messages({'any.required': 'Email is required', 'string.email': 'Email must be valid'}),
+      phone: Joi.string().regex(/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/).required().messages({'any.required': 'Phone number is required', 'string.pattern.base': 'Phone number must be 11 digits (03XXXXXXXXX)'}), 
+      address: Joi.string().min(5).required().messages({'any.required': 'Address is required', 'string.min': 'Address must be at least 5 characters long'}),
+      city: Joi.string().required().messages({'any.required': 'City is required'}),
+      items: Joi.array().required(),
+      payment: Joi.string(),
+      subtotal: Joi.number(),
+      shipping: Joi.number(),
+      total: Joi.number(),
+      senderNumber: Joi.string().allow('').optional(),
+      transactionId: Joi.string().allow('').optional(),
+      createdAt: Joi.string().optional(),
+      metadata: Joi.object().optional(),
+    }).unknown(true);
+
+    const { error, value } = schema.validate(body);
+    if (error) {
+      return res.status(400).json({ error: error.details[0].message });
+    }
+
     // ALWAYS try MongoDB first if configured
     const OrderModel = getOrderModel();
     console.log("[orders] OrderModel available:", !!OrderModel);
@@ -47,19 +70,19 @@ async function createOrder(req, res) {
             String(req.user.id).match(/^[0-9a-fA-F]{24}$/)
               ? req.user.id
               : null,
-          name: body.name,
-          address: body.address,
-          city: body.city,
-          phone: body.phone,
-          email: body.email,
-          payment: body.payment,
-          items: body.items || [],
-          subtotal: Number(body.subtotal) || 0,
-          shipping: Number(body.shipping) || 0,
-          total: Number(body.total) || 0,
-          paymentStatus: body.paymentStatus || "pending",
-          transactionId: body.transactionId || "",
-          metadata: body.metadata || {},
+          name: value.name,
+          address: value.address,
+          city: value.city,
+          phone: value.phone,
+          email: value.email,
+          payment: value.payment,
+          items: value.items || [],
+          subtotal: Number(value.subtotal) || 0,
+          shipping: Number(value.shipping) || 0,
+          total: Number(value.total) || 0,
+          paymentStatus: value.paymentStatus || "pending",
+          transactionId: value.transactionId || "",
+          metadata: value.metadata || {},
         };
 
         console.log("[orders] Saving to MongoDB:", orderData);
@@ -83,7 +106,11 @@ async function createOrder(req, res) {
         return res.status(201).json(saved);
       } catch (dbErr) {
         console.error("[orders] DB save error:", dbErr.message, dbErr);
-        // Don't fall back to SHEETDB - let it fail
+        // Handle validation errors from schema
+        if (dbErr.name === 'ValidationError') {
+          const messages = Object.values(dbErr.errors).map(e => e.message);
+          return res.status(400).json({ error: messages.join(', ') });
+        }
         return res
           .status(500)
           .json({ error: "Failed to save order: " + dbErr.message });
