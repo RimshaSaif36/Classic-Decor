@@ -35,18 +35,40 @@ async function createOrder(req, res) {
 
     // Validation schema for required fields
     const schema = Joi.object({
-      name: Joi.string().required().messages({'any.required': 'Name is required'}),
-      email: Joi.string().email().required().messages({'any.required': 'Email is required', 'string.email': 'Email must be valid'}),
-      phone: Joi.string().regex(/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/).required().messages({'any.required': 'Phone number is required', 'string.pattern.base': 'Phone number must be 11 digits (03XXXXXXXXX)'}), 
-      address: Joi.string().min(5).required().messages({'any.required': 'Address is required', 'string.min': 'Address must be at least 5 characters long'}),
-      city: Joi.string().required().messages({'any.required': 'City is required'}),
+      name: Joi.string()
+        .required()
+        .messages({ "any.required": "Name is required" }),
+      email: Joi.string()
+        .email()
+        .required()
+        .messages({
+          "any.required": "Email is required",
+          "string.email": "Email must be valid",
+        }),
+      phone: Joi.string()
+        .regex(/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/)
+        .required()
+        .messages({
+          "any.required": "Phone number is required",
+          "string.pattern.base": "Phone number must be 11 digits (03XXXXXXXXX)",
+        }),
+      address: Joi.string()
+        .min(5)
+        .required()
+        .messages({
+          "any.required": "Address is required",
+          "string.min": "Address must be at least 5 characters long",
+        }),
+      city: Joi.string()
+        .required()
+        .messages({ "any.required": "City is required" }),
       items: Joi.array().required(),
       payment: Joi.string(),
       subtotal: Joi.number(),
       shipping: Joi.number(),
       total: Joi.number(),
-      senderNumber: Joi.string().allow('').optional(),
-      transactionId: Joi.string().allow('').optional(),
+      senderNumber: Joi.string().allow("").optional(),
+      transactionId: Joi.string().allow("").optional(),
       createdAt: Joi.string().optional(),
       metadata: Joi.object().optional(),
     }).unknown(true);
@@ -107,9 +129,9 @@ async function createOrder(req, res) {
       } catch (dbErr) {
         console.error("[orders] DB save error:", dbErr.message, dbErr);
         // Handle validation errors from schema
-        if (dbErr.name === 'ValidationError') {
-          const messages = Object.values(dbErr.errors).map(e => e.message);
-          return res.status(400).json({ error: messages.join(', ') });
+        if (dbErr.name === "ValidationError") {
+          const messages = Object.values(dbErr.errors).map((e) => e.message);
+          return res.status(400).json({ error: messages.join(", ") });
         }
         return res
           .status(500)

@@ -46,7 +46,7 @@ async function run() {
     tags: p.tags || [],
     colors: p.colors || [],
     sizes: p.sizes || [],
-    sizeDetails: PRODUCT_SIZES,  // Add all standard sizes with dimensions
+    sizeDetails: PRODUCT_SIZES, // Add all standard sizes with dimensions
     isFeatured: i < 4,
     createdAt: p.createdAt ? new Date(p.createdAt) : new Date(),
   }));
