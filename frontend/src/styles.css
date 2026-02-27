@@ -3553,7 +3553,7 @@ footer {
   flex-direction: column;
 }
 
- .product-info .product-name {
+.product-info .product-name {
   font-size: 1.9rem;
   color: var(--text-primary);
   margin-bottom: 0.8rem;
@@ -3576,7 +3576,7 @@ footer {
   background: rgba(212, 175, 55, 0.05);
   padding: 0.7rem;
   border-radius: var(--radius-md);
-  border-left: 3px solid rgba(212,175,55,0.15);
+  border-left: 3px solid rgba(212, 175, 55, 0.15);
 }
 
 .price-section {
@@ -6999,7 +6999,9 @@ code {
   display: flex;
   align-items: center;
   gap: 10px;
-  animation: slideInLeft 0.4s ease, slideOutLeft 0.4s ease 2.1s forwards;
+  animation:
+    slideInLeft 0.4s ease,
+    slideOutLeft 0.4s ease 2.1s forwards;
   white-space: nowrap;
   font-weight: 500;
 }

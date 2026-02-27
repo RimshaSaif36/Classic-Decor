@@ -40,7 +40,7 @@ async function listProducts(req, res) {
     } catch (err) {
       console.error(
         "[products] db query error:",
-        err && err.message ? err.message : err
+        err && err.message ? err.message : err,
       );
       return res.status(500).json({ error: "Failed to query products" });
     }
@@ -54,7 +54,7 @@ async function listProducts(req, res) {
         (p) =>
           (p.name || "").toLowerCase().includes(qq) ||
           (p.description || "").toLowerCase().includes(qq) ||
-          (p.tags || []).join(" ").toLowerCase().includes(qq)
+          (p.tags || []).join(" ").toLowerCase().includes(qq),
       );
     }
     if (category)
@@ -67,7 +67,7 @@ async function listProducts(req, res) {
       products = products.sort((a, b) => b.price - a.price);
     else
       products = products.sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
     const start = (page - 1) * limit;
     const end = start + limit;
@@ -75,7 +75,7 @@ async function listProducts(req, res) {
   } catch (e) {
     console.error(
       "[products] file store error",
-      e && e.message ? e.message : e
+      e && e.message ? e.message : e,
     );
     return res.status(500).json({ error: "Failed to load products" });
   }
@@ -83,11 +83,11 @@ async function listProducts(req, res) {
 
 async function getProduct(req, res) {
   const id = req.params.id;
-  
+
   // Try MongoDB first if connected
   if (ProductModel && req.app.locals.dbConnected) {
     try {
-        const conds = [];
+      const conds = [];
       if (mongoose.Types.ObjectId.isValid(id)) conds.push({ _id: id });
       const numeric = Number(id);
       if (!isNaN(numeric)) conds.push({ id: numeric });
@@ -97,23 +97,29 @@ async function getProduct(req, res) {
       if (p) return res.json(p);
       // If not found in MongoDB, fall through to JSON
     } catch (e) {
-      console.error("[products] get error (db)", e && e.message ? e.message : e);
+      console.error(
+        "[products] get error (db)",
+        e && e.message ? e.message : e,
+      );
       // Continue to JSON fallback on error
     }
   }
-  
+
   // Fallback to JSON file
   try {
     const products = read("products") || [];
     const found = products.find(
-      (p) => String(p.id) === String(id) || String(p.slug) === String(id)
+      (p) => String(p.id) === String(id) || String(p.slug) === String(id),
     );
     if (!found) {
       return res.status(404).json({ error: "Product not found" });
     }
     return res.json(found);
   } catch (e) {
-    console.error("[products] get error (file)", e && e.message ? e.message : e);
+    console.error(
+      "[products] get error (file)",
+      e && e.message ? e.message : e,
+    );
     return res.status(500).json({ error: "Failed to fetch product" });
   }
 }
@@ -137,32 +143,35 @@ async function relatedProducts(req, res) {
             status: "active",
             $or: [
               { category: main.category },
-              { tags: { $in: main.tags || [] } }
-            ]
+              { tags: { $in: main.tags || [] } },
+            ],
           };
           const related = await ProductModel.find(filter).limit(8).lean();
           return res.json(related);
         }
         // If not found, fall through to JSON
       } catch (e) {
-        console.error("[products] related db error", e && e.message ? e.message : e);
+        console.error(
+          "[products] related db error",
+          e && e.message ? e.message : e,
+        );
         // Continue to JSON fallback
       }
     }
-    
+
     // Fallback to JSON file
     const products = read("products") || [];
     const main = products.find(
-      (p) => String(p.id) === String(id) || String(p.slug) === String(id)
+      (p) => String(p.id) === String(id) || String(p.slug) === String(id),
     );
     if (!main) return res.json([]);
-    
+
     const related = products
       .filter(
         (p) =>
           p.id !== main.id &&
           (p.category === main.category ||
-            (p.tags || []).some((t) => (main.tags || []).includes(t)))
+            (p.tags || []).some((t) => (main.tags || []).includes(t))),
       )
       .slice(0, 8);
     return res.json(related);
@@ -202,7 +211,8 @@ async function createProduct(req, res) {
     try {
       const priceNum = Number(p.price) || 0;
       const discount = Number(p.saleDiscount) || 0;
-      const salePrice = discount > 0 ? priceNum - (priceNum * discount) / 100 : priceNum;
+      const salePrice =
+        discount > 0 ? priceNum - (priceNum * discount) / 100 : priceNum;
       const product = await ProductModel.create({
         name: p.name || "Untitled",
         price: priceNum,
@@ -216,15 +226,15 @@ async function createProduct(req, res) {
         metaDescription: p.metaDescription || "",
         description: p.description || "",
         saleDiscount: discount,
-        colors: Array.isArray(p.colors) ? p.colors : (p.colors ? p.colors : []),
-        sizes: Array.isArray(p.sizes) ? p.sizes : (p.sizes ? p.sizes : []),
+        colors: Array.isArray(p.colors) ? p.colors : p.colors ? p.colors : [],
+        sizes: Array.isArray(p.sizes) ? p.sizes : p.sizes ? p.sizes : [],
         salePrice: salePrice,
       });
       return res.status(201).json(product);
     } catch (err) {
       console.error(
         "[products] db create error:",
-        err && err.message ? err.message : err
+        err && err.message ? err.message : err,
       );
       return res.status(500).json({ error: "Failed to create product" });
     }
@@ -234,7 +244,8 @@ async function createProduct(req, res) {
   const id = Date.now();
   const priceNum = Number(p.price) || 0;
   const discount = Number(p.saleDiscount) || 0;
-  const salePrice = discount > 0 ? priceNum - (priceNum * discount) / 100 : priceNum;
+  const salePrice =
+    discount > 0 ? priceNum - (priceNum * discount) / 100 : priceNum;
   const product = {
     id,
     name: p.name || "Untitled",
@@ -249,8 +260,8 @@ async function createProduct(req, res) {
     metaDescription: p.metaDescription || "",
     description: p.description || "",
     saleDiscount: discount,
-    colors: Array.isArray(p.colors) ? p.colors : (p.colors ? p.colors : []),
-    sizes: Array.isArray(p.sizes) ? p.sizes : (p.sizes ? p.sizes : []),
+    colors: Array.isArray(p.colors) ? p.colors : p.colors ? p.colors : [],
+    sizes: Array.isArray(p.sizes) ? p.sizes : p.sizes ? p.sizes : [],
     salePrice: salePrice,
     createdAt: new Date().toISOString(),
   };
