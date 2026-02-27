@@ -78,8 +78,8 @@ export default function PrivacyPolicy() {
               If you have any questions about this Privacy Policy, please contact us:
             </p>
             <p>
-              <strong>By email:</strong> privacy@theclassicdecor.com<br />
-              <strong>By phone:</strong> +92-300-XXXX-XXX
+              <strong>By email:</strong> support@theclassicdecor.com<br />
+              <strong>By phone:</strong> 03110721400
             </p>
           </section>
         </div>

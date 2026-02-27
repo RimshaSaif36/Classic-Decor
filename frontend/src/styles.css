@@ -2028,8 +2028,8 @@ nav ul li a:hover {
 
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2.5rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
   margin-top: 3rem;
   max-width: 1200px;
   margin-left: auto;
@@ -2038,7 +2038,7 @@ nav ul li a:hover {
 
 .product-item {
   background: white;
-  border-radius: var(--radius-lg);
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border: 1px solid rgba(212, 175, 55, 0.12);
@@ -2060,6 +2060,7 @@ nav ul li a:hover {
   display: block;
   aspect-ratio: 1;
   background: var(--bg-secondary);
+  border-radius: 0;
 }
 
 .product-image {
@@ -2115,7 +2116,7 @@ nav ul li a:hover {
 }
 
 .product-item-content {
-  padding: 1.2rem;
+  padding: 0.6rem 0.8rem;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
@@ -2125,11 +2126,13 @@ nav ul li a:hover {
 
 .product-name {
   font-size: 1rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.2rem;
   color: var(--text-primary);
   font-weight: 500;
-  line-height: 1.4;
-  min-height: 2em;
+  line-height: 1.3;
+  min-height: 1.4em;
+  outline: none;
+  border: none;
 }
 
 .product-description {
@@ -2139,10 +2142,10 @@ nav ul li a:hover {
 .product-footer {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
   margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  padding-top: 0.5rem;
+  border-top: none;
 }
 
 .product-price {
@@ -2645,15 +2648,15 @@ nav ul li a:hover {
 footer {
   background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
   color: white;
-  padding: 4rem 2rem 2rem;
+  padding: 3rem 2rem 1.5rem;
   margin-top: 4rem;
   border-top: 2px solid var(--primary);
 }
 
 .footer-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 3rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2.5rem;
   padding: 0 2rem;
   max-width: 1400px;
   margin: 0 auto;
@@ -2699,16 +2702,17 @@ footer {
 
 .footer-column h3 {
   color: white;
-  margin-bottom: 1.2rem;
-  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 
 .footer-column p {
   color: #aaa;
-  line-height: 1.8;
+  line-height: 1.6;
   margin-bottom: 0;
+  font-size: 0.95rem;
 }
 
 .footer-column ul li a {
@@ -2717,8 +2721,9 @@ footer {
     color var(--transition-base),
     padding-left var(--transition-base);
   display: block;
-  padding: 0.5rem 0;
+  padding: 0.3rem 0;
   padding-left: 0;
+  font-size: 0.95rem;
 }
 
 .footer-column ul li a:hover {
@@ -2778,13 +2783,13 @@ footer {
 }
 
 .newsletter {
-  margin-top: 1rem;
+  margin-top: 0.8rem;
 }
 
 .newsletter p {
   color: #aaa;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
 }
 
 .newsletter form {
@@ -2832,26 +2837,26 @@ footer {
 
 .footer-bottom {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem 2rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   color: #888;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 768px) {
   footer {
-    padding: 3rem 1.5rem 2rem;
+    padding: 2rem 1.5rem 1rem;
   }
 
   .footer-container {
-    gap: 2rem;
+    gap: 1.5rem;
     padding: 0 1rem;
   }
 
   .footer-column h3 {
-    font-size: 1rem;
-    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    margin-bottom: 0.6rem;
   }
 }
 
@@ -4012,9 +4017,9 @@ footer {
 
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin: 0 2.5rem 3rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin: 0 1.5rem 3rem;
   padding: 0;
 }
 
@@ -4550,7 +4555,7 @@ footer {
   }
 
   .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
 
@@ -6957,7 +6962,7 @@ code {
 /* WhatsApp Floating Button */
 .whatsapp-button {
   position: fixed;
-  left: 20px;
+  right: 20px;
   bottom: 20px;
   width: 60px;
   height: 60px;
@@ -6988,7 +6993,7 @@ code {
 /* WhatsApp Notification Popup */
 .whatsapp-notification {
   position: fixed;
-  left: 90px;
+  right: 90px;
   bottom: 30px;
   background-color: #fff;
   color: #333;
@@ -7000,8 +7005,8 @@ code {
   align-items: center;
   gap: 10px;
   animation:
-    slideInLeft 0.4s ease,
-    slideOutLeft 0.4s ease 2.1s forwards;
+    slideInRight 0.4s ease,
+    slideOutRight 0.4s ease 2.1s forwards;
   white-space: nowrap;
   font-weight: 500;
 }
@@ -7020,10 +7025,10 @@ code {
   min-width: 24px;
 }
 
-@keyframes slideInLeft {
+@keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateX(30px);
   }
   to {
     opacity: 1;
@@ -7031,14 +7036,14 @@ code {
   }
 }
 
-@keyframes slideOutLeft {
+@keyframes slideOutRight {
   from {
     opacity: 1;
     transform: translateX(0);
   }
   to {
     opacity: 0;
-    transform: translateX(-30px);
+    transform: translateX(30px);
   }
 }
 
@@ -7046,7 +7051,7 @@ code {
   .whatsapp-button {
     width: 54px;
     height: 54px;
-    left: 16px;
+    right: 16px;
     bottom: 16px;
   }
 
@@ -7056,7 +7061,7 @@ code {
   }
 
   .whatsapp-notification {
-    left: 76px;
+    right: 76px;
     bottom: 24px;
     padding: 10px 14px;
     font-size: 0.9rem;
@@ -7067,4 +7072,12 @@ code {
     height: 20px;
     font-size: 10px;
   }
+}
+
+/* Hide colors and sizes in product grid/listings */
+.product-grid .product-colors,
+.product-grid .product-sizes,
+.shop-products .product-colors,
+.shop-products .product-sizes {
+  display: none !important;
 }

@@ -30,6 +30,10 @@ export default function Footer() {
           </ul>
         </div>
         <div className="footer-column">
+          <h3>Office Address</h3>
+          <p>Plot#3, Behind Climax Garden Masijid, Near Jinnah Flyour, G.T Road, Gujranwala, Pakistan</p>
+        </div>
+        <div className="footer-column">
           <h3>Stay Connected</h3>
           <div className="social-media">
             <a 
@@ -76,6 +80,15 @@ export default function Footer() {
               aria-label="LinkedIn"
             >
               <i className="fab fa-linkedin-in"></i>
+            </a>
+            <a 
+              href="https://www.google.com/maps/search/Plot%233,+Behind+Climax+Garden+Masijid,+Near+Jinnah+Flyour,+G.T+Road,+Gujranwala,+Pakistan/@32.2796808,74.1343503,13z?entry=ttu&g_ep=EgoyMDI2MDIyNC4wIKXMDSoASAFQAw%3D%3D"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit Our Office"
+              aria-label="Office Address"
+            >
+              <i className="fas fa-map-marker-alt"></i>
             </a>
           </div>
           <div className="newsletter">

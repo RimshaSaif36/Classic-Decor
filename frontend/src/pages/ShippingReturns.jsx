@@ -51,7 +51,7 @@ export default function ShippingReturns() {
             </p>
             <p>
               <strong>Email:</strong> support@theclassicdecor.com<br />
-              <strong>Phone:</strong> +92-300-XXXX-XXX
+              <strong>Phone:</strong> 03110721400
             </p>
           </section>
         </div>

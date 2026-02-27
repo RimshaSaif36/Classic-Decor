@@ -265,22 +265,6 @@ export default function Shop() {
                           <>PKR {Number(p.price).toLocaleString()}</>
                         )}
                       </p>
-                      {p.colors && p.colors.length > 0 && (
-                        <div className="product-colors">
-                          <span className="color-label">Colors:</span>
-                          {p.colors.map(color => (
-                            <span key={color} className="color-tag">{color}</span>
-                          ))}
-                        </div>
-                      )}
-                      {p.sizes && p.sizes.length > 0 && (
-                        <div className="product-sizes">
-                          <span className="size-label">Sizes:</span>
-                          {p.sizes.map(size => (
-                            <span key={size} className="size-tag">{size}</span>
-                          ))}
-                        </div>
-                      )}
                       <div className="product-actions">
                         <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="view-details-btn">
                           View Details

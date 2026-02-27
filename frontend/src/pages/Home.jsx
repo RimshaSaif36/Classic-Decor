@@ -72,12 +72,12 @@ export default function Home() {
     const len = latest.length;
     if (len === 0) return [];
     
-    // Show 3 reviews at a time, cycling through all available reviews
-    const reviewsPerSlide = Math.min(3, len);
+    // Show 4 reviews at a time, cycling through all available reviews
+    const reviewsPerSlide = Math.min(4, len);
     const result = [];
     
-    // If we have fewer than 3 reviews, show all without repetition
-    if (len <= 3) {
+    // If we have fewer than 4 reviews, show all without repetition
+    if (len <= 4) {
       return latest.slice();
     }
     
