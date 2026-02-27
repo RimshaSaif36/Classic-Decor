@@ -20,11 +20,13 @@ export default function Home() {
     let cancelled = false;
     (async () => {
       try {
-        const r = await fetch(API_BASE + "/api/reviews");
+        // Request only approved reviews from the API when possible
+        const r = await fetch(API_BASE + "/api/reviews?onlyApproved=true");
         const list = await r.json();
-        const latest = (Array.isArray(list) ? list : []).reverse(); // Show all reviews
+        // Ensure we only use approved reviews (fallback if API doesn't filter)
+        const approved = (Array.isArray(list) ? list : []).filter(rv => (rv.status || 'approved') === 'approved').reverse();
         if (!cancelled) {
-          setLatest(latest);
+          setLatest(approved);
           setLoadingReviews(false);
         }
       } catch (e) {
@@ -71,22 +73,21 @@ export default function Home() {
   const visible = useMemo(() => {
     const len = latest.length;
     if (len === 0) return [];
-    
-    // Show 4 reviews at a time, cycling through all available reviews
-    const reviewsPerSlide = Math.min(4, len);
-    const result = [];
-    
-    // If we have fewer than 4 reviews, show all without repetition
-    if (len <= 4) {
+
+    // Show 3 reviews at a time, cycling through all available reviews
+    const reviewsPerSlide = Math.min(3, len);
+
+    // If we have fewer than or equal to 3 reviews, show all without repetition
+    if (len <= 3) {
       return latest.slice();
     }
-    
-    // For more than 3 reviews, show 3 at a time with proper cycling
+
+    const result = [];
     for (let i = 0; i < reviewsPerSlide; i++) {
       const index = (ri + i) % len;
       result.push(latest[index]);
     }
-    
+
     return result;
   }, [latest, ri]);
 
