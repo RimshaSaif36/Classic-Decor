@@ -2095,18 +2095,18 @@ nav ul li a:hover {
 }
 
 .quick-view-btn {
-  padding: 0.75rem 1.5rem;
+  padding: 0.65rem 1.3rem;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 0.85rem;
-  letter-spacing: 0.8px;
+  font-size: 0.8rem;
+  letter-spacing: 0.3px;
   text-transform: uppercase;
-  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.25);
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
 }
 
 .quick-view-btn:hover {
@@ -2124,12 +2124,12 @@ nav ul li a:hover {
 }
 
 .product-name {
-  font-size: 1.1rem;
-  margin-bottom: 0.6rem;
+  font-size: 1rem;
+  margin-bottom: 0.4rem;
   color: var(--text-primary);
-  font-weight: 800;
+  font-weight: 500;
   line-height: 1.4;
-  min-height: 2.8em;
+  min-height: 2em;
 }
 
 .product-description {
@@ -2138,39 +2138,73 @@ nav ul li a:hover {
 
 .product-footer {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.8rem;
   margin-top: auto;
-  padding-top: 1.2rem;
-  border-top: 2px solid rgba(212, 175, 55, 0.15);
+  padding-top: 1rem;
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
 }
 
 .product-price {
-  font-size: 1.5rem;
-  font-weight: 900;
+  font-size: 1.15rem;
+  font-weight: 600;
   color: var(--primary);
   margin: 0;
+  line-height: 1.3;
+}
+
+.original-price-home {
+  display: inline-block;
+  text-decoration: line-through;
+  color: #a8a8a8;
+  font-size: 0.9rem;
+  margin-right: 0.4rem;
+  font-weight: 500;
+}
+
+.sale-price-home {
+  display: inline-block;
+  color: #d32f2f;
+  font-weight: 650;
+  font-size: 1rem;
+}
+
+.sale-badge-home {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(135deg, #ff5252, #e53935);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 24px;
+  font-weight: 650;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+  border: none;
 }
 
 .add-to-cart-btn {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.7rem 1rem;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   text-transform: uppercase;
-  letter-spacing: 0.7px;
-  box-shadow: 0 3px 10px rgba(212, 175, 55, 0.15);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.15);
+  min-height: 44px;
 }
 
 .add-to-cart-btn:hover {
@@ -3519,29 +3553,105 @@ footer {
   flex-direction: column;
 }
 
-.product-info .product-name {
-  font-size: 2.5rem;
+ .product-info .product-name {
+  font-size: 1.9rem;
   color: var(--text-primary);
-  margin-bottom: 1rem;
-  font-weight: 800;
+  margin-bottom: 0.8rem;
+  font-weight: 600;
 }
 
 .product-info .product-description {
   color: var(--text-secondary);
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 1.3rem;
+  font-size: 0.95rem;
+  font-weight: 400;
 }
 
 .product-info .product-price {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 600;
   color: var(--primary);
-  margin-bottom: 2rem;
-  background: rgba(212, 175, 55, 0.1);
-  padding: 1rem;
+  margin-bottom: 1.4rem;
+  background: rgba(212, 175, 55, 0.05);
+  padding: 0.7rem;
   border-radius: var(--radius-md);
-  border-left: 4px solid var(--primary);
+  border-left: 3px solid rgba(212,175,55,0.15);
+}
+
+.price-section {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.sale-badge-detail {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  background: linear-gradient(135deg, #ff5252, #e53935);
+  color: white;
+  padding: 6px 13px;
+  border-radius: 26px;
+  font-weight: 650;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+  border: none;
+}
+
+.sale-price-detail {
+  display: inline-block;
+  color: #d32f2f;
+  font-weight: 650;
+  font-size: 1.3rem;
+  margin-left: 0.8rem;
+}
+
+.product-colors-detail,
+.product-sizes-detail {
+  margin-bottom: 1.2rem;
+  padding: 0.8rem;
+  background-color: #fafafa;
+  border-radius: var(--radius-md);
+  border: 1px solid #e8e8e8;
+}
+
+.product-colors-detail strong,
+.product-sizes-detail strong {
+  display: block;
+  margin-bottom: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.color-list,
+.size-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+.color-badge,
+.size-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  background-color: white;
+  border: 1.5px solid var(--primary);
+  border-radius: 5px;
+  font-weight: 500;
+  color: var(--primary);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  cursor: default;
+  transition: all var(--transition-base);
+}
+
+.color-badge:hover,
+.size-badge:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+  transform: translateY(-2px);
 }
 
 .product-options {
@@ -3581,18 +3691,22 @@ footer {
 }
 
 .add-to-cart-detail {
-  padding: 1.2rem 2rem;
+  padding: 1rem 2rem;
   border: none;
   border-radius: var(--radius-md);
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-base);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.4px;
   align-self: flex-start;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .add-to-cart-detail:hover {
@@ -3995,26 +4109,46 @@ footer {
   backdrop-filter: blur(5px);
 }
 
+.product-overlay-action {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  background: rgba(0, 0, 0, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  padding: 1.2rem;
+}
+
 .shop-product-card:hover .product-overlay-action {
   opacity: 1;
 }
 
 .quick-add-btn {
-  padding: 1rem 1.8rem;
+  padding: 0.7rem 1.4rem;
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 0.95rem;
+  font-weight: 600;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all var(--transition-base);
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  gap: 0.5rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+  letter-spacing: 0.3px;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.25);
+  width: 100%;
+  min-height: 44px;
 }
 
 .quick-add-btn:hover {
@@ -4039,10 +4173,10 @@ footer {
 }
 
 .product-title {
-  font-size: 1rem;
-  font-weight: 700;
+  font-size: 0.95rem;
+  font-weight: 500;
   color: var(--text-primary);
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
   line-height: 1.4;
   flex-grow: 1;
   display: -webkit-box;
@@ -4070,6 +4204,78 @@ footer {
   letter-spacing: 0.1px;
 }
 
+.original-price {
+  display: inline-block;
+  text-decoration: line-through;
+  color: #a8a8a8;
+  font-size: 0.9rem;
+  margin-right: 0.4rem;
+  font-weight: 500;
+}
+
+.sale-price {
+  display: inline-block;
+  color: #d32f2f;
+  font-weight: 650;
+  font-size: 1rem;
+}
+
+/* Sale Badge */
+.sale-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: linear-gradient(135deg, #ff5252, #e53935);
+  color: white;
+  padding: 5px 11px;
+  border-radius: 26px;
+  font-weight: 650;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(229, 57, 53, 0.3);
+  border: none;
+}
+
+/* Product Colors and Sizes */
+.product-colors,
+.product-sizes {
+  margin: 0.6rem 0;
+  font-size: 0.85rem;
+}
+
+.color-label,
+.size-label {
+  display: inline-block;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-right: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.color-tag,
+.size-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: #f5f5f5;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  margin-right: 0.3rem;
+  margin-bottom: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+}
+
+.color-tag:hover,
+.size-tag:hover {
+  background-color: #e0e0e0;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .product-actions {
   display: flex;
   gap: 0.8rem;
@@ -4087,24 +4293,73 @@ footer {
   color: white;
   border: none;
   border-radius: var(--radius-md);
-  font-weight: 700;
-  font-size: 0.85rem;
+  font-weight: 600;
+  font-size: 0.8rem;
   cursor: pointer;
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.3px;
   transition: all var(--transition-base);
   display: flex;
   align-items: center;
   justify-content: center;
   min-width: 0;
   white-space: nowrap;
+  min-height: 44px;
 }
 
 .view-details-btn:hover {
   background: #333333;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Fix: Ensure Add-to-Cart / View buttons in shop product cards are full-width and aligned */
+.shop-product-card .product-price {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-size: 1.15rem;
+}
+
+.shop-product-card .original-price {
+  margin-bottom: 0;
+}
+
+.shop-product-card .product-actions {
+  width: 100%;
+  margin-top: 0.6rem;
+}
+
+.shop-product-card .product-actions .view-details-btn,
+.shop-product-card .product-actions .add-to-cart-btn,
+.shop-product-card .product-footer .add-to-cart-btn {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  letter-spacing: 0.4px;
+}
+
+/* Make sure product footer uses column layout so price and button don't fight for space */
+.shop-product-card .product-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: auto;
+}
+
+/* Small screens: keep buttons touch-friendly */
+@media (max-width: 640px) {
+  .shop-product-card .product-footer {
+    gap: 0.6rem;
+  }
+  .shop-product-card .product-actions .view-details-btn {
+    padding: 0.9rem 1rem;
+  }
 }
 
 .view-details-btn:active {
@@ -6696,5 +6951,118 @@ code {
 
   .all-reviews-section h4 {
     font-size: 1.5rem;
+  }
+}
+
+/* WhatsApp Floating Button */
+.whatsapp-button {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #25d366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 999;
+  border: none;
+}
+
+.whatsapp-button:hover {
+  background-color: #20ba5f;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  transform: scale(1.1);
+}
+
+.whatsapp-button svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* WhatsApp Notification Popup */
+.whatsapp-notification {
+  position: fixed;
+  left: 90px;
+  bottom: 30px;
+  background-color: #fff;
+  color: #333;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 998;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideInLeft 0.4s ease, slideOutLeft 0.4s ease 2.1s forwards;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.notification-badge {
+  background-color: #ff0000;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 24px;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutLeft {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+}
+
+@media (max-width: 768px) {
+  .whatsapp-button {
+    width: 54px;
+    height: 54px;
+    left: 16px;
+    bottom: 16px;
+  }
+
+  .whatsapp-button svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .whatsapp-notification {
+    left: 76px;
+    bottom: 24px;
+    padding: 10px 14px;
+    font-size: 0.9rem;
+  }
+
+  .notification-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 10px;
   }
 }

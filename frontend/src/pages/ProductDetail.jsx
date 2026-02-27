@@ -65,9 +65,9 @@ export default function ProductDetail() {
 
   const availableSizes = useMemo(() => {
     if (!product) return [];
-    // Use sizeDetails from product if available, otherwise use default sizes
-    if (product.sizeDetails && product.sizeDetails.length > 0) {
-      return product.sizeDetails.filter(s => s.available !== false);
+    // Use sizes from product if available (from dashboard)
+    if (product.sizes && Array.isArray(product.sizes) && product.sizes.length > 0) {
+      return product.sizes.map(s => ({ label: s }));
     }
     // Fallback to a default set of all standard sizes
     return PRODUCT_SIZES;
@@ -75,8 +75,12 @@ export default function ProductDetail() {
 
   const availableColors = useMemo(() => {
     if (!product) return [];
-    // User requested specific standard options to always be shown
-    return ['Transparent', 'Black', 'Silver', 'Golden', 'Golden Black', 'Silver Black'];
+    // Use colors from product if available (from dashboard)
+    if (product.colors && Array.isArray(product.colors) && product.colors.length > 0) {
+      return product.colors;
+    }
+    // Fallback to standard colors
+    return ['Transparent', 'Black', 'Silver', 'Golden'];
   }, [product]);
 
   useEffect(() => {
@@ -223,7 +227,21 @@ export default function ProductDetail() {
             <div className="product-info">
               <h2 className="product-name">{product.name}</h2>
               <p className="product-description">{product.description || product.metaDescription || ''}</p>
-              <p className="product-price">PKR {Number(product.price) || 0}</p>
+              <div className="price-section">
+                {product.saleDiscount > 0 && (
+                  <div className="sale-badge-detail">{product.saleDiscount}% OFF</div>
+                )}
+                <p className="product-price">
+                  {product.saleDiscount > 0 ? (
+                    <>
+                      <span className="original-price">PKR {Number(product.price).toLocaleString()}</span>
+                      <span className="sale-price-detail">PKR {(product.price - (product.price * product.saleDiscount / 100)).toLocaleString()}</span>
+                    </>
+                  ) : (
+                    <>PKR {Number(product.price) || 0}</>
+                  )}
+                </p>
+              </div>
 
               <div className="product-options">
                 {availableSizes.length > 0 && (

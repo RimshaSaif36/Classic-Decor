@@ -200,9 +200,12 @@ async function createProduct(req, res) {
   const p = req.body || {};
   if (ProductModel && req.app.locals.dbConnected) {
     try {
+      const priceNum = Number(p.price) || 0;
+      const discount = Number(p.saleDiscount) || 0;
+      const salePrice = discount > 0 ? priceNum - (priceNum * discount) / 100 : priceNum;
       const product = await ProductModel.create({
         name: p.name || "Untitled",
-        price: Number(p.price) || 0,
+        price: priceNum,
         image: p.image || "",
         category: p.category || "",
         variants: p.variants || [],
@@ -212,6 +215,10 @@ async function createProduct(req, res) {
         metaTitle: p.metaTitle || "",
         metaDescription: p.metaDescription || "",
         description: p.description || "",
+        saleDiscount: discount,
+        colors: Array.isArray(p.colors) ? p.colors : (p.colors ? p.colors : []),
+        sizes: Array.isArray(p.sizes) ? p.sizes : (p.sizes ? p.sizes : []),
+        salePrice: salePrice,
       });
       return res.status(201).json(product);
     } catch (err) {
@@ -225,10 +232,13 @@ async function createProduct(req, res) {
 
   const products = read("products");
   const id = Date.now();
+  const priceNum = Number(p.price) || 0;
+  const discount = Number(p.saleDiscount) || 0;
+  const salePrice = discount > 0 ? priceNum - (priceNum * discount) / 100 : priceNum;
   const product = {
     id,
     name: p.name || "Untitled",
-    price: Number(p.price) || 0,
+    price: priceNum,
     image: p.image || "",
     category: p.category || "",
     variants: p.variants || [],
@@ -238,6 +248,10 @@ async function createProduct(req, res) {
     metaTitle: p.metaTitle || "",
     metaDescription: p.metaDescription || "",
     description: p.description || "",
+    saleDiscount: discount,
+    colors: Array.isArray(p.colors) ? p.colors : (p.colors ? p.colors : []),
+    sizes: Array.isArray(p.sizes) ? p.sizes : (p.sizes ? p.sizes : []),
+    salePrice: salePrice,
     createdAt: new Date().toISOString(),
   };
   products.push(product);

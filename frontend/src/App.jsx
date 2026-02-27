@@ -16,10 +16,12 @@ import FAQ from './pages/FAQ.jsx';
 import ShippingReturns from './pages/ShippingReturns.jsx';
 import TermsOfService from './pages/TermsOfService.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
+import WhatsAppButton from './components/WhatsAppButton.jsx';
 
 function App() {
   return (
     <BrowserRouter>
+      <WhatsAppButton />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />

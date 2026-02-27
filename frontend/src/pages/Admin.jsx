@@ -9,6 +9,10 @@ import { API_BASE } from '../lib/config';
 import { useEffect, useState, useMemo, Fragment } from 'react';
 import { imgUrl } from '../lib/utils';
 
+// Predefined options
+const PRESET_COLORS = ['Black', 'Transparent', 'Golden', 'Silver', 'Brown'];
+const PRESET_SIZES = ['Small', 'Medium', 'Large', 'Small (8x8)', 'Medium (12x12)', 'Large (15x15)'];
+
 export default function Admin() {
   const [auth, setAuth] = useState({ token: '', user: null });
   const [status, setStatus] = useState('');
@@ -18,10 +22,18 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ totalOrders: 0, totalRevenue: 0, totalProducts: 0, totalUsers: 0, pendingOrders: 0 });
   const [report, setReport] = useState({ daily: [], monthly: [] });
-  const [form, setForm] = useState({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '' });
+  const [form, setForm] = useState({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
   const [editingId, setEditingId] = useState(null);
-  const [edit, setEdit] = useState({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '' });
+  const [edit, setEdit] = useState({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
   const [cats, setCats] = useState([]);
+  const [formColorChecks, setFormColorChecks] = useState({});
+  const [formSizeChecks, setFormSizeChecks] = useState({});
+  const [formCustomColors, setFormCustomColors] = useState('');
+  const [formCustomSizes, setFormCustomSizes] = useState('');
+  const [editColorChecks, setEditColorChecks] = useState({});
+  const [editSizeChecks, setEditSizeChecks] = useState({});
+  const [editCustomColors, setEditCustomColors] = useState('');
+  const [editCustomSizes, setEditCustomSizes] = useState('');
   const [useCustom, setUseCustom] = useState(false);
   const [useCustomEdit, setUseCustomEdit] = useState(false);
   const [uploadingCreate, setUploadingCreate] = useState(false);
@@ -173,9 +185,30 @@ export default function Admin() {
   async function onSubmit(e){
     e.preventDefault();
     try {
-      const payload = { ...form, price: Number(form.price)||0, stock: Number(form.stock)||0 };
+      // Merge checked colors with custom colors
+      const selectedColors = Object.keys(formColorChecks).filter(c => formColorChecks[c]);
+      const customColorsList = formCustomColors ? formCustomColors.split(',').map(c => c.trim()).filter(c => c) : [];
+      const allColors = [...selectedColors, ...customColorsList];
+      
+      // Merge checked sizes with custom sizes
+      const selectedSizes = Object.keys(formSizeChecks).filter(s => formSizeChecks[s]);
+      const customSizesList = formCustomSizes ? formCustomSizes.split(',').map(s => s.trim()).filter(s => s) : [];
+      const allSizes = [...selectedSizes, ...customSizesList];
+      
+      const payload = { 
+        ...form, 
+        price: Number(form.price)||0, 
+        stock: Number(form.stock)||0,
+        saleDiscount: Number(form.saleDiscount)||0,
+        colors: allColors,
+        sizes: allSizes
+      };
       await api('/api/products', { method: 'POST', body: JSON.stringify(payload) });
-      setForm({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '' });
+      setForm({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
+      setFormColorChecks({});
+      setFormSizeChecks({});
+      setFormCustomColors('');
+      setFormCustomSizes('');
       setUseCustom(false);
       load();
       loadCats();
@@ -210,8 +243,34 @@ export default function Admin() {
       slug: p.slug || '',
       metaTitle: p.metaTitle || '',
       metaDescription: p.metaDescription || '',
-      description: p.description || ''
+      description: p.description || '',
+      saleDiscount: p.saleDiscount || 0,
+      colors: Array.isArray(p.colors) ? p.colors.join(', ') : (p.colors || ''),
+      sizes: Array.isArray(p.sizes) ? p.sizes.join(', ') : (p.sizes || '')
     });
+    
+    // Populate edit color/size checkboxes
+    const existingColors = Array.isArray(p.colors) ? p.colors : [];
+    const existingSizes = Array.isArray(p.sizes) ? p.sizes : [];
+    
+    const colorChecks = {};
+    PRESET_COLORS.forEach(c => {
+      colorChecks[c] = existingColors.includes(c);
+    });
+    
+    const sizeChecks = {};
+    PRESET_SIZES.forEach(s => {
+      sizeChecks[s] = existingSizes.includes(s);
+    });
+    
+    // Find custom colors/sizes (not in preset)
+    const customCols = existingColors.filter(c => !PRESET_COLORS.includes(c));
+    const customSzs = existingSizes.filter(s => !PRESET_SIZES.includes(s));
+    
+    setEditColorChecks(colorChecks);
+    setEditSizeChecks(sizeChecks);
+    setEditCustomColors(customCols.join(', '));
+    setEditCustomSizes(customSzs.join(', '));
     try {
       const ids = (cats || []).map(c => c.id);
       setUseCustomEdit(ids.includes(p.category) ? false : true);
@@ -220,16 +279,41 @@ export default function Admin() {
 
   function cancelEdit(){
     setEditingId(null);
-    setEdit({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '' });
+    setEdit({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
+    setEditColorChecks({});
+    setEditSizeChecks({});
+    setEditCustomColors('');
+    setEditCustomSizes('');
     setUseCustomEdit(false);
   }
 
   async function saveEdit(){
     try {
-      const payload = { ...edit, price: Number(edit.price)||0, stock: Number(edit.stock)||0 };
+      // Merge checked colors with custom colors
+      const selectedColors = Object.keys(editColorChecks).filter(c => editColorChecks[c]);
+      const customColorsList = editCustomColors ? editCustomColors.split(',').map(c => c.trim()).filter(c => c) : [];
+      const allColors = [...selectedColors, ...customColorsList];
+      
+      // Merge checked sizes with custom sizes
+      const selectedSizes = Object.keys(editSizeChecks).filter(s => editSizeChecks[s]);
+      const customSizesList = editCustomSizes ? editCustomSizes.split(',').map(s => s.trim()).filter(s => s) : [];
+      const allSizes = [...selectedSizes, ...customSizesList];
+      
+      const payload = { 
+        ...edit, 
+        price: Number(edit.price)||0, 
+        stock: Number(edit.stock)||0,
+        saleDiscount: Number(edit.saleDiscount)||0,
+        colors: allColors,
+        sizes: allSizes
+      };
       await api('/api/products/' + editingId, { method: 'PUT', body: JSON.stringify(payload) });
       setStatus('Product updated');
       setEditingId(null);
+      setEditColorChecks({});
+      setEditSizeChecks({});
+      setEditCustomColors('');
+      setEditCustomSizes('');
       load();
       loadCats();
     } catch (e) {
@@ -618,6 +702,34 @@ export default function Admin() {
                           {uploadingCreate ? <div>Uploading...</div> : null}
                         </div>
                         <div className="form-group"><label>Stock</label><input type="number" value={form.stock} onChange={e=>setForm({ ...form, stock: e.target.value })} /></div>
+                        <div className="form-group"><label>Sale Discount (%)</label><input type="number" min="0" max="100" value={form.saleDiscount} onChange={e=>setForm({ ...form, saleDiscount: e.target.value })} placeholder="0-100" /></div>
+                        
+                        <div className="form-group">
+                          <label>Colors</label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                            {PRESET_COLORS.map(color => (
+                              <label key={color} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <input type="checkbox" checked={formColorChecks[color] || false} onChange={e => setFormColorChecks({ ...formColorChecks, [color]: e.target.checked })} />
+                                {color}
+                              </label>
+                            ))}
+                          </div>
+                          <input value={formCustomColors} onChange={e => setFormCustomColors(e.target.value)} placeholder="Custom colors (comma-separated)" />
+                        </div>
+                        
+                        <div className="form-group">
+                          <label>Sizes</label>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                            {PRESET_SIZES.map(size => (
+                              <label key={size} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                <input type="checkbox" checked={formSizeChecks[size] || false} onChange={e => setFormSizeChecks({ ...formSizeChecks, [size]: e.target.checked })} />
+                                {size}
+                              </label>
+                            ))}
+                          </div>
+                          <input value={formCustomSizes} onChange={e => setFormCustomSizes(e.target.value)} placeholder="Custom (e.g., 10x10, 16x16, 20x20)" />
+                        </div>
+                        
                         <div className="form-group"><label>Status</label><input value={form.status} onChange={e=>setForm({ ...form, status: e.target.value })} /></div>
                         <div className="form-group"><label>Slug</label><input value={form.slug} onChange={e=>setForm({ ...form, slug: e.target.value })} /></div>
                         <div className="form-group"><label>Meta Title</label><input value={form.metaTitle} onChange={e=>setForm({ ...form, metaTitle: e.target.value })} /></div>
@@ -664,6 +776,34 @@ export default function Admin() {
                                     {uploadingEdit ? <div>Uploading...</div> : null}
                                   </div>
                                   <div className="form-group"><label>Stock</label><input type="number" value={edit.stock} onChange={e => setEdit({ ...edit, stock: e.target.value })} /></div>
+                                  <div className="form-group"><label>Sale Discount (%)</label><input type="number" min="0" max="100" value={edit.saleDiscount} onChange={e => setEdit({ ...edit, saleDiscount: e.target.value })} placeholder="0-100" /></div>
+                                  
+                                  <div className="form-group">
+                                    <label>Colors</label>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                                      {PRESET_COLORS.map(color => (
+                                        <label key={color} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                          <input type="checkbox" checked={editColorChecks[color] || false} onChange={e => setEditColorChecks({ ...editColorChecks, [color]: e.target.checked })} />
+                                          {color}
+                                        </label>
+                                      ))}
+                                    </div>
+                                    <input value={editCustomColors} onChange={e => setEditCustomColors(e.target.value)} placeholder="Custom colors (comma-separated)" />
+                                  </div>
+                                  
+                                  <div className="form-group">
+                                    <label>Sizes</label>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.6rem' }}>
+                                      {PRESET_SIZES.map(size => (
+                                        <label key={size} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                          <input type="checkbox" checked={editSizeChecks[size] || false} onChange={e => setEditSizeChecks({ ...editSizeChecks, [size]: e.target.checked })} />
+                                          {size}
+                                        </label>
+                                      ))}
+                                    </div>
+                                    <input value={editCustomSizes} onChange={e => setEditCustomSizes(e.target.value)} placeholder="Custom (e.g., 10x10, 16x16, 20x20)" />
+                                  </div>
+                                  
                                   <div className="form-group"><label>Status</label><input value={edit.status} onChange={e => setEdit({ ...edit, status: e.target.value })} /></div>
                                   <div className="form-group"><label>Slug</label><input value={edit.slug} onChange={e => setEdit({ ...edit, slug: e.target.value })} /></div>
                                   <div className="form-group"><label>Meta Title</label><input value={edit.metaTitle} onChange={e => setEdit({ ...edit, metaTitle: e.target.value })} /></div>

@@ -39,6 +39,8 @@ const ProductSchema = new mongoose.Schema({
   sizes: { type: [String], default: [] },
   sizeDetails: { type: [SizeSchema], default: [] }, // Structured size info with dimensions
   isFeatured: { type: Boolean, default: false },
+  saleDiscount: { type: Number, default: 0, min: 0, max: 100 }, // Discount percentage (0-100)
+  salePrice: { type: Number, default: 0 }, // Automatically calculated price after discount
   createdAt: { type: Date, default: Date.now },
 });
 

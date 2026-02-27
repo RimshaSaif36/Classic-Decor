@@ -130,6 +130,9 @@ export default function Home() {
                     to={`/product/${p._id || p.id}`}
                     className="product-image-wrapper"
                   >
+                    {p.saleDiscount > 0 && (
+                      <div className="sale-badge-home">{p.saleDiscount}% OFF</div>
+                    )}
                     <img
                       src={imgUrl(p.image)}
                       alt={`${p.name} - The Classic Decor`}
@@ -147,7 +150,14 @@ export default function Home() {
                     </p>
                     <div className="product-footer">
                       <p className="product-price">
-                        PKR {Number(p.price || 0).toLocaleString()}
+                        {p.saleDiscount > 0 ? (
+                          <>
+                            <span className="original-price-home">PKR {Number(p.price).toLocaleString()}</span>
+                            <span className="sale-price-home">PKR {(p.price - (p.price * p.saleDiscount / 100)).toLocaleString()}</span>
+                          </>
+                        ) : (
+                          <>PKR {Number(p.price || 0).toLocaleString()}</>
+                        )}
                       </p>
                       <button
                         className="add-to-cart-btn"

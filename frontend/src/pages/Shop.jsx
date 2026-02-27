@@ -226,6 +226,9 @@ export default function Shop() {
                 {filtered.map(p => (
                   <div key={p.id} className="shop-product-card">
                     <div className="product-image-wrapper">
+                      {p.saleDiscount > 0 && (
+                        <div className="sale-badge">{p.saleDiscount}% OFF</div>
+                      )}
                       <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="product-link">
                         <img
                           src={imgUrl(p.image)}
@@ -252,7 +255,32 @@ export default function Shop() {
                           {p.name}
                         </Link>
                       </h3>
-                      <p className="product-price">PKR {Number(p.price).toLocaleString()}</p>
+                      <p className="product-price">
+                        {p.saleDiscount > 0 ? (
+                          <>
+                            <span className="original-price">PKR {Number(p.price).toLocaleString()}</span>
+                            <span className="sale-price">PKR {(p.price - (p.price * p.saleDiscount / 100)).toLocaleString()}</span>
+                          </>
+                        ) : (
+                          <>PKR {Number(p.price).toLocaleString()}</>
+                        )}
+                      </p>
+                      {p.colors && p.colors.length > 0 && (
+                        <div className="product-colors">
+                          <span className="color-label">Colors:</span>
+                          {p.colors.map(color => (
+                            <span key={color} className="color-tag">{color}</span>
+                          ))}
+                        </div>
+                      )}
+                      {p.sizes && p.sizes.length > 0 && (
+                        <div className="product-sizes">
+                          <span className="size-label">Sizes:</span>
+                          {p.sizes.map(size => (
+                            <span key={size} className="size-tag">{size}</span>
+                          ))}
+                        </div>
+                      )}
                       <div className="product-actions">
                         <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="view-details-btn">
                           View Details
