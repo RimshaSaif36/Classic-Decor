@@ -611,20 +611,42 @@ export default function Admin() {
                                     </td>
                                     <td>
                                       <div className="order-product">
-                                        {(order.items && order.items[0] && order.items[0].name) ? order.items[0].name : '—'}
+                                        {order.items && order.items.length > 0 ? (
+                                          order.items.map((it, idx) => (
+                                            <div key={idx} style={{ marginBottom: 2 }}>{it.name} x {it.quantity || 1}</div>
+                                          ))
+                                        ) : '—'}
                                       </div>
                                     </td>
                                     <td>
-                                      <div className="order-image">
-                                        {(order.items && order.items[0] && order.items[0].image) ? (
-                                          <img src={imgUrl(order.items[0].image)} alt={order.items[0].name || ''} />
+                                      <div className="order-image" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                                        {order.items && order.items.length > 0 ? (
+                                          order.items.map((it, idx) => (
+                                            it.image ? (
+                                              <img key={idx} src={imgUrl(it.image)} alt={it.name || ''} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                                            ) : (
+                                              <div key={idx} style={{ width: 48, height: 48, background: '#f4f4f4', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>—</div>
+                                            )
+                                          ))
                                         ) : (
                                           <span>—</span>
                                         )}
                                       </div>
                                     </td>
-                                    <td>{(order.items && order.items[0] && order.items[0].color) ? order.items[0].color : '—'}</td>
-                                    <td>{(order.items && order.items[0] && order.items[0].size) ? order.items[0].size : '—'}</td>
+                                    <td>
+                                      <div>
+                                        {order.items && order.items.length > 0 ? (
+                                          order.items.map((it, idx) => <div key={idx}>{it.color || '—'}</div>)
+                                        ) : '—'}
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <div>
+                                        {order.items && order.items.length > 0 ? (
+                                          order.items.map((it, idx) => <div key={idx}>{it.size || '—'}</div>)
+                                        ) : '—'}
+                                      </div>
+                                    </td>
                                     <td>{order.payment || (order.metadata && order.metadata.gateway) || '—'}</td>
                                     <td>
                                       <div className="order-items">

@@ -44,12 +44,13 @@ export default function Categories() {
       return;
     }
     const next = [...JSON.parse(localStorage.getItem('cart') || '[]')];
-    const existing = next.find(i => i.id === p.id);
+    const pid = p._id || p.id || p.slug;
+    const existing = next.find(i => i.id === pid);
     if (existing) {
       existing.quantity = (existing.quantity || 1) + 1;
     } else {
       next.push({
-        id: p.id,
+        id: pid,
         name: p.name,
         price: Number(p.price) || 0,
         image: imgUrl(p.image || ''),
