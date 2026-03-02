@@ -69,10 +69,10 @@ async function payfastInitiate(req, res) {
 
     const subtotal = cart.reduce(
       (s, i) => s + Number(i.price) * Number(i.quantity),
-      0
+      0,
     );
     // Enforce free shipping on server for orders above PKR 5,000
-    const shippingFee = subtotal > 5000 ? 0 : (Number(shipping) || 200);
+    const shippingFee = subtotal > 5000 ? 0 : Number(shipping) || 200;
     const total = subtotal + shippingFee;
 
     const itemsSummary = cart
@@ -87,7 +87,7 @@ async function payfastInitiate(req, res) {
     const notifyUrl = `${protocol}://${host}/payfast/notify`;
 
     const returnUrl = `${FRONTEND_URL}/success?pf_return=1&m_payment_id=${encodeURIComponent(
-      m_payment_id
+      m_payment_id,
     )}`;
     const cancelUrl = `${FRONTEND_URL}/success?cancel=1`;
 
@@ -154,7 +154,7 @@ async function payfastInitiate(req, res) {
     } catch (logErr) {
       console.error(
         "[payments] failed to log initiated payment:",
-        logErr && logErr.message ? logErr.message : logErr
+        logErr && logErr.message ? logErr.message : logErr,
       );
     }
 
@@ -192,7 +192,7 @@ async function payfastNotify(req, res) {
       if (existingOrder) {
         console.log(
           "Order already exists for payment ID:",
-          req.body.m_payment_id
+          req.body.m_payment_id,
         );
         return res.status(200).send();
       }
@@ -240,13 +240,13 @@ async function payfastNotify(req, res) {
               transactionId: req.body.pf_payment_id || req.body.m_payment_id,
               raw: req.body,
             },
-            { upsert: true, new: true }
+            { upsert: true, new: true },
           );
         }
       } catch (pErr) {
         console.error(
           "[payments] failed to log completed payment:",
-          pErr && pErr.message ? pErr.message : pErr
+          pErr && pErr.message ? pErr.message : pErr,
         );
       }
     } catch (e) {

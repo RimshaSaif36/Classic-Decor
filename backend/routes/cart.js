@@ -7,7 +7,7 @@ try {
   CartModel = null;
 }
 const { requireAuth } = require("../middleware/auth");
-const { computeShipping } = require('../utils/shipping');
+const { computeShipping } = require("../utils/shipping");
 
 const router = express.Router();
 
@@ -19,7 +19,10 @@ router.post("/save", requireAuth, async (req, res) => {
     }
     const payload = req.body || {};
     const subtotal = Array.isArray(payload.items)
-      ? payload.items.reduce((s, i) => s + Number(i.price) * Number(i.quantity || 1), 0)
+      ? payload.items.reduce(
+          (s, i) => s + Number(i.price) * Number(i.quantity || 1),
+          0,
+        )
       : 0;
     // Apply free shipping for orders above configured threshold
     const shipping = computeShipping(subtotal);
@@ -36,7 +39,7 @@ router.post("/save", requireAuth, async (req, res) => {
         status: payload.status || "active",
         updatedAt: new Date(),
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     ).lean();
     res.json(doc);
   } catch (e) {
