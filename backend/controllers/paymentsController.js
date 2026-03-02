@@ -71,7 +71,8 @@ async function payfastInitiate(req, res) {
       (s, i) => s + Number(i.price) * Number(i.quantity),
       0
     );
-    const shippingFee = Number(shipping) || 0;
+    // Enforce free shipping on server for orders above PKR 5,000
+    const shippingFee = subtotal > 5000 ? 0 : (Number(shipping) || 200);
     const total = subtotal + shippingFee;
 
     const itemsSummary = cart

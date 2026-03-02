@@ -2,7 +2,7 @@ import Header from '../components/Header';
 import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { useEffect, useMemo, useState } from 'react';
-import { imgUrl } from '../lib/utils';
+import { imgUrl, computeShipping } from '../lib/utils';
 
 function formatPrice(n) {
   return Number(n || 0);
@@ -32,7 +32,7 @@ export default function Cart() {
   const subtotal = useMemo(() => {
     return cart.reduce((sum, i) => sum + formatPrice(i.price) * (i.quantity || 1), 0);
   }, [cart]);
-  const shipping = 200;
+  const shipping = computeShipping(subtotal);
   const total = subtotal + shipping;
 
   function inc(id) {

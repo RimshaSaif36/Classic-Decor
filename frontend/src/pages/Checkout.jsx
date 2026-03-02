@@ -3,6 +3,7 @@ import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
+import { computeShipping } from '../lib/utils';
 
 export default function Checkout() {
   const [cart, setCart] = useState(() => {
@@ -22,8 +23,9 @@ export default function Checkout() {
   const [placing, setPlacing] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const shippingPrice = 200;
   const subtotal = useMemo(() => cart.reduce((s, i) => s + (Number(i.price)||0) * (i.quantity||1), 0), [cart]);
+  // Free shipping for orders above PKR 5,000
+  const shippingPrice = computeShipping(subtotal);
   const total = subtotal + shippingPrice;
 
   useEffect(() => {

@@ -7,6 +7,7 @@ try {
   CartModel = null;
 }
 const { requireAuth } = require("../middleware/auth");
+const { computeShipping } = require('../utils/shipping');
 
 const router = express.Router();
 
@@ -20,7 +21,8 @@ router.post("/save", requireAuth, async (req, res) => {
     const subtotal = Array.isArray(payload.items)
       ? payload.items.reduce((s, i) => s + Number(i.price) * Number(i.quantity || 1), 0)
       : 0;
-    const shipping = Number(payload.shipping || 0);
+    // Apply free shipping for orders above configured threshold
+    const shipping = computeShipping(subtotal);
     const total = subtotal + shipping;
     const doc = await CartModel.findOneAndUpdate(
       { userId: req.user.id },

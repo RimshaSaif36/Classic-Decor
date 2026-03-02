@@ -17,7 +17,7 @@ export default function ShippingReturns() {
             <ul>
               <li><strong>Shipping Time:</strong> Orders are typically shipped within 3-5 business days</li>
               <li><strong>Delivery Time:</strong> Standard delivery takes 5-7 business days within Pakistan</li>
-              <li><strong>Shipping Cost:</strong> Free shipping on orders above PKR 2,500</li>
+              <li><strong>Shipping Cost:</strong> Free shipping on orders above PKR 5,000</li>
               <li><strong>Tracking:</strong> You will receive a tracking number via email once your order ships</li>
               <li><strong>Packaging:</strong> All items are carefully packaged to ensure safe delivery</li>
             </ul>

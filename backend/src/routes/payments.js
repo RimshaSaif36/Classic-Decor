@@ -2,6 +2,9 @@ const express = require('express');
 const Stripe = (() => { try { return require('stripe') } catch (e) { return null } })();
 const fetch = (...args) => import('node-fetch').then(({ default: f }) => f(...args));
 
+const { computeShipping } = (() => {
+  try { return require('../../utils/shipping'); } catch (e) { try { return require('../../../backend/utils/shipping'); } catch (e2) { return { computeShipping: (s)=> (Number(s)>5000?0:200) }; } }
+})();
 const router = express.Router();
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY || '';
 const stripe = STRIPE_SECRET_KEY ? Stripe(STRIPE_SECRET_KEY) : null;
@@ -37,12 +40,15 @@ router.post('/create-checkout-session', async (req, res) => {
         },
         quantity: Number(item.quantity) || 1
       }));
-      if (shipping && Number(shipping) > 0) {
+      const subtotal = cart.reduce((s,i)=>s+Number(i.price)*Number(i.quantity),0);
+      const shippingFee = computeShipping(subtotal);
+
+      if (shippingFee && Number(shippingFee) > 0) {
         items.push({
           price_data: {
             currency: curr,
             product_data: { name: 'Shipping' },
-            unit_amount: toUnitAmount(Number(shipping), curr)
+            unit_amount: toUnitAmount(Number(shippingFee), curr)
           },
           quantity: 1
         });
@@ -57,9 +63,9 @@ router.post('/create-checkout-session', async (req, res) => {
       items: cart.map(i => `${i.name} x ${i.quantity} (PKR ${i.price})${i.size ? ' | size: '+i.size : ''}${i.color ? ' | color: '+i.color : ''}`).join(', '),
       sizes: cart.map(i => i.size || '').filter(Boolean).join(', '),
       colors: cart.map(i => i.color || '').filter(Boolean).join(', '),
-      subtotal: cart.reduce((s,i)=>s+Number(i.price)*Number(i.quantity),0),
-      shipping: Number(shipping)||0,
-      total: cart.reduce((s,i)=>s+Number(i.price)*Number(i.quantity),0) + (Number(shipping)||0),
+      subtotal,
+      shipping: Number(shippingFee)||0,
+      total: subtotal + (Number(shippingFee)||0),
       date: new Date().toLocaleString()
     };
 
