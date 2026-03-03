@@ -8,6 +8,15 @@ function formatPrice(n) {
   return Number(n || 0);
 }
 
+function effectivePrice(item) {
+  const base = Number(item && item.price || 0);
+  const discount = Number(item && item.saleDiscount || 0);
+  if (discount > 0) {
+    return Math.round(base - (base * discount / 100));
+  }
+  return base;
+}
+
 export default function Cart() {
   const [cart, setCart] = useState(() => {
     try {
@@ -30,7 +39,7 @@ export default function Cart() {
   }, [cart]);
 
   const subtotal = useMemo(() => {
-    return cart.reduce((sum, i) => sum + formatPrice(i.price) * (i.quantity || 1), 0);
+    return cart.reduce((sum, i) => sum + effectivePrice(i) * (i.quantity || 1), 0);
   }, [cart]);
   const shipping = computeShipping(subtotal);
   const total = subtotal + shipping;
@@ -71,13 +80,13 @@ export default function Cart() {
                       {i.color && <div className="item-color" style={{fontSize: '0.85rem', color: '#666'}}>Color: {i.color}</div>}
                     </div>
                   </div>
-                  <div className="item-price">PKR {formatPrice(i.price)}</div>
+                  <div className="item-price">PKR {effectivePrice(i)}</div>
                   <div className="quantity-control">
                     <button className="quantity-btn" onClick={() => dec(i.id)}>-</button>
                     <input className="quantity" value={i.quantity || 1} readOnly />
                     <button className="quantity-btn" onClick={() => inc(i.id)}>+</button>
                   </div>
-                  <div className="item-total-cell">PKR {formatPrice(i.price) * (i.quantity || 1)}</div>
+                  <div className="item-total-cell">PKR {effectivePrice(i) * (i.quantity || 1)}</div>
                   <button className="remove-item" onClick={() => remove(i.id)}>Remove</button>
                 </div>
               ))}

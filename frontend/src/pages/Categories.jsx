@@ -53,6 +53,7 @@ export default function Categories() {
         id: pid,
         name: p.name,
         price: Number(p.price) || 0,
+        saleDiscount: Number(p.saleDiscount) || 0,
         image: imgUrl(p.image || ''),
         quantity: 1
       });

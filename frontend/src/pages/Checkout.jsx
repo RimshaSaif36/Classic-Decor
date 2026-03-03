@@ -5,6 +5,15 @@ import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
 import { computeShipping } from '../lib/utils';
 
+function effectivePrice(item) {
+  const base = Number(item && item.price || 0);
+  const discount = Number(item && item.saleDiscount || 0);
+  if (discount > 0) {
+    return Math.round(base - (base * discount / 100));
+  }
+  return base;
+}
+
 export default function Checkout() {
   const [cart, setCart] = useState(() => {
     try {
@@ -23,7 +32,10 @@ export default function Checkout() {
   const [placing, setPlacing] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const subtotal = useMemo(() => cart.reduce((s, i) => s + (Number(i.price)||0) * (i.quantity||1), 0), [cart]);
+  const subtotal = useMemo(
+    () => cart.reduce((s, i) => s + effectivePrice(i) * (i.quantity || 1), 0),
+    [cart]
+  );
   // Free shipping for orders above PKR 5,000
   const shippingPrice = computeShipping(subtotal);
   const total = subtotal + shippingPrice;
@@ -192,7 +204,7 @@ export default function Checkout() {
                   <div className="item-name">{i.name} x {i.quantity || 1}</div>
                   {i.size && <div className="item-size">Size: {i.size}</div>}
                   {i.color && <div className="item-color">Color: {i.color}</div>}
-                  <div className="item-price">PKR {(Number(i.price)||0) * (i.quantity||1)}</div>
+                  <div className="item-price">PKR {effectivePrice(i) * (i.quantity||1)}</div>
                   <button onClick={() => removeItem(i)} style={{ justifySelf: 'end', color: '#c62828', background: 'transparent', border: 'none', cursor: 'pointer' }}>Remove</button>
                 </div>
               ))}
