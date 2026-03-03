@@ -40,7 +40,7 @@ export default function Home() {
         if (!cancelled) {
           setProducts(Array.isArray(plist) ? plist : []);
           // Set featured products dynamically - take first 6 products
-          const featured = Array.isArray(plist) ? plist.slice(0, 6) : [];
+          const featured = Array.isArray(plist) ? plist.slice(0, 8) : [];
           setFeaturedProducts(featured);
           setLoadingFeatured(false);
         }
