@@ -24,6 +24,20 @@ const PRODUCT_SIZES = [
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const token = (() => {
+    try {
+      return localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+    } catch {
+      return '';
+    }
+  })();
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || localStorage.getItem('currentUser') || 'null');
+    } catch {
+      return null;
+    }
+  })();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -33,6 +47,31 @@ export default function ProductDetail() {
   const [reviewProducts, setReviewProducts] = useState({});
   const [related, setRelated] = useState([]);
   const [revForm, setRevForm] = useState({ name: '', rating: 5, title: '', comment: '' });
+  const [canReview, setCanReview] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  function orderContainsProduct(order, productId) {
+    const target = String(productId || '');
+    const orderItems = Array.isArray(order && order.items) ? order.items : [];
+
+    return orderItems.some((item) => {
+      const candidates = [item && item.productId, item && item.id, item && item._id, item && item.slug];
+      return candidates.some((value) => String(value || '') === target);
+    });
+  }
+
+  function reviewBelongsToUser(review) {
+    if (!review || !storedUser) return false;
+
+    const userId = String(storedUser.id || '').trim();
+    const userEmail = String(storedUser.email || '').trim().toLowerCase();
+
+    if (userId && String(review.userId || '').trim() === userId) return true;
+    if (userId && !isNaN(Number(userId)) && Number(review.legacyUserId) === Number(userId)) return true;
+    if (userEmail && String(review.reviewerEmail || '').trim().toLowerCase() === userEmail) return true;
+
+    return false;
+  }
 
   // fetch single product by id/slug
   useEffect(() => {
@@ -98,7 +137,9 @@ export default function ProductDetail() {
         const pid = product._id || product.id || product.slug;
         const r = await fetch(API_BASE + '/api/reviews?productId=' + encodeURIComponent(pid) + '&onlyApproved=true');
         const list = await r.json();
-        setReviews(Array.isArray(list) ? list : []);
+        const nextReviews = Array.isArray(list) ? list : [];
+        setReviews(nextReviews);
+        setHasReviewed(nextReviews.some((review) => reviewBelongsToUser(review)));
         
         // Fetch product images for all reviews
         const productMap = {};
@@ -116,7 +157,9 @@ export default function ProductDetail() {
           }
         }
         setReviewProducts(productMap);
-      } catch { void 0; }
+      } catch {
+        setHasReviewed(false);
+      }
     })();
 
     // fetch related products
@@ -129,6 +172,45 @@ export default function ProductDetail() {
       } catch { void 0; }
     })();
   }, [product, availableSizes, availableColors]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    if (!product || !token) {
+      setCanReview(false);
+      setHasReviewed(false);
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    (async () => {
+      try {
+        const productId = product._id || product.id || product.slug;
+        const response = await fetch(API_BASE + '/api/orders/my', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+          if (!cancelled) setCanReview(false);
+          return;
+        }
+
+        const orders = await response.json();
+        const purchased = Array.isArray(orders) && orders.some((order) => orderContainsProduct(order, productId));
+
+        if (!cancelled) {
+          setCanReview(purchased);
+        }
+      } catch {
+        if (!cancelled) setCanReview(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product, token]);
 
   function addToCartDetail(p) {
     const sizeLabel = String(size || '');
@@ -181,6 +263,7 @@ export default function ProductDetail() {
   async function submitReview(e){
     e.preventDefault();
     if (!product) return;
+    if (!canReview || hasReviewed) return;
     const payload = {
       productId: product._id || product.id || product.slug,
       name: revForm.name || 'Anonymous',
@@ -189,7 +272,11 @@ export default function ProductDetail() {
       comment: revForm.comment || ''
     };
     try {
-      const r = await fetch(API_BASE + '/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+      const r = await fetch(API_BASE + '/api/reviews', { method: 'POST', headers, body: JSON.stringify(payload) });
       if (!r.ok) {
         const t = await r.text().catch(()=> '');
         alert(t || 'Failed to submit review');
@@ -197,6 +284,8 @@ export default function ProductDetail() {
       }
       const created = await r.json();
       setRevForm({ name: '', rating: 5, title: '', comment: '' });
+      setHasReviewed(true);
+      setCanReview(false);
       if (created.status && String(created.status).toLowerCase() === 'pending') {
         alert('Review submitted and is pending approval');
       } else {
@@ -268,7 +357,7 @@ export default function ProductDetail() {
               </div>
 
               <button className="add-to-cart-detail" onClick={() => addToCartDetail(product)}>Add to Cart</button>
-              <div className="review-form" style={{ marginTop: 24 }}>
+              {canReview && !hasReviewed ? <div className="review-form" style={{ marginTop: 24 }}>
                 <h3 style={{ gridColumn: '1 / -1', margin: 0, marginBottom: 8 }}>Add a Review</h3>
                 <input placeholder="Your name" value={revForm.name} onChange={e=>setRevForm({ ...revForm, name: e.target.value })} />
                 <select value={revForm.rating} onChange={e=>setRevForm({ ...revForm, rating: e.target.value })}>
@@ -277,7 +366,10 @@ export default function ProductDetail() {
                 <input placeholder="Review title (optional)" value={revForm.title} onChange={e=>setRevForm({ ...revForm, title: e.target.value })} />
                 <textarea placeholder="Write your review..." value={revForm.comment} onChange={e=>setRevForm({ ...revForm, comment: e.target.value })} />
                 <button onClick={submitReview}>Submit Review</button>
-              </div>
+              </div> : null}
+              {hasReviewed ? <div className="review-card" style={{ marginTop: 24, padding: '1rem 1.2rem' }}>
+                You have already reviewed this product.
+              </div> : null}
             </div>
           </section>
           <section className="reviews-section" aria-label="Product Reviews">

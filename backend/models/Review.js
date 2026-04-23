@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const ReviewSchema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.Mixed, required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+  legacyUserId: { type: Number, default: null, index: true },
+  reviewerEmail: { type: String, default: '', lowercase: true, trim: true },
   name: { type: String, default: 'Anonymous' },
   title: { type: String, default: '' },
   comment: { type: String, required: true },

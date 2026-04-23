@@ -6,8 +6,7 @@ const router = express.Router();
 
 router.get('/', listReviews);
 router.get('/summary', getSummary);
-// Allow public review submissions (no auth required). Admins can approve via PUT /:id
-router.post('/', createReview);
+router.post('/', requireAuth, createReview);
 
 // Admin endpoints to update (approve/reject) and delete reviews
 router.put('/:id', requireAuth, requireAdmin, updateReview);
