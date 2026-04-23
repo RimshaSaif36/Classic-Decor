@@ -143,7 +143,8 @@ async function sendOrderConfirmation(orderDetails) {
     return false;
   }
 
-  const { name, email, total, subtotal, shipping, items, orderId } = orderDetails;
+  const { name, email, total, subtotal, shipping, items, orderId } =
+    orderDetails;
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
@@ -276,7 +277,16 @@ async function sendPaymentConfirmation(orderDetails) {
     return false;
   }
 
-  const { name, email, total, subtotal, shipping, items, orderId, transactionId } = orderDetails;
+  const {
+    name,
+    email,
+    total,
+    subtotal,
+    shipping,
+    items,
+    orderId,
+    transactionId,
+  } = orderDetails;
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
