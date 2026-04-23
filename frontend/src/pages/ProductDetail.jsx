@@ -372,7 +372,7 @@ export default function ProductDetail() {
               </div> : null}
             </div>
           </section>
-          <section className="reviews-section" aria-label="Product Reviews">
+          {reviews.length > 0 ? <section className="reviews-section" aria-label="Product Reviews">
             <div className="reviews-header">
               <h3>Customer Reviews</h3>
               <div className="reviews-summary">{reviews.length} reviews</div>
@@ -398,9 +398,8 @@ export default function ProductDetail() {
                   </div>
                 );
               })}
-              {reviews.length === 0 && <div className="review-card">No reviews yet</div>}
             </div>
-          </section>
+          </section> : null}
 
           {related && related.length > 0 && (
             <section className="shop-products" style={{ paddingTop: 8 }}>
