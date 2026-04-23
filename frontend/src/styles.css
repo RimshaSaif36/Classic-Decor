@@ -1959,21 +1959,6 @@ nav ul li a:hover {
   color: var(--primary);
 }
 
-.custom-design-upload-panel {
-  padding: 1.5rem;
-}
-
-.custom-design-upload-panel h2 {
-  margin: 0 0 0.6rem;
-  font-size: 1.8rem;
-}
-
-.custom-design-upload-panel p {
-  margin: 0 0 1rem;
-  color: var(--text-secondary);
-  line-height: 1.7;
-}
-
 .custom-upload-button {
   display: inline-flex;
   align-items: center;
@@ -2008,14 +1993,21 @@ nav ul li a:hover {
 }
 
 .custom-design-form-header h1 {
-  margin: 0 0 0.6rem;
+  margin: 0 0 1rem;
   font-size: 2.1rem;
 }
 
-.custom-design-form-header p {
-  margin: 0;
+.custom-design-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.custom-design-toolbar-text {
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.6;
 }
 
 .custom-design-grid {
@@ -2100,6 +2092,10 @@ nav ul li a:hover {
 }
 
 @media (max-width: 640px) {
+  .custom-design-toolbar {
+    align-items: stretch;
+  }
+
   .custom-design-grid {
     grid-template-columns: 1fr;
   }

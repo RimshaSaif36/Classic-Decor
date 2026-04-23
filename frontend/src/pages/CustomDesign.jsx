@@ -14,11 +14,6 @@ export default function CustomDesign() {
   })();
 
   const [form, setForm] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    address: '',
-    city: '',
     productType: '',
     preferredSize: '',
     preferredColor: '',
@@ -31,9 +26,13 @@ export default function CustomDesign() {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setProfile(null);
+      return;
+    }
 
     let cancelled = false;
     fetch(API_BASE + '/api/users/me', {
@@ -42,14 +41,7 @@ export default function CustomDesign() {
       .then((res) => res.json())
       .then((user) => {
         if (cancelled || !user || typeof user !== 'object') return;
-        setForm((prev) => ({
-          ...prev,
-          name: prev.name || user.name || '',
-          email: prev.email || user.email || '',
-          phone: prev.phone || user.phone || '',
-          address: prev.address || user.address || '',
-          city: prev.city || user.city || ''
-        }));
+        setProfile(user);
       })
       .catch(() => void 0);
 
@@ -92,11 +84,11 @@ export default function CustomDesign() {
     event.preventDefault();
     const nextErrors = {};
 
-    const cleanName = String(form.name || '').trim();
-    const cleanEmail = String(form.email || '').trim();
-    const cleanPhone = String(form.phone || '').trim();
-    const cleanAddress = String(form.address || '').trim();
-    const cleanCity = String(form.city || '').trim();
+    const cleanName = String(profile && profile.name ? profile.name : '').trim();
+    const cleanEmail = String(profile && profile.email ? profile.email : '').trim();
+    const cleanPhone = String(profile && profile.phone ? profile.phone : '').trim();
+    const cleanAddress = String(profile && profile.address ? profile.address : '').trim();
+    const cleanCity = String(profile && profile.city ? profile.city : '').trim();
     const cleanProductType = String(form.productType || '').trim();
     const cleanSize = String(form.preferredSize || '').trim();
     const cleanColor = String(form.preferredColor || '').trim();
@@ -104,13 +96,10 @@ export default function CustomDesign() {
     const cleanBudget = String(form.budget || '').trim();
     const quantity = Math.max(1, Number(form.quantity) || 1);
 
-    if (!cleanName) nextErrors.name = 'Name is required';
-    if (!cleanEmail) nextErrors.email = 'Email is required';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) nextErrors.email = 'Enter a valid email';
-    if (!cleanPhone) nextErrors.phone = 'Phone is required';
-    else if (!/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/.test(cleanPhone)) nextErrors.phone = 'Phone number must be 11 digits';
-    if (!cleanAddress || cleanAddress.length < 5) nextErrors.address = 'Address must be at least 5 characters';
-    if (!cleanCity) nextErrors.city = 'City is required';
+    if (!token) nextErrors.profile = 'Please login first to submit a custom design request';
+    if (!cleanName || !cleanEmail || !cleanPhone || !cleanAddress || !cleanCity) {
+      nextErrors.profile = 'Please complete your profile details before submitting a custom request';
+    }
     if (!cleanProductType) nextErrors.productType = 'Product type is required';
     if (!cleanSize) nextErrors.preferredSize = 'Preferred size is required';
     if (!cleanColor) nextErrors.preferredColor = 'Preferred color is required';
@@ -207,58 +196,29 @@ export default function CustomDesign() {
               ) : (
                 <div className="custom-design-placeholder">
                   <i className="fa-regular fa-image"></i>
-                  <strong>Upload your design image</strong>
-                  <span>Share a logo, sketch, pattern, or inspiration photo.</span>
+                  <strong>No image uploaded yet</strong>
                 </div>
               )}
-            </div>
-
-            <div className="custom-design-upload-panel">
-              <h2>Custom Design Request</h2>
-              <p>Upload your image and add your own size, color, and design details.</p>
-              <label className="custom-upload-button">
-                <input type="file" accept="image/*" onChange={handleImageUpload} />
-                {uploading ? 'Uploading...' : (form.uploadedImage ? 'Change Image' : 'Upload Image')}
-              </label>
-              {errors.uploadedImage ? <span className="field-error">{errors.uploadedImage}</span> : null}
-              <div className="custom-design-note">
-                We will review the design and contact you with final pricing and confirmation.
-              </div>
             </div>
           </div>
 
           <form className="custom-design-form custom-design-form-card" onSubmit={handleSubmit}>
             <div className="custom-design-form-header">
-              <h1>Tell us what you want</h1>
-              <p>Add your preferred color, size, quantity, and extra instructions here.</p>
+              <h1>Custom Design Request</h1>
+              <div className="custom-design-toolbar">
+                <label className="custom-upload-button">
+                  <input type="file" accept="image/*" onChange={handleImageUpload} />
+                  {uploading ? 'Uploading...' : (form.uploadedImage ? 'Change Image' : 'Upload Image')}
+                </label>
+                <div className="custom-design-toolbar-text">
+                  Add your own size, color, and design details here.
+                </div>
+              </div>
+              {errors.uploadedImage ? <span className="field-error">{errors.uploadedImage}</span> : null}
+              {errors.profile ? <span className="field-error">{errors.profile}</span> : null}
             </div>
 
             <div className="custom-design-grid">
-                <div className="form-group">
-                  <label>Name</label>
-                  <input value={form.name} onChange={(e) => updateField('name', e.target.value)} />
-                  {errors.name ? <span className="field-error">{errors.name}</span> : null}
-                </div>
-                <div className="form-group">
-                  <label>Email</label>
-                  <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} />
-                  {errors.email ? <span className="field-error">{errors.email}</span> : null}
-                </div>
-                <div className="form-group">
-                  <label>Phone</label>
-                  <input value={form.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="03XXXXXXXXX" />
-                  {errors.phone ? <span className="field-error">{errors.phone}</span> : null}
-                </div>
-                <div className="form-group">
-                  <label>City</label>
-                  <input value={form.city} onChange={(e) => updateField('city', e.target.value)} />
-                  {errors.city ? <span className="field-error">{errors.city}</span> : null}
-                </div>
-                <div className="form-group custom-design-full">
-                  <label>Address</label>
-                  <input value={form.address} onChange={(e) => updateField('address', e.target.value)} />
-                  {errors.address ? <span className="field-error">{errors.address}</span> : null}
-                </div>
                 <div className="form-group">
                   <label>Product type</label>
                   <input value={form.productType} onChange={(e) => updateField('productType', e.target.value)} placeholder="e.g. Name plate, wall art, logo sign" />
