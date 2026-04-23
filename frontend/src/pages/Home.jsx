@@ -8,8 +8,6 @@ import { imgUrl } from "../lib/utils";
 
 export default function Home() {
   const [latest, setLatest] = useState([]);
-  const [ri, setRi] = useState(0);
-  const [paused, setPaused] = useState(false);
   const [products, setProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
@@ -62,34 +60,33 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!latest.length) return;
-    const id = setInterval(() => {
-      if (!paused) setRi((prev) => (prev + 1) % latest.length);
-    }, 3000);
-    return () => clearInterval(id);
-  }, [latest.length, paused]);
+  const reviewCards = useMemo(
+    () =>
+      latest.map((rev, index) => {
+        const pid = String(rev.productId || "");
+        const prod = products.find((p) => {
+          const candidates = [p._id, p.id, p.slug].map((value) => String(value || ""));
+          return candidates.includes(pid);
+        });
 
-  const visible = useMemo(() => {
-    const len = latest.length;
-    if (len === 0) return [];
+        return {
+          rev,
+          prod,
+          key: `${rev._id || rev.id || index}-${index}`,
+        };
+      }),
+    [latest, products]
+  );
 
-    // Show 3 reviews at a time, cycling through all available reviews
-    const reviewsPerSlide = Math.min(3, len);
+  const marqueeReviews = useMemo(() => {
+    if (!reviewCards.length) return [];
+    return [...reviewCards, ...reviewCards];
+  }, [reviewCards]);
 
-    // If we have fewer than or equal to 3 reviews, show all without repetition
-    if (len <= 3) {
-      return latest.slice();
-    }
-
-    const result = [];
-    for (let i = 0; i < reviewsPerSlide; i++) {
-      const index = (ri + i) % len;
-      result.push(latest[index]);
-    }
-
-    return result;
-  }, [latest, ri]);
+  const reviewAnimationDuration = useMemo(() => {
+    const baseCount = Math.max(reviewCards.length, 3);
+    return `${baseCount * 8}s`;
+  }, [reviewCards.length]);
 
   return (
     <div className="home-page">
@@ -309,30 +306,17 @@ export default function Home() {
           </div>
         ) : (
           <>
-            <div
-              className="reviews-carousel-wrapper"
-              onMouseEnter={() => setPaused(true)}
-              onMouseLeave={() => setPaused(false)}
-            >
-              <button
-                className="carousel-arrow carousel-arrow-prev"
-                onClick={() => setRi((prev) => (prev - 1 + latest.length) % latest.length)}
-                aria-label="Previous reviews"
-              >
-                &lt;
-              </button>
+            <div className="reviews-carousel-wrapper">
               <div className="reviews-carousel">
-                <div className="carousel-row" data-animation={ri}>
-                  {visible.map((rev, i) => {
-                    const pid = String(rev.productId || '');
-                    const prod = products.find((p) => {
-                      const candidates = [p._id, p.id, p.slug].map(v => String(v || ''));
-                      return candidates.includes(pid);
-                    });
+                <div
+                  className="carousel-track"
+                  style={{ "--review-scroll-duration": reviewAnimationDuration }}
+                >
+                  {marqueeReviews.map(({ rev, prod, key }, index) => {
                     return (
                       <div
                         className="carousel-card"
-                        key={`${rev._id || rev.id}-${i}-${ri}`}
+                        key={`${key}-${index}`}
                       >
                         {prod && prod.image && (
                           <div className="review-card-image">
@@ -364,27 +348,7 @@ export default function Home() {
                   })}
                 </div>
               </div>
-              <button
-                className="carousel-arrow carousel-arrow-next"
-                onClick={() => setRi((prev) => (prev + 1) % latest.length)}
-                aria-label="Next reviews"
-              >
-                &gt;
-              </button>
             </div>
-            {/* Progress indicators */}
-            {latest.length > 3 && (
-              <div className="carousel-indicators">
-                {Array.from({ length: latest.length }, (_, index) => (
-                  <button
-                    key={index}
-                    className={`indicator-dot ${ri % latest.length === index ? 'active' : ''}`}
-                    onClick={() => setRi(index)}
-                    aria-label={`Go to review ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
           </>
         )}
       </section>

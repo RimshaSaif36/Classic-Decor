@@ -505,6 +505,16 @@ nav {
   }
 }
 
+@keyframes reviewMarquee {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(calc(-50% - 0.75rem));
+  }
+}
+
 @keyframes slideIn {
   from {
     transform: translateX(50px);
@@ -1226,13 +1236,10 @@ nav ul li a:hover {
 }
 
 .reviews-carousel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-top: 2rem;
-  flex: 1;
   overflow: hidden;
   position: relative;
+  width: 100%;
 }
 
 .carousel-viewport {
@@ -1240,10 +1247,6 @@ nav ul li a:hover {
 }
 
 .reviews-carousel-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
   margin-top: 3rem;
   position: relative;
   overflow: hidden;
@@ -1252,58 +1255,6 @@ nav ul li a:hover {
   margin-left: auto;
   margin-right: auto;
   min-height: 280px;
-}
-
-/* Add pause indicator when hovering */
-.reviews-carousel-wrapper::after {
-  content: "⏸";
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  color: #d4af37;
-  font-size: 1.2rem;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  z-index: 20;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-.reviews-carousel-wrapper:hover::after {
-  opacity: 1;
-}
-
-/* Carousel indicators/progress dots */
-.carousel-indicators {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  margin-top: 2rem;
-  padding: 0;
-}
-
-.indicator-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  border: none;
-  background: #e0e0e0;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  padding: 0;
-  outline: none;
-}
-
-.indicator-dot:hover {
-  background: #d4af37;
-  transform: scale(1.2);
-}
-
-.indicator-dot.active {
-  background: #d4af37;
-  transform: scale(1.1);
 }
 
 /* Reviews loading and empty states */
@@ -1436,53 +1387,14 @@ nav ul li a:hover {
   letter-spacing: 0.5px;
 }
 
-.carousel-arrow {
-  width: auto;
-  height: auto;
-  border: none;
-  background: transparent;
-  color: #000;
-  font-size: 2.2rem;
-  cursor: pointer;
+.carousel-track {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  line-height: 1;
-  padding: 8px;
-  font-weight: 300;
-  z-index: 10;
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-.carousel-arrow:hover {
-  color: #333;
-  transform: scale(1.15);
-}
-
-.carousel-arrow:active {
-  transform: scale(0.9);
-  color: #555;
-}
-
-.carousel-row {
-  display: flex;
-  justify-content: center;
   align-items: stretch;
   gap: 1.5rem;
   padding: 0 1rem;
-  flex-wrap: nowrap;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  overflow: hidden;
-  transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.carousel-row[data-animation] {
-  animation: slideRowChange 0.8s ease-in-out;
+  width: max-content;
+  will-change: transform;
+  animation: reviewMarquee var(--review-scroll-duration, 32s) linear infinite;
 }
 
 .carousel-card {
@@ -1498,15 +1410,14 @@ nav ul li a:hover {
   align-items: stretch;
   min-width: 350px;
   max-width: 380px;
+  width: 350px;
   min-height: 200px;
   max-height: 250px;
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
   margin: 0;
-  opacity: 0;
-  animation: slideInFromRight 0.8s ease-out forwards;
-  flex: 1;
+  opacity: 1;
 }
 
 .carousel-card:hover {
@@ -7111,18 +7022,7 @@ code {
   }
 
   /* Responsive carousel */
-  .reviews-carousel-wrapper {
-    flex-direction: column;
-    gap: 1.5rem;
-  }
-
-  .carousel-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: 1.5rem;
-  }
-
-  .carousel-row {
+  .carousel-track {
     gap: 1rem;
     padding: 0 0.5rem;
   }
@@ -7159,19 +7059,14 @@ code {
     gap: 1rem;
   }
 
-  .carousel-arrow {
-    width: 36px;
-    height: 36px;
-    font-size: 1.2rem;
-  }
-
-  .carousel-row {
+  .carousel-track {
     gap: 0.8rem;
   }
 
   .carousel-card {
     min-width: 250px;
     max-width: 250px;
+    width: 250px;
     margin: 0;
     min-height: 160px;
     max-height: 200px;
