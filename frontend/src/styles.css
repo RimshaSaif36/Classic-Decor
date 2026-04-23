@@ -803,7 +803,7 @@ nav ul li a:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0 var(--spacing-lg);
+  padding: 0 2rem;
   background-color: var(--bg-primary);
   box-shadow: var(--shadow-sm);
   margin-top: 0;
@@ -818,10 +818,11 @@ nav ul li a:hover {
   border-top: 1px solid var(--border-color);
 }
 .category-container {
-  max-width: 1140px;
+  max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  display: block;
+  display: flex;
+  justify-content: center;
   text-align: center;
 }
 .category-actions {
@@ -837,13 +838,15 @@ nav ul li a:hover {
   color: #d4af37;
 }
 .category-nav ul {
-  display: inline-flex;
-  gap: 0.75rem;
+  display: flex;
+  gap: 0.6rem;
   justify-content: center;
   align-items: center;
-  width: auto;
+  width: fit-content;
+  max-width: 100%;
   margin: 0 auto;
   flex-wrap: nowrap;
+  padding: 0.35rem 0;
 }
 
 @media (min-width: 992px) {
@@ -859,7 +862,7 @@ nav ul li a:hover {
 }
 .category-nav ul li a {
   color: var(--text-primary);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.95rem;
   border-radius: 20px;
   transition:
     background-color var(--transition-base),
@@ -871,6 +874,17 @@ nav ul li a:hover {
   letter-spacing: 0.2px;
   display: inline-block;
   white-space: nowrap;
+}
+
+@media (min-width: 1200px) {
+  .category-nav {
+    padding-left: 3rem;
+    padding-right: 3rem;
+  }
+
+  .category-nav ul {
+    gap: 0.85rem;
+  }
 }
 
 .category-nav ul li a:hover,

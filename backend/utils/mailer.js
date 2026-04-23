@@ -143,7 +143,7 @@ async function sendOrderConfirmation(orderDetails) {
     return false;
   }
 
-  const { name, email, total, items, orderId } = orderDetails;
+  const { name, email, total, subtotal, shipping, items, orderId } = orderDetails;
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
@@ -216,6 +216,11 @@ async function sendOrderConfirmation(orderDetails) {
               ${itemRows}
             </tbody>
           </table>
+
+          <div style="margin: 20px 0; padding: 16px; background: #fafafa; border-radius: 6px; border: 1px solid #eee;">
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Subtotal:</strong> PKR ${Number(subtotal || 0).toLocaleString()}</p>
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Shipping:</strong> PKR ${Number(shipping || 0).toLocaleString()}</p>
+          </div>
           
           <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0; text-align: right;">
             <h3 style="color: #d4af37; margin: 0; font-size: 24px;">PKR ${Number(total || 0).toLocaleString()}</h3>
@@ -271,7 +276,7 @@ async function sendPaymentConfirmation(orderDetails) {
     return false;
   }
 
-  const { name, email, total, items, orderId, transactionId } = orderDetails;
+  const { name, email, total, subtotal, shipping, items, orderId, transactionId } = orderDetails;
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
@@ -358,6 +363,12 @@ async function sendPaymentConfirmation(orderDetails) {
               ${itemRows}
             </tbody>
           </table>
+
+          <div style="margin: 20px 0; padding: 16px; background: #fafafa; border-radius: 6px; border: 1px solid #eee;">
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Subtotal:</strong> PKR ${Number(subtotal || 0).toLocaleString()}</p>
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Shipping:</strong> PKR ${Number(shipping || 0).toLocaleString()}</p>
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Grand Total:</strong> PKR ${Number(total || 0).toLocaleString()}</p>
+          </div>
           
           <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #2196f3;">
             <h4 style="color: #1565c0; margin-top: 0;">What happens next?</h4>
