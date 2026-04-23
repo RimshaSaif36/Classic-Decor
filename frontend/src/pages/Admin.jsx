@@ -613,7 +613,16 @@ export default function Admin() {
                                       <div className="order-product">
                                         {order.items && order.items.length > 0 ? (
                                           order.items.map((it, idx) => (
-                                            <div key={idx} style={{ marginBottom: 2 }}>{it.name} x {it.quantity || 1}</div>
+                                            <div key={idx} style={{ marginBottom: 6 }}>
+                                              <div>{it.name} x {it.quantity || 1}</div>
+                                              {order.metadata && order.metadata.requestType === 'custom-design' ? (
+                                                <div style={{ fontSize: '0.8rem', color: '#666', marginTop: 4 }}>
+                                                  <div>Custom request</div>
+                                                  {order.metadata.designNotes ? <div>Notes: {order.metadata.designNotes}</div> : null}
+                                                  {order.metadata.budget ? <div>Budget: {order.metadata.budget}</div> : null}
+                                                </div>
+                                              ) : null}
+                                            </div>
                                           ))
                                         ) : '—'}
                                       </div>
@@ -655,7 +664,9 @@ export default function Admin() {
                                         )}
                                       </div>
                                     </td>
-                                    <td><strong>PKR {Number(order.total || 0).toLocaleString()}</strong></td>
+                                    <td>
+                                      <strong>{order.metadata && order.metadata.requestType === 'custom-design' ? 'Quote pending' : `PKR ${Number(order.total || 0).toLocaleString()}`}</strong>
+                                    </td>
                                     <td>
                                       <select 
                                         className="order-status-select"

@@ -16,6 +16,7 @@ export default function Footer() {
         <div className="footer-column">
           <h3>Customer Service</h3>
           <ul>
+            <li><a href="/custom-design">Custom Design Request</a></li>
             <li><a href="/about">About Us</a></li>
             <li><a href="/contact">Contact Us</a></li>
             <li><a href="/shipping-returns">Shipping & Returns</a></li>

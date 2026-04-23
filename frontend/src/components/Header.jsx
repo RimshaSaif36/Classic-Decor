@@ -160,6 +160,7 @@ export default function Header() {
                 <Link to="/categories/vases">Vases</Link>
                 <Link to="/categories/accessories">Accessories</Link>
                 <Link to="/categories/office-decor">Office Decor</Link>
+                <Link to="/custom-design">Custom Design</Link>
               </div>
             </div>
           </aside>

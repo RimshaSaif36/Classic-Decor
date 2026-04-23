@@ -1894,6 +1894,222 @@ nav ul li a:hover {
   box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
   transform: translateY(-2px);
 }
+
+.why-cta-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  color: var(--primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.why-cta-link:hover {
+  text-decoration: underline;
+}
+
+.custom-design-main {
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+.custom-design-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.custom-design-media-card,
+.custom-design-form-card {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.08);
+}
+
+.custom-design-media-card {
+  overflow: hidden;
+  border-radius: 0;
+}
+
+.custom-design-preview-frame {
+  width: 100%;
+  min-height: 540px;
+  background: #faf8f2;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-design-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.85rem;
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+.custom-design-placeholder i {
+  font-size: 2.4rem;
+  color: var(--primary);
+}
+
+.custom-design-upload-panel {
+  padding: 1.5rem;
+}
+
+.custom-design-upload-panel h2 {
+  margin: 0 0 0.6rem;
+  font-size: 1.8rem;
+}
+
+.custom-design-upload-panel p {
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.custom-upload-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.9rem 1.3rem;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.custom-upload-button input {
+  display: none;
+}
+
+.custom-design-note {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--text-primary);
+  border-left: 3px solid rgba(212, 175, 55, 0.4);
+}
+
+.custom-design-form {
+  padding: 2rem;
+  border-radius: 0;
+}
+
+.custom-design-form-header {
+  margin-bottom: 1.5rem;
+}
+
+.custom-design-form-header h1 {
+  margin: 0 0 0.6rem;
+  font-size: 2.1rem;
+}
+
+.custom-design-form-header p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.custom-design-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+}
+
+.custom-design-full {
+  grid-column: 1 / -1;
+}
+
+.custom-design-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.custom-design-form label {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.custom-design-form input,
+.custom-design-form textarea {
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  font-size: 1rem;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.custom-design-form textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.custom-design-form input:focus,
+.custom-design-form textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.12);
+}
+
+.custom-design-preview {
+  width: 100%;
+  min-height: 540px;
+  object-fit: contain;
+  display: block;
+}
+
+.field-error {
+  color: #c62828;
+  font-size: 0.85rem;
+}
+
+.uploading-note,
+.custom-design-status {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.custom-design-status {
+  margin: 1rem 0 1.25rem;
+  padding: 0.95rem 1rem;
+  border-radius: 0;
+  background: rgba(212, 175, 55, 0.08);
+}
+
+@media (max-width: 900px) {
+  .custom-design-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-design-preview-frame,
+  .custom-design-preview {
+    min-height: 360px;
+  }
+}
+
+@media (max-width: 640px) {
+  .custom-design-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-design-form {
+    padding: 1.25rem;
+  }
+
+  .custom-design-main {
+    padding: 1rem 1rem 3rem;
+  }
+}
 .about-overlay-section {
   position: relative;
   width: 100%;

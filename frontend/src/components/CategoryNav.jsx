@@ -77,6 +77,9 @@ export default function CategoryNav() {
               <Link to={`/categories/${encodeURIComponent(c.id)}`}>{c.name}</Link>
             </li>
           ))}
+          <li>
+            <Link to="/custom-design">Custom Design</Link>
+          </li>
         </ul>
       </div>
     </nav>

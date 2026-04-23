@@ -8,6 +8,7 @@ import About from './pages/About.jsx'
 import Contact from './pages/Contact.jsx'
 import Register from './pages/Register.jsx'
 import Checkout from './pages/Checkout.jsx'
+import CustomDesign from './pages/CustomDesign.jsx'
 import Admin from './pages/Admin.jsx'
 import ProductDetail from './pages/ProductDetail.jsx'
 import Success from './pages/Success.jsx';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/custom-design" element={<CustomDesign />} />
         <Route path="/success" element={<Success />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/admin" element={<Admin />} />

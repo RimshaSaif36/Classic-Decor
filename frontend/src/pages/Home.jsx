@@ -278,6 +278,7 @@ export default function Home() {
               <p>
                 Personalized acrylic solutions tailored to your unique style and requirements with professional design consultation.
               </p>
+              <Link to="/custom-design" className="why-cta-link">Start a custom request</Link>
             </div>
             <div className="why-item">
               <div className="why-icon">
