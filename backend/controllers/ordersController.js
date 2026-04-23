@@ -4,9 +4,20 @@ const {
   sendPaymentConfirmation,
 } = require("../utils/mailer");
 const Joi = require("joi");
+const { read } = require("../utils/store");
+let UserModel = null;
+try {
+  UserModel = require("../models/User");
+} catch (e) {
+  UserModel = null;
+}
 const fetch = (...args) =>
   import("node-fetch").then(({ default: f }) => f(...args));
 const SHEETDB_URL = process.env.SHEETDB_URL || "";
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
 // Lazy-load Order model - will be available after mongoose connection
 function getOrderModel() {
@@ -92,11 +103,15 @@ async function createOrder(req, res) {
             String(req.user.id).match(/^[0-9a-fA-F]{24}$/)
               ? req.user.id
               : null,
+          legacyUserId:
+            req.user && req.user.id && !isNaN(Number(req.user.id))
+              ? Number(req.user.id)
+              : null,
           name: value.name,
           address: value.address,
           city: value.city,
           phone: value.phone,
-          email: value.email,
+          email: String(value.email || "").toLowerCase(),
           payment: value.payment,
           items: value.items || [],
           subtotal: Number(value.subtotal) || 0,
@@ -411,11 +426,47 @@ async function checkTransaction(req, res) {
 async function myOrders(req, res) {
   try {
     const OrderModel = getOrderModel();
-    if (!OrderModel) {
+    if (!OrderModel || !req.app.locals.dbConnected) {
       return res.json([]);
     }
 
-    const docs = await OrderModel.find({ userId: req.user.id })
+    const userId = String(req.user && req.user.id ? req.user.id : "").trim();
+    const orConditions = [];
+
+    if (userId && userId.match(/^[0-9a-fA-F]{24}$/)) {
+      orConditions.push({ userId });
+    }
+
+    if (userId && !isNaN(Number(userId))) {
+      orConditions.push({ legacyUserId: Number(userId) });
+    }
+
+    let email = "";
+    if (UserModel && mongoose.connection.readyState === 1) {
+      let user = null;
+      if (userId.match(/^[0-9a-fA-F]{24}$/)) {
+        user = await UserModel.findById(userId).select("email").lean();
+      } else if (!isNaN(Number(userId))) {
+        user = await UserModel.findOne({ legacyId: Number(userId) })
+          .select("email")
+          .lean();
+      }
+      email = String(user && user.email ? user.email : "").toLowerCase();
+    } else {
+      const users = read("users") || [];
+      const found = users.find((entry) => String(entry.id) === userId);
+      email = String(found && found.email ? found.email : "").toLowerCase();
+    }
+
+    if (email) {
+      orConditions.push({ email: new RegExp(`^${escapeRegExp(email)}$`, "i") });
+    }
+
+    if (orConditions.length === 0) {
+      return res.json([]);
+    }
+
+    const docs = await OrderModel.find({ $or: orConditions })
       .sort({ createdAt: -1 })
       .lean();
     return res.json(docs || []);
