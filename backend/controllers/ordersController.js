@@ -49,13 +49,10 @@ async function createOrder(req, res) {
       name: Joi.string()
         .required()
         .messages({ "any.required": "Name is required" }),
-      email: Joi.string()
-        .email()
-        .required()
-        .messages({
-          "any.required": "Email is required",
-          "string.email": "Email must be valid",
-        }),
+      email: Joi.string().email().required().messages({
+        "any.required": "Email is required",
+        "string.email": "Email must be valid",
+      }),
       phone: Joi.string()
         .regex(/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/)
         .required()
@@ -63,13 +60,10 @@ async function createOrder(req, res) {
           "any.required": "Phone number is required",
           "string.pattern.base": "Phone number must be 11 digits (03XXXXXXXXX)",
         }),
-      address: Joi.string()
-        .min(5)
-        .required()
-        .messages({
-          "any.required": "Address is required",
-          "string.min": "Address must be at least 5 characters long",
-        }),
+      address: Joi.string().min(5).required().messages({
+        "any.required": "Address is required",
+        "string.min": "Address must be at least 5 characters long",
+      }),
       city: Joi.string()
         .required()
         .messages({ "any.required": "City is required" }),

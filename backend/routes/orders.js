@@ -9,7 +9,11 @@ const {
   deleteOrder,
   reportOrders,
 } = require("../controllers/ordersController");
-const { requireAuth, optionalAuth, requireAdmin } = require("../middleware/auth");
+const {
+  requireAuth,
+  optionalAuth,
+  requireAdmin,
+} = require("../middleware/auth");
 
 const router = express.Router();
 
