@@ -594,8 +594,48 @@ async function updateOrder(req, res) {
     ).toLowerCase();
     const statusChanged =
       Boolean(body.paymentStatus) && previousStatus !== nextStatus;
+    const isCustomQuoteRequest =
+      String(doc.payment || "").toLowerCase() === "custom-design-request" ||
+      (doc.metadata &&
+        (String(doc.metadata.requestType || "").toLowerCase() ===
+          "custom-design" || Boolean(doc.metadata.needsQuote)));
 
-    if (
+    if (statusChanged && nextStatus === "approved") {
+      try {
+        if (isCustomQuoteRequest) {
+          sendOrderConfirmation({
+            name: doc.name,
+            total: doc.total,
+            subtotal: doc.subtotal,
+            shipping: doc.shipping,
+            items: doc.items,
+            email: doc.email,
+            orderId: doc._id || doc.id,
+          }).catch((err) => {
+            console.error(
+              "[orders] Failed to send approval confirmation:",
+              err.message,
+            );
+          });
+        } else {
+          sendOrderStatusUpdate({
+            name: doc.name,
+            email: doc.email,
+            total: doc.total,
+            orderId: doc._id || doc.id,
+            paymentStatus: nextStatus,
+            previousStatus,
+          }).catch((err) => {
+            console.error(
+              "[orders] Failed to send approval status update:",
+              err.message,
+            );
+          });
+        }
+      } catch (err) {
+        console.error("[orders] Error in approval email:", err.message);
+      }
+    } else if (
       statusChanged &&
       (nextStatus === "paid" || nextStatus === "completed")
     ) {

@@ -276,6 +276,8 @@ function formatOrderStatus(status) {
     .trim()
     .toLowerCase();
   switch (normalized) {
+    case "approved":
+      return "Approved";
     case "cancelled":
       return "Cancelled";
     case "paid":
@@ -318,6 +320,9 @@ async function sendOrderStatusUpdate(orderDetails) {
   if (friendlyStatus === "Shipped") {
     accentColor = "#1976d2";
     statusMessage = "Your order is on the way.";
+  } else if (friendlyStatus === "Approved") {
+    accentColor = "#2e7d32";
+    statusMessage = "Your request has been approved by our team.";
   } else if (friendlyStatus === "Cancelled") {
     accentColor = "#6d4c41";
     statusMessage = "Your order has been cancelled as requested.";

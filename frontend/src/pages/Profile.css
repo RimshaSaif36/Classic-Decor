@@ -293,6 +293,12 @@
   border: 1px solid #ffeaa7;
 }
 
+.status-badge.approved {
+  background-color: #d1e7dd;
+  color: #0f5132;
+  border: 1px solid #badbcc;
+}
+
 .status-badge.completed {
   background-color: #d4edda;
   color: #155724;

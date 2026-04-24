@@ -13,6 +13,11 @@ export default function CustomDesign() {
   })();
 
   const [form, setForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
     productType: '',
     preferredSize: '',
     preferredColor: '',
@@ -41,6 +46,14 @@ export default function CustomDesign() {
       .then((user) => {
         if (cancelled || !user || typeof user !== 'object') return;
         setProfile(user);
+        setForm((prev) => ({
+          ...prev,
+          name: prev.name || user.name || '',
+          email: prev.email || user.email || '',
+          phone: prev.phone || user.phone || '',
+          address: prev.address || user.address || '',
+          city: prev.city || user.city || ''
+        }));
       })
       .catch(() => void 0);
 
@@ -83,11 +96,11 @@ export default function CustomDesign() {
     event.preventDefault();
     const nextErrors = {};
 
-    const cleanName = String(profile && profile.name ? profile.name : '').trim();
-    const cleanEmail = String(profile && profile.email ? profile.email : '').trim();
-    const cleanPhone = String(profile && profile.phone ? profile.phone : '').trim();
-    const cleanAddress = String(profile && profile.address ? profile.address : '').trim();
-    const cleanCity = String(profile && profile.city ? profile.city : '').trim();
+    const cleanName = String(form.name || '').trim();
+    const cleanEmail = String(form.email || '').trim();
+    const cleanPhone = String(form.phone || '').trim();
+    const cleanAddress = String(form.address || '').trim();
+    const cleanCity = String(form.city || '').trim();
     const cleanProductType = String(form.productType || '').trim();
     const cleanSize = String(form.preferredSize || '').trim();
     const cleanColor = String(form.preferredColor || '').trim();
@@ -95,10 +108,14 @@ export default function CustomDesign() {
     const cleanBudget = String(form.budget || '').trim();
     const quantity = Math.max(1, Number(form.quantity) || 1);
 
-    if (!token) nextErrors.profile = 'Please login first to submit a custom design request';
-    if (!cleanName || !cleanEmail || !cleanPhone || !cleanAddress || !cleanCity) {
-      nextErrors.profile = 'Please complete your profile details before submitting a custom request';
-    }
+    if (!cleanName) nextErrors.name = 'Name is required';
+    if (!cleanEmail) nextErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) nextErrors.email = 'Email must be valid';
+    if (!cleanPhone) nextErrors.phone = 'Phone number is required';
+    else if (!/^(03|\+923|\+92 3)\d{9}$|^03\d{9}$/.test(cleanPhone)) nextErrors.phone = 'Phone number must be 11 digits (03XXXXXXXXX)';
+    if (!cleanAddress) nextErrors.address = 'Address is required';
+    else if (cleanAddress.length < 5) nextErrors.address = 'Address must be at least 5 characters long';
+    if (!cleanCity) nextErrors.city = 'City is required';
     if (!cleanProductType) nextErrors.productType = 'Product type is required';
     if (!cleanSize) nextErrors.preferredSize = 'Preferred size is required';
     if (!cleanColor) nextErrors.preferredColor = 'Preferred color is required';
@@ -167,6 +184,11 @@ export default function CustomDesign() {
       setStatus('Custom design request submitted successfully. Our team will contact you soon.');
       setForm((prev) => ({
         ...prev,
+        name: token && profile && profile.name ? profile.name : '',
+        email: token && profile && profile.email ? profile.email : '',
+        phone: token && profile && profile.phone ? profile.phone : '',
+        address: token && profile && profile.address ? profile.address : '',
+        city: token && profile && profile.city ? profile.city : '',
         productType: '',
         preferredSize: '',
         preferredColor: '',
@@ -209,14 +231,38 @@ export default function CustomDesign() {
                   {uploading ? 'Uploading...' : (form.uploadedImage ? 'Change Image' : 'Upload Image')}
                 </label>
                 <div className="custom-design-toolbar-text">
-                  Add your own size, color, and design details here.
+                  Add your design details and your contact information here.
                 </div>
               </div>
               {errors.uploadedImage ? <span className="field-error">{errors.uploadedImage}</span> : null}
-              {errors.profile ? <span className="field-error">{errors.profile}</span> : null}
             </div>
 
             <div className="custom-design-grid">
+                <div className="form-group">
+                  <label>Name</label>
+                  <input value={form.name} onChange={(e) => updateField('name', e.target.value)} placeholder="Your full name" />
+                  {errors.name ? <span className="field-error">{errors.name}</span> : null}
+                </div>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" value={form.email} onChange={(e) => updateField('email', e.target.value)} placeholder="you@example.com" />
+                  {errors.email ? <span className="field-error">{errors.email}</span> : null}
+                </div>
+                <div className="form-group">
+                  <label>Phone</label>
+                  <input value={form.phone} onChange={(e) => updateField('phone', e.target.value)} placeholder="03XXXXXXXXX" />
+                  {errors.phone ? <span className="field-error">{errors.phone}</span> : null}
+                </div>
+                <div className="form-group">
+                  <label>City</label>
+                  <input value={form.city} onChange={(e) => updateField('city', e.target.value)} placeholder="Your city" />
+                  {errors.city ? <span className="field-error">{errors.city}</span> : null}
+                </div>
+                <div className="form-group custom-design-full">
+                  <label>Address</label>
+                  <input value={form.address} onChange={(e) => updateField('address', e.target.value)} placeholder="Street, area, house number" />
+                  {errors.address ? <span className="field-error">{errors.address}</span> : null}
+                </div>
                 <div className="form-group">
                   <label>Product type</label>
                   <input value={form.productType} onChange={(e) => updateField('productType', e.target.value)} placeholder="e.g. Name plate, wall art, logo sign" />

@@ -673,10 +673,12 @@ export default function Admin() {
                                         disabled={updatingOrderStatus === order._id}
                                       >
                                         <option value="pending">Pending</option>
+                                        <option value="approved">Approved</option>
                                         <option value="completed">Completed</option>
                                         <option value="failed">Failed</option>
                                         <option value="shipped">Shipped</option>
                                         <option value="delivered">Delivered</option>
+                                        <option value="cancelled">Cancelled</option>
                                       </select>
                                     </td>
                                     <td><small>{new Date(order.createdAt).toLocaleDateString()}</small></td>
