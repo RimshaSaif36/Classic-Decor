@@ -499,11 +499,19 @@ async function updateOrder(req, res) {
 
     if (!doc) return res.status(404).json({ error: "Not found" });
 
-    const previousStatus = String(existing.paymentStatus || "pending").toLowerCase();
-    const nextStatus = String(doc.paymentStatus || previousStatus || "pending").toLowerCase();
-    const statusChanged = Boolean(body.paymentStatus) && previousStatus !== nextStatus;
+    const previousStatus = String(
+      existing.paymentStatus || "pending",
+    ).toLowerCase();
+    const nextStatus = String(
+      doc.paymentStatus || previousStatus || "pending",
+    ).toLowerCase();
+    const statusChanged =
+      Boolean(body.paymentStatus) && previousStatus !== nextStatus;
 
-    if (statusChanged && (nextStatus === "paid" || nextStatus === "completed")) {
+    if (
+      statusChanged &&
+      (nextStatus === "paid" || nextStatus === "completed")
+    ) {
       try {
         sendPaymentConfirmation({
           name: doc.name,

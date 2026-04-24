@@ -272,7 +272,9 @@ async function sendOrderConfirmation(orderDetails) {
 }
 
 function formatOrderStatus(status) {
-  const normalized = String(status || "pending").trim().toLowerCase();
+  const normalized = String(status || "pending")
+    .trim()
+    .toLowerCase();
   switch (normalized) {
     case "paid":
       return "Paid";
@@ -296,14 +298,8 @@ async function sendOrderStatusUpdate(orderDetails) {
     return false;
   }
 
-  const {
-    name,
-    email,
-    total,
-    orderId,
-    paymentStatus,
-    previousStatus,
-  } = orderDetails;
+  const { name, email, total, orderId, paymentStatus, previousStatus } =
+    orderDetails;
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
