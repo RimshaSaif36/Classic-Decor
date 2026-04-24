@@ -157,14 +157,21 @@ async function createOrder(req, res) {
         const doc = new OrderModel(orderData);
         const saved = await doc.save();
         console.log("[orders] Order created in MongoDB:", saved._id);
+        const isCustomQuoteRequest =
+          String(orderData.payment || "").toLowerCase() === "custom-design-request" ||
+          (orderData.metadata &&
+            (String(orderData.metadata.requestType || "").toLowerCase() === "custom-design" ||
+              Boolean(orderData.metadata.needsQuote)));
         try {
-          sendOrderConfirmation({
-            name: orderData.name,
-            total: orderData.total,
-            items: orderData.items,
-            email: orderData.email,
-            orderId: saved._id || saved.id,
-          });
+          if (!isCustomQuoteRequest) {
+            sendOrderConfirmation({
+              name: orderData.name,
+              total: orderData.total,
+              items: orderData.items,
+              email: orderData.email,
+              orderId: saved._id || saved.id,
+            });
+          }
         } catch (mailErr) {
           console.error(
             "[orders] mail send error:",
