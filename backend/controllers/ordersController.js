@@ -500,8 +500,12 @@ async function cancelMyOrder(req, res) {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    const currentStatus = String(existing.paymentStatus || "pending").toLowerCase();
-    if (["shipped", "delivered", "cancelled", "failed"].includes(currentStatus)) {
+    const currentStatus = String(
+      existing.paymentStatus || "pending",
+    ).toLowerCase();
+    if (
+      ["shipped", "delivered", "cancelled", "failed"].includes(currentStatus)
+    ) {
       return res.status(400).json({
         error: "This order can no longer be cancelled",
       });
@@ -526,7 +530,10 @@ async function cancelMyOrder(req, res) {
         paymentStatus: "cancelled",
         previousStatus: currentStatus,
       }).catch((err) => {
-        console.error("[orders] Failed to send cancellation email:", err.message);
+        console.error(
+          "[orders] Failed to send cancellation email:",
+          err.message,
+        );
       });
     } catch (err) {
       console.error("[orders] Error in cancellation email:", err.message);
@@ -534,7 +541,10 @@ async function cancelMyOrder(req, res) {
 
     return res.json(updated);
   } catch (e) {
-    console.error("[orders] cancelMyOrder error:", e && e.message ? e.message : e);
+    console.error(
+      "[orders] cancelMyOrder error:",
+      e && e.message ? e.message : e,
+    );
     return res.status(500).json({ error: "Failed" });
   }
 }
