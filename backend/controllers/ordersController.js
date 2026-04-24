@@ -158,9 +158,11 @@ async function createOrder(req, res) {
         const saved = await doc.save();
         console.log("[orders] Order created in MongoDB:", saved._id);
         const isCustomQuoteRequest =
-          String(orderData.payment || "").toLowerCase() === "custom-design-request" ||
+          String(orderData.payment || "").toLowerCase() ===
+            "custom-design-request" ||
           (orderData.metadata &&
-            (String(orderData.metadata.requestType || "").toLowerCase() === "custom-design" ||
+            (String(orderData.metadata.requestType || "").toLowerCase() ===
+              "custom-design" ||
               Boolean(orderData.metadata.needsQuote)));
         try {
           if (!isCustomQuoteRequest) {
