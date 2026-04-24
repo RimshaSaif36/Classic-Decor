@@ -20,6 +20,17 @@ function escapeRegExp(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+function parseQuotedAmount(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  const raw = String(value || "").trim();
+  if (!raw) return 0;
+  const normalized = raw.replace(/,/g, "");
+  const match = normalized.match(/\d+(?:\.\d+)?/);
+  return match ? Number(match[0]) || 0 : 0;
+}
+
 // Lazy-load Order model - will be available after mongoose connection
 function getOrderModel() {
   // Try to get from mongoose.models first (if already registered)
@@ -571,16 +582,41 @@ async function updateOrder(req, res) {
     const existing = await OrderModel.findById(id).lean();
     if (!existing) return res.status(404).json({ error: "Not found" });
 
+    const requestedStatus = String(body.paymentStatus || "").toLowerCase();
+    const isCustomQuoteRequest =
+      String(existing.payment || "").toLowerCase() === "custom-design-request" ||
+      (existing.metadata &&
+        (String(existing.metadata.requestType || "").toLowerCase() ===
+          "custom-design" || Boolean(existing.metadata.needsQuote)));
+    const approvedQuoteAmount =
+      isCustomQuoteRequest && requestedStatus === "approved"
+        ? parseQuotedAmount(
+            body.total ?? body.subtotal ?? (existing.metadata && existing.metadata.budget),
+          )
+        : null;
+
+    const updatePayload = {
+      paymentStatus: body.paymentStatus,
+      name: body.name,
+      phone: body.phone,
+      address: body.address,
+      items: body.items,
+      total: body.total,
+    };
+
+    if (approvedQuoteAmount !== null && approvedQuoteAmount > 0) {
+      updatePayload.total = approvedQuoteAmount;
+      updatePayload.subtotal = approvedQuoteAmount;
+      updatePayload.shipping = 0;
+      updatePayload.metadata = {
+        ...(existing.metadata || {}),
+        approvedQuoteAmount,
+      };
+    }
+
     const doc = await OrderModel.findByIdAndUpdate(
       id,
-      {
-        paymentStatus: body.paymentStatus,
-        name: body.name,
-        phone: body.phone,
-        address: body.address,
-        items: body.items,
-        total: body.total,
-      },
+      updatePayload,
       { new: true },
     ).lean();
 
@@ -594,12 +630,6 @@ async function updateOrder(req, res) {
     ).toLowerCase();
     const statusChanged =
       Boolean(body.paymentStatus) && previousStatus !== nextStatus;
-    const isCustomQuoteRequest =
-      String(doc.payment || "").toLowerCase() === "custom-design-request" ||
-      (doc.metadata &&
-        (String(doc.metadata.requestType || "").toLowerCase() ===
-          "custom-design" ||
-          Boolean(doc.metadata.needsQuote)));
 
     if (statusChanged && nextStatus === "approved") {
       try {

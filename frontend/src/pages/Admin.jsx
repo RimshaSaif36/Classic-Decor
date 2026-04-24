@@ -532,7 +532,13 @@ export default function Admin() {
                                   <td><code>{String(order._id).slice(-8)}</code></td>
                                   <td>{order.name}</td>
                                   <td>{order.phone}</td>
-                                  <td><strong>PKR {Number(order.total || 0).toLocaleString()}</strong></td>
+                                  <td>
+                                    <strong>
+                                      {order.metadata && order.metadata.requestType === 'custom-design' && Number(order.total || 0) <= 0
+                                        ? 'Quote pending'
+                                        : `PKR ${Number(order.total || 0).toLocaleString()}`}
+                                    </strong>
+                                  </td>
                                   <td>
                                     <span className={`order-status status-${order.paymentStatus}`}>
                                       {order.paymentStatus}
@@ -663,7 +669,7 @@ export default function Admin() {
                                       </div>
                                     </td>
                                     <td>
-                                      <strong>{order.metadata && order.metadata.requestType === 'custom-design' ? 'Quote pending' : `PKR ${Number(order.total || 0).toLocaleString()}`}</strong>
+                                      <strong>{order.metadata && order.metadata.requestType === 'custom-design' && Number(order.total || 0) <= 0 ? 'Quote pending' : `PKR ${Number(order.total || 0).toLocaleString()}`}</strong>
                                     </td>
                                     <td>
                                       <select 
