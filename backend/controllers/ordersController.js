@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const {
   sendOrderConfirmation,
+  sendOrderStatusUpdate,
   sendPaymentConfirmation,
 } = require("../utils/mailer");
 const Joi = require("joi");
@@ -480,6 +481,9 @@ async function updateOrder(req, res) {
       return res.status(404).json({ error: "Not found" });
     }
 
+    const existing = await OrderModel.findById(id).lean();
+    if (!existing) return res.status(404).json({ error: "Not found" });
+
     const doc = await OrderModel.findByIdAndUpdate(
       id,
       {
@@ -495,16 +499,18 @@ async function updateOrder(req, res) {
 
     if (!doc) return res.status(404).json({ error: "Not found" });
 
-    // Send payment confirmation email if payment status is updated to "paid" or "completed"
-    if (
-      body.paymentStatus &&
-      (body.paymentStatus === "paid" || body.paymentStatus === "completed")
-    ) {
+    const previousStatus = String(existing.paymentStatus || "pending").toLowerCase();
+    const nextStatus = String(doc.paymentStatus || previousStatus || "pending").toLowerCase();
+    const statusChanged = Boolean(body.paymentStatus) && previousStatus !== nextStatus;
+
+    if (statusChanged && (nextStatus === "paid" || nextStatus === "completed")) {
       try {
         sendPaymentConfirmation({
           name: doc.name,
           email: doc.email,
           total: doc.total,
+          subtotal: doc.subtotal,
+          shipping: doc.shipping,
           items: doc.items,
           orderId: doc._id || doc.id,
           transactionId: doc.transactionId || "N/A",
@@ -516,6 +522,24 @@ async function updateOrder(req, res) {
         });
       } catch (err) {
         console.error("[orders] Error in payment email:", err.message);
+      }
+    } else if (statusChanged) {
+      try {
+        sendOrderStatusUpdate({
+          name: doc.name,
+          email: doc.email,
+          total: doc.total,
+          orderId: doc._id || doc.id,
+          paymentStatus: nextStatus,
+          previousStatus,
+        }).catch((err) => {
+          console.error(
+            "[orders] Failed to send order status update:",
+            err.message,
+          );
+        });
+      } catch (err) {
+        console.error("[orders] Error in status update email:", err.message);
       }
     }
 

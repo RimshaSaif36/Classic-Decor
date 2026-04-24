@@ -271,6 +271,133 @@ async function sendOrderConfirmation(orderDetails) {
   }
 }
 
+function formatOrderStatus(status) {
+  const normalized = String(status || "pending").trim().toLowerCase();
+  switch (normalized) {
+    case "paid":
+      return "Paid";
+    case "completed":
+      return "Completed";
+    case "failed":
+      return "Failed";
+    case "shipped":
+      return "Shipped";
+    case "delivered":
+      return "Delivered";
+    case "pending":
+    default:
+      return "Pending";
+  }
+}
+
+async function sendOrderStatusUpdate(orderDetails) {
+  if (!transporter) {
+    console.log("[mailer] Email not sent: mailer not configured");
+    return false;
+  }
+
+  const {
+    name,
+    email,
+    total,
+    orderId,
+    paymentStatus,
+    previousStatus,
+  } = orderDetails;
+
+  if (!email) {
+    console.log("[mailer] Email not sent: missing recipient email");
+    return false;
+  }
+
+  const friendlyStatus = formatOrderStatus(paymentStatus);
+  const friendlyPreviousStatus = previousStatus
+    ? formatOrderStatus(previousStatus)
+    : null;
+
+  let accentColor = "#d4af37";
+  let statusMessage = "Your order status has been updated.";
+  if (friendlyStatus === "Shipped") {
+    accentColor = "#1976d2";
+    statusMessage = "Your order is on the way.";
+  } else if (friendlyStatus === "Delivered") {
+    accentColor = "#2e7d32";
+    statusMessage = "Your order has been delivered.";
+  } else if (friendlyStatus === "Failed") {
+    accentColor = "#c62828";
+    statusMessage = "There was a problem processing your order status.";
+  } else if (friendlyStatus === "Completed" || friendlyStatus === "Paid") {
+    accentColor = "#388e3c";
+    statusMessage = "Your order has been confirmed successfully.";
+  }
+
+  const fromAddress =
+    BREVO_SENDEREMAIL ||
+    GMAIL_USER ||
+    SMTP_USER ||
+    "no-reply@classic-decor.local";
+  const mailOptions = {
+    from: fromAddress,
+    to: email,
+    subject: `Order Status Updated #${orderId || "N/A"} - ${friendlyStatus}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0;">Classic Decore</h1>
+          <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
+        </div>
+
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <h2 style="color: #1a1a1a; margin-top: 0;">Order Status Update</h2>
+
+          <p style="color: #555; line-height: 1.6;">
+            Hi <strong>${name || "Customer"}</strong>,
+          </p>
+
+          <p style="color: #555; line-height: 1.6;">
+            ${statusMessage}
+          </p>
+
+          <div style="background: #fafafa; padding: 18px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${accentColor};">
+            <p style="margin: 8px 0; color: #555;"><strong>Order ID:</strong> #${orderId || "N/A"}</p>
+            ${friendlyPreviousStatus ? `<p style="margin: 8px 0; color: #555;"><strong>Previous Status:</strong> ${friendlyPreviousStatus}</p>` : ""}
+            <p style="margin: 8px 0; color: #555;"><strong>Current Status:</strong> <span style="color: ${accentColor}; font-weight: bold;">${friendlyStatus}</span></p>
+            <p style="margin: 8px 0; color: #555;"><strong>Order Total:</strong> PKR ${Number(total || 0).toLocaleString()}</p>
+          </div>
+
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; color: #555; line-height: 1.7;">
+              We will keep you informed as your order moves forward. If you have any questions, you can contact our support team at support@theclassicdecor.com.
+            </p>
+          </div>
+
+          <p style="color: #555; text-align: center; margin: 30px 0;">
+            <a href="https://www.theclassicdecor.com" style="display: inline-block; background: ${accentColor}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+              View Store
+            </a>
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© 2026 Classic Decore. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("[mailer] Order status update email sent to", email);
+    return true;
+  } catch (error) {
+    console.error(
+      "[mailer] Error sending order status update email:",
+      error.message,
+    );
+    return false;
+  }
+}
+
 async function sendPaymentConfirmation(orderDetails) {
   if (!transporter) {
     console.log("[mailer] Email not sent: mailer not configured");
@@ -426,5 +553,6 @@ async function sendPaymentConfirmation(orderDetails) {
 module.exports = {
   sendWelcomeEmail,
   sendOrderConfirmation,
+  sendOrderStatusUpdate,
   sendPaymentConfirmation,
 };
