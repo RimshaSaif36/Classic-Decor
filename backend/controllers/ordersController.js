@@ -584,14 +584,18 @@ async function updateOrder(req, res) {
 
     const requestedStatus = String(body.paymentStatus || "").toLowerCase();
     const isCustomQuoteRequest =
-      String(existing.payment || "").toLowerCase() === "custom-design-request" ||
+      String(existing.payment || "").toLowerCase() ===
+        "custom-design-request" ||
       (existing.metadata &&
         (String(existing.metadata.requestType || "").toLowerCase() ===
-          "custom-design" || Boolean(existing.metadata.needsQuote)));
+          "custom-design" ||
+          Boolean(existing.metadata.needsQuote)));
     const approvedQuoteAmount =
       isCustomQuoteRequest && requestedStatus === "approved"
         ? parseQuotedAmount(
-            body.total ?? body.subtotal ?? (existing.metadata && existing.metadata.budget),
+            body.total ??
+              body.subtotal ??
+              (existing.metadata && existing.metadata.budget),
           )
         : null;
 
@@ -614,11 +618,9 @@ async function updateOrder(req, res) {
       };
     }
 
-    const doc = await OrderModel.findByIdAndUpdate(
-      id,
-      updatePayload,
-      { new: true },
-    ).lean();
+    const doc = await OrderModel.findByIdAndUpdate(id, updatePayload, {
+      new: true,
+    }).lean();
 
     if (!doc) return res.status(404).json({ error: "Not found" });
 
