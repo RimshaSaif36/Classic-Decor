@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
@@ -76,7 +75,6 @@ export default function Categories() {
   return (
     <div className="categories-page">
       <Header />
-      <CategoryNav />
       <main>
         <section className="shop-products">
           <h2>{displayFromKey(id || 'All Products')}</h2>

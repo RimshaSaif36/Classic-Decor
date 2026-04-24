@@ -1,5 +1,4 @@
 ﻿import Header from "../components/Header";
-import CategoryNav from "../components/CategoryNav";
 import Footer from "../components/Footer";
 import { API_BASE } from "../lib/config";
 import { useEffect, useMemo, useState } from "react";
@@ -91,7 +90,6 @@ export default function Home() {
   return (
     <div className="home-page">
       <Header />
-      <CategoryNav />
       <main>
         <section className="hero">
           <div className="hero-overlay">

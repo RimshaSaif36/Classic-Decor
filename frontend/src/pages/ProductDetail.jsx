@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
@@ -302,7 +301,6 @@ export default function ProductDetail() {
   return (
     <div>
       <Header />
-      <CategoryNav />
       <main>
         {loading && <div style={{ padding: '2rem' }}>Loading...</div>}
         {error && <div style={{ padding: '2rem' }}>{error}</div>}

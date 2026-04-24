@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useState } from 'react';
@@ -47,7 +46,6 @@ export default function Register() {
   return (
     <div>
       <Header />
-      <CategoryNav />
       <main>
         <section className="auth-section">
           <div className="auth-container">

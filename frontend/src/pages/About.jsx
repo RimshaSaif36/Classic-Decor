@@ -1,12 +1,10 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 
 export default function About() {
   return (
     <div>
       <Header />
-      <CategoryNav />
       <main>
         <section className="about-overlay-section" aria-label="About The Classic Decor">
           <div className="about-overlay">

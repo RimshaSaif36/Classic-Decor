@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import AnalyticsCalendar from '../components/AnalyticsCalendar';
 import AnalyticsCharts from '../components/AnalyticsCharts';
@@ -411,7 +410,6 @@ export default function Admin() {
   return (
     <div>
       <Header />
-      <CategoryNav />
       <main>
         <section className="auth-section">
           <div className="auth-container admin-dashboard" style={{ maxWidth: '100%' }}>

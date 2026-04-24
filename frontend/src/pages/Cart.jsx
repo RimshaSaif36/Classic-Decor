@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { useEffect, useMemo, useState } from 'react';
 import { imgUrl, computeShipping } from '../lib/utils';
@@ -57,7 +56,6 @@ export default function Cart() {
   return (
     <div className="cart-page">
       <Header />
-      <CategoryNav />
       <main>
         <div className="cart-container">
           <h2>Your Shopping Cart</h2>

@@ -1,5 +1,4 @@
 import Header from '../components/Header';
-import CategoryNav from '../components/CategoryNav';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useState } from 'react';
@@ -186,7 +185,6 @@ export default function CustomDesign() {
   return (
     <div className="custom-design-page">
       <Header />
-      <CategoryNav />
       <main className="custom-design-main">
         <section className="custom-design-shell">
           <div className="custom-design-media-card">

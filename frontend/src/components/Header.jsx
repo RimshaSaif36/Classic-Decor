@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { API_BASE } from '../lib/config';
 import { imgUrl } from '../lib/utils';
+import CategoryNav from './CategoryNav';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -57,7 +58,8 @@ export default function Header() {
     } catch { void 0; }
   }
   return (
-    <header className="header">
+    <>
+      <header className="header">
       <button className="icon-btn mobile-menu-btn" aria-label="Menu" onClick={() => setMenuOpen(true)}>
         <i className="fa-solid fa-bars"></i>
       </button>
@@ -166,7 +168,9 @@ export default function Header() {
           </aside>
         </div>
       )}
-    </header>
+      </header>
+      <CategoryNav />
+    </>
   );
 }
 
