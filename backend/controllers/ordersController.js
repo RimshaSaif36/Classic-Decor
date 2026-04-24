@@ -598,7 +598,8 @@ async function updateOrder(req, res) {
       String(doc.payment || "").toLowerCase() === "custom-design-request" ||
       (doc.metadata &&
         (String(doc.metadata.requestType || "").toLowerCase() ===
-          "custom-design" || Boolean(doc.metadata.needsQuote)));
+          "custom-design" ||
+          Boolean(doc.metadata.needsQuote)));
 
     if (statusChanged && nextStatus === "approved") {
       try {
