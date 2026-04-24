@@ -2,7 +2,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { imgUrl } from '../lib/utils';
 
 export default function Shop() {
@@ -10,6 +10,7 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [params] = useSearchParams();
+  const navigate = useNavigate();
 
   // filters & pagination
   const [categories, setCategories] = useState([]);
@@ -227,11 +228,26 @@ export default function Shop() {
             <div className="products-grid">
                 {filtered.map(p => (
                   <div key={p.id} className="shop-product-card">
-                    <div className="product-image-wrapper">
+                    <div
+                      className="product-image-wrapper"
+                      onClick={() => navigate(`/product/${encodeURIComponent(p._id || p.id || p.slug)}`)}
+                      role="link"
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          navigate(`/product/${encodeURIComponent(p._id || p.id || p.slug)}`);
+                        }
+                      }}
+                    >
                       {p.saleDiscount > 0 && (
                         <div className="sale-badge">{p.saleDiscount}% OFF</div>
                       )}
-                      <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="product-link">
+                      <Link
+                        to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}
+                        className="product-link"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <img
                           src={imgUrl(p.image)}
                           alt={p.name}
