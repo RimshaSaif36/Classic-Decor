@@ -5,6 +5,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 export default function Profile() {
+  const [orderMessage, setOrderMessage] = useState('');
+  const [cancelingId, setCancelingId] = useState('');
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('user') || localStorage.getItem('currentUser') || 'null');
@@ -22,6 +24,16 @@ export default function Profile() {
   const [city, setCity] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+
+  function canCancelOrder(order) {
+    const status = String(order && order.paymentStatus ? order.paymentStatus : 'pending').toLowerCase();
+    return status === 'pending' || status === 'paid' || status === 'completed';
+  }
+
+  function formatStatusLabel(status) {
+    const value = String(status || 'pending').toLowerCase();
+    return value.charAt(0).toUpperCase() + value.slice(1);
+  }
 
   useEffect(() => {
     if (token) {
@@ -94,6 +106,35 @@ export default function Profile() {
     }
   }
 
+  async function cancelOrder(orderId) {
+    const confirmed = window.confirm('Are you sure you want to cancel this order?');
+    if (!confirmed) return;
+
+    setCancelingId(orderId);
+    setOrderMessage('');
+    try {
+      const r = await fetch(API_BASE + '/api/orders/' + orderId + '/cancel', {
+        method: 'PATCH',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setOrderMessage(data && data.error ? data.error : 'Unable to cancel order');
+        return;
+      }
+      setOrders(prev => prev.map(order => (
+        String(order._id) === String(orderId)
+          ? { ...order, paymentStatus: data.paymentStatus || 'cancelled' }
+          : order
+      )));
+      setOrderMessage('Order cancelled successfully');
+    } catch {
+      setOrderMessage('Unable to cancel order');
+    } finally {
+      setCancelingId('');
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
@@ -139,6 +180,7 @@ export default function Profile() {
                 <div className="orders-header">
                   <h2 className="section-title">Order History</h2>
                 </div>
+                {orderMessage && <div className="order-message">{orderMessage}</div>}
                 {orders.length === 0 ? (
                   <div className="empty-note">No orders yet.</div>
                 ) : (
@@ -147,7 +189,7 @@ export default function Profile() {
                       <li key={o._id} className="order-card">
                         <div className="order-head">
                           <span className="order-id">#{String(o._id).slice(-8)}</span>
-                          <span className={"status-badge " + String(o.paymentStatus || 'pending').toLowerCase()}>{o.paymentStatus}</span>
+                          <span className={"status-badge " + String(o.paymentStatus || 'pending').toLowerCase()}>{formatStatusLabel(o.paymentStatus)}</span>
                         </div>
                         <div className="order-meta">
                           <div className="order-line">
@@ -159,6 +201,18 @@ export default function Profile() {
                             <span className="value">{new Date(o.createdAt).toLocaleDateString()}</span>
                           </div>
                         </div>
+                        {canCancelOrder(o) && (
+                          <div className="order-actions">
+                            <button
+                              type="button"
+                              className="btn-secondary"
+                              onClick={() => cancelOrder(o._id)}
+                              disabled={cancelingId === String(o._id)}
+                            >
+                              {cancelingId === String(o._id) ? 'Cancelling…' : 'Cancel Order'}
+                            </button>
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>

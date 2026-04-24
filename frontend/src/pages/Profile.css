@@ -160,6 +160,29 @@
   cursor: not-allowed;
 }
 
+.btn-secondary {
+  padding: 0.75rem 1.1rem;
+  background: linear-gradient(135deg, #8d6e63, #6d4c41);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  letter-spacing: 0.3px;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(109, 76, 65, 0.2);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Form Messages */
 .form-message {
   padding: var(--spacing-md) var(--spacing-lg);
@@ -300,6 +323,30 @@
   border: 1px solid #f5c6cb;
 }
 
+.status-badge.cancelled {
+  background-color: #efebe9;
+  color: #5d4037;
+  border: 1px solid #d7ccc8;
+}
+
+.order-actions {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(212, 175, 55, 0.1);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.order-message {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  background: #efebe9;
+  color: #5d4037;
+  border-left: 4px solid #8d6e63;
+  font-weight: 600;
+}
+
 /* Order Meta Information */
 .order-meta {
   display: grid;
@@ -405,6 +452,14 @@
 
   .btn-primary {
     width: 100%;
+  }
+
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .order-actions {
+    justify-content: stretch;
   }
 }
 

@@ -35,6 +35,42 @@ function getOrderModel() {
   }
 }
 
+async function buildOrderOwnershipFilter(req) {
+  const userId = String(req.user && req.user.id ? req.user.id : "").trim();
+  const orConditions = [];
+
+  if (userId && userId.match(/^[0-9a-fA-F]{24}$/)) {
+    orConditions.push({ userId });
+  }
+
+  if (userId && !isNaN(Number(userId))) {
+    orConditions.push({ legacyUserId: Number(userId) });
+  }
+
+  let email = "";
+  if (UserModel && mongoose.connection.readyState === 1) {
+    let user = null;
+    if (userId.match(/^[0-9a-fA-F]{24}$/)) {
+      user = await UserModel.findById(userId).select("email").lean();
+    } else if (!isNaN(Number(userId))) {
+      user = await UserModel.findOne({ legacyId: Number(userId) })
+        .select("email")
+        .lean();
+    }
+    email = String(user && user.email ? user.email : "").toLowerCase();
+  } else {
+    const users = read("users") || [];
+    const found = users.find((entry) => String(entry.id) === userId);
+    email = String(found && found.email ? found.email : "").toLowerCase();
+  }
+
+  if (email) {
+    orConditions.push({ email: new RegExp(`^${escapeRegExp(email)}$`, "i") });
+  }
+
+  return orConditions;
+}
+
 async function createOrder(req, res) {
   try {
     const body = req.body || {};
@@ -425,37 +461,7 @@ async function myOrders(req, res) {
       return res.json([]);
     }
 
-    const userId = String(req.user && req.user.id ? req.user.id : "").trim();
-    const orConditions = [];
-
-    if (userId && userId.match(/^[0-9a-fA-F]{24}$/)) {
-      orConditions.push({ userId });
-    }
-
-    if (userId && !isNaN(Number(userId))) {
-      orConditions.push({ legacyUserId: Number(userId) });
-    }
-
-    let email = "";
-    if (UserModel && mongoose.connection.readyState === 1) {
-      let user = null;
-      if (userId.match(/^[0-9a-fA-F]{24}$/)) {
-        user = await UserModel.findById(userId).select("email").lean();
-      } else if (!isNaN(Number(userId))) {
-        user = await UserModel.findOne({ legacyId: Number(userId) })
-          .select("email")
-          .lean();
-      }
-      email = String(user && user.email ? user.email : "").toLowerCase();
-    } else {
-      const users = read("users") || [];
-      const found = users.find((entry) => String(entry.id) === userId);
-      email = String(found && found.email ? found.email : "").toLowerCase();
-    }
-
-    if (email) {
-      orConditions.push({ email: new RegExp(`^${escapeRegExp(email)}$`, "i") });
-    }
+    const orConditions = await buildOrderOwnershipFilter(req);
 
     if (orConditions.length === 0) {
       return res.json([]);
@@ -468,6 +474,68 @@ async function myOrders(req, res) {
   } catch (e) {
     console.error("[orders] myOrders error:", e && e.message ? e.message : e);
     return res.json([]);
+  }
+}
+
+async function cancelMyOrder(req, res) {
+  try {
+    const id = req.params.id;
+    const OrderModel = getOrderModel();
+
+    if (!OrderModel || !req.app.locals.dbConnected) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const orConditions = await buildOrderOwnershipFilter(req);
+    if (orConditions.length === 0) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const existing = await OrderModel.findOne({
+      _id: id,
+      $or: orConditions,
+    }).lean();
+
+    if (!existing) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const currentStatus = String(existing.paymentStatus || "pending").toLowerCase();
+    if (["shipped", "delivered", "cancelled", "failed"].includes(currentStatus)) {
+      return res.status(400).json({
+        error: "This order can no longer be cancelled",
+      });
+    }
+
+    const updated = await OrderModel.findByIdAndUpdate(
+      id,
+      { paymentStatus: "cancelled" },
+      { new: true },
+    ).lean();
+
+    if (!updated) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    try {
+      sendOrderStatusUpdate({
+        name: updated.name,
+        email: updated.email,
+        total: updated.total,
+        orderId: updated._id || updated.id,
+        paymentStatus: "cancelled",
+        previousStatus: currentStatus,
+      }).catch((err) => {
+        console.error("[orders] Failed to send cancellation email:", err.message);
+      });
+    } catch (err) {
+      console.error("[orders] Error in cancellation email:", err.message);
+    }
+
+    return res.json(updated);
+  } catch (e) {
+    console.error("[orders] cancelMyOrder error:", e && e.message ? e.message : e);
+    return res.status(500).json({ error: "Failed" });
   }
 }
 
@@ -582,6 +650,7 @@ module.exports = {
   getOrder,
   checkTransaction,
   myOrders,
+  cancelMyOrder,
   updateOrder,
   deleteOrder,
   reportOrders,

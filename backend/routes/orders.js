@@ -5,6 +5,7 @@ const {
   getOrder,
   checkTransaction,
   myOrders,
+  cancelMyOrder,
   updateOrder,
   deleteOrder,
   reportOrders,
@@ -23,6 +24,7 @@ router.get("/report", requireAuth, requireAdmin, reportOrders);
 // Public check endpoint (kept for legacy clients) - must come before /:id
 router.get("/check", checkTransaction);
 router.get("/my", requireAuth, myOrders);
+router.patch("/:id/cancel", requireAuth, cancelMyOrder);
 router.get("/:id", requireAuth, getOrder);
 router.put("/:id", requireAuth, requireAdmin, updateOrder);
 router.delete("/:id", requireAuth, requireAdmin, deleteOrder);
