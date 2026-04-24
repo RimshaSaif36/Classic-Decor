@@ -154,6 +154,13 @@ ul {
   min-height: 70px;
   z-index: 1000;
 }
+
+.site-nav-stack {
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  background-color: var(--bg-primary);
+}
 .logo {
   position: relative;
   left: 0;
@@ -818,8 +825,8 @@ nav ul li a:hover {
   box-shadow: var(--shadow-sm);
   margin-top: 0;
   text-align: center;
-  position: sticky;
-  top: 0;
+  position: relative;
+  top: auto;
   z-index: 900;
   transition:
     background-color var(--transition-base),

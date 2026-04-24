@@ -58,7 +58,7 @@ export default function Header() {
     } catch { void 0; }
   }
   return (
-    <>
+    <div className="site-nav-stack">
       <header className="header">
       <button className="icon-btn mobile-menu-btn" aria-label="Menu" onClick={() => setMenuOpen(true)}>
         <i className="fa-solid fa-bars"></i>
@@ -170,7 +170,7 @@ export default function Header() {
       )}
       </header>
       <CategoryNav />
-    </>
+    </div>
   );
 }
 

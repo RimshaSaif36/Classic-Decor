@@ -4,7 +4,6 @@
   min-height: 100vh;
   background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
   padding: var(--spacing-2xl) 0;
-  margin-top: 80px;
 }
 
 .profile-container {
@@ -412,7 +411,6 @@
 @media (max-width: 768px) {
   .profile-section {
     padding: var(--spacing-xl) 0;
-    margin-top: 60px;
   }
 
   .profile-container {
