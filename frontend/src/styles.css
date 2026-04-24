@@ -3067,6 +3067,11 @@ footer {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
+
+.shop-products .product-item .product-image-link {
+  display: block;
+  line-height: 0;
+}
   -webkit-box-orient: vertical;
   overflow: hidden;
   min-height: 48px;

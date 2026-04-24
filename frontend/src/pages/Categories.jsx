@@ -84,7 +84,9 @@ export default function Categories() {
             <div className="product-grid">
               {filtered.map(p => (
                 <div className="product-item" key={p.id}>
-                  <img src={imgUrl(p.image)} alt={p.name} title={p.name} />
+                  <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="product-image-link">
+                    <img src={imgUrl(p.image)} alt={p.name} title={p.name} />
+                  </Link>
                   <h3>{p.name}</h3>
                   <p className="price">PKR {Number(p.price) || 0}</p>
                   <div className="product-actions">
