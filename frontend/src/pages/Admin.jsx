@@ -1068,7 +1068,16 @@ export default function Admin() {
                                         {order.items && order.items.length > 0 ? (
                                           order.items.map((it, idx) => (
                                             it.image ? (
-                                              <img key={idx} src={imgUrl(it.image)} alt={it.name || ''} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                                              <a
+                                                key={idx}
+                                                href={imgUrl(it.image)}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                className="order-image-link"
+                                                title={`Open image${it.name ? `: ${it.name}` : ''}`}
+                                              >
+                                                <img src={imgUrl(it.image)} alt={it.name || ''} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                                              </a>
                                             ) : (
                                               <div key={idx} style={{ width: 48, height: 48, background: '#f4f4f4', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6 }}>—</div>
                                             )
@@ -1129,7 +1138,7 @@ export default function Admin() {
                                         title="Open order PDF"
                                       >
                                         <i className="fa-solid fa-file-pdf"></i>
-                                        {exportingOrderId === order._id ? 'Preparing...' : 'PDF'}
+                                        <span>{exportingOrderId === order._id ? 'Preparing...' : 'Open PDF'}</span>
                                       </button>
                                     </td>
                                     <td>
