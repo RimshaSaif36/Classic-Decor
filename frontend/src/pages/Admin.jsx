@@ -12,6 +12,24 @@ import { imgUrl } from '../lib/utils';
 const PRESET_COLORS = ['Black', 'Transparent', 'Golden', 'Silver', 'Brown'];
 const PRESET_SIZES = ['Small', 'Medium', 'Large', 'Small (8x8)', 'Medium (12x12)', 'Large (15x15)'];
 
+function formatOrderDate(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('en-PK');
+}
+
+function formatOrderTime(value) {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleTimeString('en-PK', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
+}
+
 export default function Admin() {
   const [auth, setAuth] = useState({ token: '', user: null });
   const [status, setStatus] = useState('');
@@ -523,6 +541,7 @@ export default function Admin() {
                               <th>Total</th>
                               <th>Status</th>
                               <th>Date</th>
+                              <th>Time</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -544,11 +563,12 @@ export default function Admin() {
                                       {order.paymentStatus}
                                     </span>
                                   </td>
-                                  <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                                  <td>{formatOrderDate(order.createdAt)}</td>
+                                  <td>{formatOrderTime(order.createdAt)}</td>
                                 </tr>
                               ))
                             ) : (
-                              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '20px' }}>No orders yet</td></tr>
+                              <tr><td colSpan="7" style={{ textAlign: 'center', padding: '20px' }}>No orders yet</td></tr>
                             )}
                           </tbody>
                         </table>
@@ -588,6 +608,7 @@ export default function Admin() {
                             <th>Total</th>
                             <th>Status</th>
                             <th>Date</th>
+                            <th>Time</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
@@ -596,7 +617,7 @@ export default function Admin() {
                             orderGroups.map((group, gi) => (
                               <Fragment key={'group-' + gi}>
                                 <tr className="order-group-header">
-                                  <td colSpan="14">
+                                  <td colSpan="15">
                                     <strong>{group.email}</strong>
                                     <span style={{ marginLeft: 8, color: '#666' }}>{group.orders.length} orders</span>
                                   </td>
@@ -687,7 +708,8 @@ export default function Admin() {
                                         <option value="cancelled">Cancelled</option>
                                       </select>
                                     </td>
-                                    <td><small>{new Date(order.createdAt).toLocaleDateString()}</small></td>
+                                    <td><small>{formatOrderDate(order.createdAt)}</small></td>
+                                    <td><small>{formatOrderTime(order.createdAt)}</small></td>
                                     <td>
                                       <button 
                                         className="admin-btn delete"
@@ -702,7 +724,7 @@ export default function Admin() {
                               </Fragment>
                             ))
                           ) : (
-                            <tr><td colSpan="14" style={{ textAlign: 'center', padding: '20px' }}>
+                            <tr><td colSpan="15" style={{ textAlign: 'center', padding: '20px' }}>
                               {searchOrders ? 'No matching orders found' : 'No orders found'}
                             </td></tr>
                           )}
