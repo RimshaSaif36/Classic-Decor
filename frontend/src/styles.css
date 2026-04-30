@@ -3919,6 +3919,14 @@ footer {
 .admin-btn.edit:hover {
   background: #c9a031;
 }
+.admin-btn.pdf {
+  background: #263238;
+  color: #fff;
+  border-color: #1b2328;
+}
+.admin-btn.pdf:hover {
+  background: #1b2328;
+}
 .admin-btn.delete {
   background: #f44336;
   color: #fff;

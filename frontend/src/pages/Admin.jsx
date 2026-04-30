@@ -7,6 +7,8 @@ import ReviewsManagement from '../components/ReviewsManagement';
 import { API_BASE } from '../lib/config';
 import { useEffect, useState, useMemo, Fragment } from 'react';
 import { imgUrl } from '../lib/utils';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 // Predefined options
 const PRESET_COLORS = ['Black', 'Transparent', 'Golden', 'Silver', 'Brown'];
@@ -28,6 +30,89 @@ function formatOrderTime(value) {
     minute: '2-digit',
     hour12: true,
   });
+}
+
+function formatMoney(value) {
+  return `PKR ${Number(value || 0).toLocaleString()}`;
+}
+
+function formatOrderTotal(order) {
+  if (order.metadata && order.metadata.requestType === 'custom-design' && Number(order.total || 0) <= 0) {
+    return 'Quote pending';
+  }
+  return formatMoney(order.total || 0);
+}
+
+function formatMetaLabel(key) {
+  return String(key || '')
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/^./, (char) => char.toUpperCase());
+}
+
+function formatMetaValue(value) {
+  if (Array.isArray(value)) return value.map(formatMetaValue).join(', ');
+  if (value && typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+function formatDisplayText(value) {
+  const normalized = String(value || '')
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  if (!normalized) return '—';
+
+  return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getOrderImageEntries(order) {
+  const imageEntries = [];
+
+  (order.items || []).forEach((item, index) => {
+    if (!item || !item.image) return;
+    imageEntries.push({
+      title: item.name || `Item ${index + 1}`,
+      details: [
+        item.color ? `Color: ${item.color}` : null,
+        item.size ? `Size: ${item.size}` : null,
+        item.quantity ? `Qty: ${item.quantity}` : null,
+      ].filter(Boolean).join(' | '),
+      src: imgUrl(item.image),
+    });
+  });
+
+  if (order.metadata && order.metadata.referenceImage) {
+    const referenceSrc = imgUrl(order.metadata.referenceImage);
+    if (!imageEntries.some((entry) => entry.src === referenceSrc)) {
+      imageEntries.push({
+        title: 'Reference image',
+        details: 'Uploaded by customer for custom design',
+        src: referenceSrc,
+      });
+    }
+  }
+
+  return imageEntries;
+}
+
+async function fetchImageDataUrl(src) {
+  try {
+    const response = await fetch(src);
+    if (!response.ok) throw new Error('Image fetch failed');
+    const blob = await response.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
 }
 
 export default function Admin() {
@@ -56,6 +141,7 @@ export default function Admin() {
   const [uploadingCreate, setUploadingCreate] = useState(false);
   const [uploadingEdit, setUploadingEdit] = useState(false);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(null);
+  const [exportingOrderId, setExportingOrderId] = useState(null);
   const [searchOrders, setSearchOrders] = useState('');
 
   useEffect(() => {
@@ -361,6 +447,330 @@ export default function Admin() {
       setStatus(e && e.message ? e.message : 'Failed to delete order');
     }
   }
+
+  async function exportOrderPdf(order) {
+    try {
+      setExportingOrderId(order._id);
+
+      const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const margin = 40;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const contentWidth = pageWidth - (margin * 2);
+      const palette = {
+        ink: [33, 37, 41],
+        muted: [108, 117, 125],
+        gold: [198, 153, 61],
+        goldSoft: [247, 241, 224],
+        line: [225, 229, 233],
+        panel: [250, 250, 247],
+        deep: [24, 33, 41],
+        success: [55, 125, 79],
+        warning: [173, 118, 33],
+        danger: [183, 64, 64],
+      };
+      const metadataEntries = Object.entries(order.metadata || {}).filter(([key, value]) => {
+        if (value === '' || value == null) return false;
+        return !['referenceImage', 'gateway'].includes(key);
+      });
+      const totalPagesExp = '{total_pages_count_string}';
+      const orderReference = String(order._id || '—');
+      const orderShortId = orderReference === '—' ? orderReference : orderReference.slice(-8).toUpperCase();
+      const orderStatus = formatDisplayText(order.paymentStatus || 'pending');
+      const paymentMethod = formatDisplayText(order.payment || (order.metadata && order.metadata.gateway) || '—');
+      const customerName = order.name || '—';
+      const customerAddress = [order.address, order.city].filter(Boolean).join(', ') || '—';
+      const imageEntries = getOrderImageEntries(order);
+
+      let y = 118;
+
+      const getStatusFill = () => {
+        const value = String(order.paymentStatus || '').toLowerCase();
+        if (['completed', 'approved', 'delivered', 'paid', 'shipped'].includes(value)) return palette.success;
+        if (['failed', 'cancelled'].includes(value)) return palette.danger;
+        return palette.warning;
+      };
+
+      const drawPageHeader = (continuation = false) => {
+        doc.setFillColor(...palette.deep);
+        doc.rect(0, 0, pageWidth, 92, 'F');
+        doc.setFillColor(...palette.gold);
+        doc.rect(0, 92, pageWidth, 4, 'F');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(24);
+        doc.setTextColor(255, 255, 255);
+        doc.text('Classic Decor', margin, 42);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        doc.setTextColor(232, 236, 239);
+        doc.text(continuation ? 'Order fulfillment sheet continuation' : 'Order fulfillment and shipping sheet', margin, 61);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(255, 255, 255);
+        doc.text(`Order Ref: ${orderShortId}`, pageWidth - margin, 36, { align: 'right' });
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+        doc.setTextColor(232, 236, 239);
+        doc.text(`${formatOrderDate(order.createdAt)}  |  ${formatOrderTime(order.createdAt)}`, pageWidth - margin, 56, { align: 'right' });
+
+        y = 118;
+      };
+
+      const drawPageFooter = (pageNumber) => {
+        doc.setDrawColor(...palette.line);
+        doc.line(margin, pageHeight - 38, pageWidth - margin, pageHeight - 38);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(...palette.muted);
+        doc.text('Prepared from the admin panel for shipping coordination.', margin, pageHeight - 22);
+        doc.text(`Page ${pageNumber} of ${totalPagesExp}`, pageWidth - margin, pageHeight - 22, { align: 'right' });
+      };
+
+      const ensurePageSpace = (requiredHeight = 80) => {
+        if (y + requiredHeight <= pageHeight - 56) return;
+        doc.addPage();
+        drawPageHeader(true);
+      };
+
+      const addSectionTitle = (title, subtitle) => {
+        ensurePageSpace(48);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(14);
+        doc.setTextColor(...palette.ink);
+        doc.text(title, margin, y);
+
+        if (subtitle) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...palette.muted);
+          doc.text(subtitle, margin, y + 14);
+        }
+
+        doc.setDrawColor(...palette.gold);
+        doc.setLineWidth(1.2);
+        doc.line(margin, y + 22, margin + 92, y + 22);
+        y += 34;
+      };
+
+      const drawSummaryCard = (x, top, width, title, value, accent, subtext) => {
+        doc.setFillColor(...palette.panel);
+        doc.setDrawColor(...palette.line);
+        doc.roundedRect(x, top, width, 70, 10, 10, 'FD');
+        doc.setFillColor(...accent);
+        doc.roundedRect(x, top, 6, 70, 6, 6, 'F');
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(...palette.muted);
+        doc.text(title, x + 18, top + 22);
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(15);
+        doc.setTextColor(...palette.ink);
+        doc.text(value, x + 18, top + 44);
+
+        if (subtext) {
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...palette.muted);
+          doc.text(doc.splitTextToSize(subtext, width - 28), x + 18, top + 58);
+        }
+      };
+
+      drawPageHeader(false);
+
+      const cardGap = 12;
+      const cardWidth = (contentWidth - (cardGap * 2)) / 3;
+      drawSummaryCard(margin, y, cardWidth, 'Customer', customerName, palette.gold, customerAddress);
+      drawSummaryCard(margin + cardWidth + cardGap, y, cardWidth, 'Status', orderStatus, getStatusFill(), `Payment: ${paymentMethod}`);
+      drawSummaryCard(margin + ((cardWidth + cardGap) * 2), y, cardWidth, 'Order Total', formatOrderTotal(order), palette.deep, `${(order.items || []).length} item${(order.items || []).length === 1 ? '' : 's'}`);
+      y += 92;
+
+      addSectionTitle('Customer and Shipping Details', 'Verified recipient and dispatch information');
+      autoTable(doc, {
+        startY: y,
+        theme: 'grid',
+        styles: {
+          fontSize: 10,
+          cellPadding: { top: 7, right: 8, bottom: 7, left: 8 },
+          overflow: 'linebreak',
+          textColor: palette.ink,
+          lineColor: palette.line,
+          lineWidth: 0.5,
+        },
+        body: [
+          ['Order ID', orderReference],
+          ['Order Date', formatOrderDate(order.createdAt)],
+          ['Order Time', formatOrderTime(order.createdAt)],
+          ['Customer Name', order.name || '—'],
+          ['Email', order.email || '—'],
+          ['Phone', order.phone || '—'],
+          ['City', order.city || '—'],
+          ['Address', order.address || '—'],
+          ['Payment Method', paymentMethod],
+          ['Payment Status', orderStatus],
+          ['Subtotal', formatMoney(order.subtotal || 0)],
+          ['Shipping', formatMoney(order.shipping || 0)],
+          ['Order Total', formatOrderTotal(order)],
+        ],
+        margin: { left: margin, right: margin },
+        columnStyles: {
+          0: { cellWidth: 130, fontStyle: 'bold', fillColor: palette.goldSoft },
+          1: { cellWidth: contentWidth - 130 },
+        },
+        didParseCell: (data) => {
+          if (data.section === 'body' && data.column.index === 1 && data.row.index === 9) {
+            data.cell.styles.textColor = getStatusFill();
+            data.cell.styles.fontStyle = 'bold';
+          }
+        },
+      });
+      y = doc.lastAutoTable.finalY + 20;
+
+      addSectionTitle('Items', 'Product, quantity, visual references, and line totals');
+      autoTable(doc, {
+        startY: y,
+        theme: 'grid',
+        styles: {
+          fontSize: 9,
+          cellPadding: { top: 6, right: 6, bottom: 6, left: 6 },
+          overflow: 'linebreak',
+          valign: 'top',
+          textColor: palette.ink,
+          lineColor: palette.line,
+          lineWidth: 0.5,
+        },
+        alternateRowStyles: { fillColor: [252, 252, 250] },
+        headStyles: { fillColor: palette.deep, textColor: [255, 255, 255], fontStyle: 'bold' },
+        body: (order.items || []).length > 0 ? (order.items || []).map((item, index) => {
+          const quantity = Number(item.quantity || 1);
+          const price = Number(item.price || 0);
+          return [
+            String(index + 1),
+            item.name || '—',
+            String(quantity),
+            item.size || '—',
+            item.color || '—',
+            price > 0 ? formatMoney(price) : '—',
+            price > 0 ? formatMoney(price * quantity) : '—',
+            item.image ? 'Attached in image section' : '—',
+          ];
+        }) : [['1', 'No item details available', '—', '—', '—', '—', '—', '—']],
+        head: [['#', 'Item', 'Qty', 'Size', 'Color', 'Price', 'Line Total', 'Image']],
+        margin: { left: margin, right: margin },
+        columnStyles: {
+          0: { cellWidth: 24 },
+          1: { cellWidth: 170 },
+          2: { cellWidth: 34, halign: 'center' },
+          3: { cellWidth: 54 },
+          4: { cellWidth: 58 },
+          5: { cellWidth: 64 },
+          6: { cellWidth: 74 },
+          7: { cellWidth: 88 },
+        },
+      });
+      y = doc.lastAutoTable.finalY + 20;
+
+      if (metadataEntries.length > 0) {
+        addSectionTitle('Additional Request Details', 'Notes supplied by the customer for preparation or customization');
+        autoTable(doc, {
+          startY: y,
+          theme: 'grid',
+          styles: {
+            fontSize: 10,
+            cellPadding: { top: 7, right: 8, bottom: 7, left: 8 },
+            overflow: 'linebreak',
+            textColor: palette.ink,
+            lineColor: palette.line,
+            lineWidth: 0.5,
+          },
+          body: metadataEntries.map(([key, value]) => [formatMetaLabel(key), formatMetaValue(value)]),
+          margin: { left: margin, right: margin },
+          columnStyles: {
+            0: { cellWidth: 150, fontStyle: 'bold', fillColor: palette.goldSoft },
+            1: { cellWidth: contentWidth - 150 },
+          },
+        });
+        y = doc.lastAutoTable.finalY + 20;
+      }
+
+      if (imageEntries.length > 0) {
+        addSectionTitle('Attached Images', 'Product visuals and customer references for the shipping team');
+
+        for (const imageEntry of imageEntries) {
+          ensurePageSpace(196);
+
+          doc.setFillColor(...palette.panel);
+          doc.setDrawColor(...palette.line);
+          doc.roundedRect(margin, y, contentWidth, 176, 12, 12, 'FD');
+
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(12);
+          doc.setTextColor(...palette.ink);
+          doc.text(imageEntry.title, margin + 18, y + 24);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(9);
+          doc.setTextColor(...palette.muted);
+          if (imageEntry.details) {
+            doc.text(doc.splitTextToSize(imageEntry.details, contentWidth - 180), margin + 18, y + 42);
+          }
+
+          const dataUrl = await fetchImageDataUrl(imageEntry.src);
+          if (dataUrl) {
+            const format = dataUrl.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+            doc.addImage(dataUrl, format, margin + 18, y + 54, 118, 118);
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(...palette.ink);
+            doc.text('Image Source', margin + 154, y + 78);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...palette.muted);
+            doc.text(doc.splitTextToSize(imageEntry.src, contentWidth - 172), margin + 154, y + 96);
+          } else {
+            doc.setFont('helvetica', 'bold');
+            doc.setFontSize(9);
+            doc.setTextColor(...palette.danger);
+            doc.text('Image preview unavailable', margin + 18, y + 76);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(...palette.muted);
+            doc.text(doc.splitTextToSize(imageEntry.src, contentWidth - 36), margin + 18, y + 94);
+          }
+
+          y += 192;
+        }
+      }
+
+      const totalPages = doc.getNumberOfPages();
+      for (let pageIndex = 1; pageIndex <= totalPages; pageIndex += 1) {
+        doc.setPage(pageIndex);
+        drawPageFooter(pageIndex);
+      }
+
+      if (typeof doc.putTotalPages === 'function') {
+        doc.putTotalPages(totalPagesExp);
+      }
+
+      const blob = doc.output('blob');
+      const blobUrl = URL.createObjectURL(blob);
+      const popup = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      if (!popup) {
+        doc.save(`order-${String(order._id || 'sheet')}.pdf`);
+      }
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+      setStatus('Order PDF prepared');
+    } catch (e) {
+      console.error('Failed to export order PDF:', e);
+      setStatus(e && e.message ? e.message : 'Failed to prepare order PDF');
+    } finally {
+      setExportingOrderId(null);
+    }
+  }
   async function onUploadCreate(e){
     const file = e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
     if (!file) return;
@@ -609,6 +1019,7 @@ export default function Admin() {
                             <th>Status</th>
                             <th>Date</th>
                             <th>Time</th>
+                            <th>Details</th>
                             <th>Actions</th>
                           </tr>
                         </thead>
@@ -617,7 +1028,7 @@ export default function Admin() {
                             orderGroups.map((group, gi) => (
                               <Fragment key={'group-' + gi}>
                                 <tr className="order-group-header">
-                                  <td colSpan="15">
+                                  <td colSpan="16">
                                     <strong>{group.email}</strong>
                                     <span style={{ marginLeft: 8, color: '#666' }}>{group.orders.length} orders</span>
                                   </td>
@@ -711,6 +1122,17 @@ export default function Admin() {
                                     <td><small>{formatOrderDate(order.createdAt)}</small></td>
                                     <td><small>{formatOrderTime(order.createdAt)}</small></td>
                                     <td>
+                                      <button
+                                        className="admin-btn pdf"
+                                        onClick={() => exportOrderPdf(order)}
+                                        disabled={exportingOrderId === order._id}
+                                        title="Open order PDF"
+                                      >
+                                        <i className="fa-solid fa-file-pdf"></i>
+                                        {exportingOrderId === order._id ? 'Preparing...' : 'PDF'}
+                                      </button>
+                                    </td>
+                                    <td>
                                       <button 
                                         className="admin-btn delete"
                                         onClick={() => deleteOrder(order._id)}
@@ -724,7 +1146,7 @@ export default function Admin() {
                               </Fragment>
                             ))
                           ) : (
-                            <tr><td colSpan="15" style={{ textAlign: 'center', padding: '20px' }}>
+                            <tr><td colSpan="16" style={{ textAlign: 'center', padding: '20px' }}>
                               {searchOrders ? 'No matching orders found' : 'No orders found'}
                             </td></tr>
                           )}
