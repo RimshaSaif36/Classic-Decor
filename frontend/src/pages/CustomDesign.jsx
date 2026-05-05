@@ -119,6 +119,8 @@ export default function CustomDesign() {
     if (!cleanProductType) nextErrors.productType = 'Product type is required';
     if (!cleanSize) nextErrors.preferredSize = 'Preferred size is required';
     if (!cleanColor) nextErrors.preferredColor = 'Preferred color is required';
+    if (!cleanBudget) nextErrors.budget = 'Estimated budget is required';
+    else if ((Number(cleanBudget) || 0) <= 0) nextErrors.budget = 'Estimated budget must be greater than 0';
     if (!cleanNotes || cleanNotes.length < 10) nextErrors.notes = 'Please describe your custom design in more detail';
     if (!form.uploadedImage) nextErrors.uploadedImage = 'Please upload a reference image';
 
@@ -284,7 +286,8 @@ export default function CustomDesign() {
                 </div>
                 <div className="form-group custom-design-full">
                   <label>Estimated budget</label>
-                  <input value={form.budget} onChange={(e) => updateField('budget', e.target.value)} placeholder="Optional budget or target price" />
+                  <input type="number" min="1" value={form.budget} onChange={(e) => updateField('budget', e.target.value)} placeholder="Enter your estimated budget" />
+                  {errors.budget ? <span className="field-error">{errors.budget}</span> : null}
                 </div>
                 <div className="form-group custom-design-full">
                   <label>Design details</label>

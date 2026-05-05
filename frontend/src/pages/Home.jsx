@@ -87,11 +87,28 @@ export default function Home() {
     return `${baseCount * 8}s`;
   }, [reviewCards.length]);
 
+  function showCartMessage(message, type = "success") {
+    const existing = document.querySelector(".cart-message");
+    if (existing) existing.remove();
+    const m = document.createElement("div");
+    m.className = `cart-message ${type}`;
+    m.textContent = message;
+    document.body.appendChild(m);
+    setTimeout(() => m.remove(), 2800);
+  }
+
+  function requireProductOptions(product) {
+    showCartMessage("Please select size and color first", "error");
+    window.setTimeout(() => {
+      window.location.href = `/product/${product._id || product.id || product.slug}`;
+    }, 500);
+  }
+
   return (
     <div className="home-page">
       <Header />
       <main>
-        <section className="hero">
+        <section className="hero" id="home-hero">
           <div className="hero-overlay">
             <div className="hero-content">
               <h1 className="typewriter">
@@ -135,9 +152,6 @@ export default function Home() {
                       title={p.name}
                       className="product-image"
                     />
-                    <div className="product-overlay">
-                      <button className="quick-view-btn">Quick View</button>
-                    </div>
                   </Link>
                   <div className="product-item-content">
                     <h3 className="product-name">{p.name}</h3>
@@ -157,41 +171,7 @@ export default function Home() {
                       </p>
                       <button
                         className="add-to-cart-btn"
-                        onClick={() => {
-                          const next = [
-                            ...JSON.parse(localStorage.getItem("cart") || "[]"),
-                          ];
-                          const pid = p._id || p.id || p.slug;
-                          const existing = next.find((i) => i.id === pid);
-                          if (existing) {
-                            existing.quantity = (existing.quantity || 1) + 1;
-                          } else {
-                            next.push({
-                              id: pid,
-                              name: p.name,
-                              price: Number(p.price) || 0,
-                              saleDiscount: Number(p.saleDiscount) || 0,
-                              image: imgUrl(p.image || ""),
-                              quantity: 1,
-                            });
-                          }
-                          localStorage.setItem("cart", JSON.stringify(next));
-                          const total = next.reduce(
-                            (s, i) => s + (i.quantity || 1),
-                            0
-                          );
-                          window.dispatchEvent(
-                            new CustomEvent("cart-updated", {
-                              detail: { total },
-                            })
-                          );
-
-                          const m = document.createElement("div");
-                          m.className = "cart-message success";
-                          m.textContent = "Added to cart!";
-                          document.body.appendChild(m);
-                          setTimeout(() => m.remove(), 2800);
-                        }}
+                        onClick={() => requireProductOptions(p)}
                       >
                         <i className="fas fa-shopping-cart"></i> Add to Cart
                       </button>

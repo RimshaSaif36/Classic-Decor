@@ -112,13 +112,18 @@ export default function Checkout() {
     
     if (!cleanCity) newErrors.city = 'City is required';
     
+    if (!Array.isArray(cart) || cart.length === 0) return alert('Your cart is empty');
+    const invalidCartItems = cart.filter(item => !String(item.size || '').trim() || !String(item.color || '').trim());
+    if (invalidCartItems.length > 0) {
+      newErrors.cart = `Please select size and color for: ${invalidCartItems.map(item => item.name || 'item').join(', ')}`;
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       alert(Object.values(newErrors).join('\n'));
       return;
     }
-    
-    if (!Array.isArray(cart) || cart.length === 0) return alert('Your cart is empty');
+
     if ((payment === 'jazzcash' || payment === 'easypaisa') && (!senderNumber || !transactionId)) {
       return alert('Enter Payment Number and Transaction ID.');
     }
@@ -193,72 +198,85 @@ export default function Checkout() {
         <div className="checkout-container">
           <h2>Checkout</h2>
 
-          <div className="checkout-cart">
-            <h3>Your Cart</h3>
-            <div className="cart-items">
-              {cart.length === 0 && <p>Your cart is empty.</p>}
-              {cart.map(i => (
-                <div className="checkout-cart-item" key={`${i.id}-${i.size || ''}-${i.color || ''}`} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 8, padding: '6px 0', borderBottom: '1px solid #eee' }}>
-                  <div className="item-name">{i.name} x {i.quantity || 1}</div>
-                  {i.size && <div className="item-size">Size: {i.size}</div>}
-                  {i.color && <div className="item-color">Color: {i.color}</div>}
-                  <div className="item-price">PKR {effectivePrice(i) * (i.quantity||1)}</div>
-                  <button onClick={() => removeItem(i)} style={{ justifySelf: 'end', color: '#c62828', background: 'transparent', border: 'none', cursor: 'pointer' }}>Remove</button>
-                </div>
-              ))}
-            </div>
-            <div className="cart-summary">
-              <p>Subtotal: <span className="subtotal-price">PKR {subtotal}</span></p>
-              <p>Shipping: <span className="shipping-price">PKR {shippingPrice}</span></p>
-              <p><strong>Total: <span className="total-price">PKR {total}</span></strong></p>
-            </div>
-          </div>
-
-          <form id="checkout-form" className="checkout-form" onSubmit={placeOrder}>
-            <h3>Billing Details</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+          <div className="checkout-layout">
+            <form id="checkout-form" className="checkout-form" onSubmit={placeOrder}>
+              <div className="checkout-section-heading">
+                <h3>Shipping Address</h3>
+              </div>
+              {errors.cart && <div className="checkout-alert">{errors.cart}</div>}
+              <div className="checkout-fields-grid">
               <div className="form-group">
-                <label>Name</label>
-                <input placeholder="Full name" value={name} onChange={e=>setName(e.target.value)} required style={{ borderColor: errors.name ? '#c62828' : undefined }} />
-                {errors.name && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.name}</span>}
+                <label>Full Name</label>
+                <input placeholder="Enter full name" value={name} onChange={e=>setName(e.target.value)} required className={errors.name ? 'has-error' : ''} />
+                {errors.name && <span className="field-error">{errors.name}</span>}
               </div>
               <div className="form-group">
                 <label>Email</label>
-                <input type="email" placeholder="your@email.com" value={email} onChange={e=>setEmail(e.target.value)} required style={{ borderColor: errors.email ? '#c62828' : undefined }} />
-                {errors.email && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.email}</span>}
-              </div>
-              <div className="form-group">
-                <label>Address</label>
-                <input placeholder="Street, area" value={address} onChange={e=>setAddress(e.target.value)} required style={{ borderColor: errors.address ? '#c62828' : undefined }} />
-                {errors.address && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.address}</span>}
-              </div>
-              <div className="form-group">
-                <label>City</label>
-                <input placeholder="City" value={city} onChange={e=>setCity(e.target.value)} required style={{ borderColor: errors.city ? '#c62828' : undefined }} />
-                {errors.city && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.city}</span>}
+                <input type="email" placeholder="Enter email" value={email} onChange={e=>setEmail(e.target.value)} required className={errors.email ? 'has-error' : ''} />
+                {errors.email && <span className="field-error">{errors.email}</span>}
               </div>
               <div className="form-group">
                 <label>Phone</label>
-                <input placeholder="03XXXXXXXXX" value={phone} onChange={e=>setPhone(e.target.value)} required style={{ borderColor: errors.phone ? '#c62828' : undefined }} />
-                {errors.phone && <span style={{ color: '#c62828', fontSize: 12 }}>{errors.phone}</span>}
+                <input placeholder="Enter phone" value={phone} onChange={e=>setPhone(e.target.value)} required className={errors.phone ? 'has-error' : ''} />
+                {errors.phone && <span className="field-error">{errors.phone}</span>}
               </div>
-              <div className="form-group"><label>Payment Option</label>
+              <div className="form-group">
+                <label>Address</label>
+                <input placeholder="Enter address" value={address} onChange={e=>setAddress(e.target.value)} required className={errors.address ? 'has-error' : ''} />
+                {errors.address && <span className="field-error">{errors.address}</span>}
+              </div>
+              <div className="form-group">
+                <label>City</label>
+                <input placeholder="Enter city" value={city} onChange={e=>setCity(e.target.value)} required className={errors.city ? 'has-error' : ''} />
+                {errors.city && <span className="field-error">{errors.city}</span>}
+              </div>
+              <div className="form-group checkout-field-full"><label>Payment Option</label>
                 <select value={payment} onChange={e=>setPayment(e.target.value)}>
                   <option value="cod">Cash on Delivery</option>
                   <option value="jazzcash">JazzCash</option>
                   <option value="easypaisa">EasyPaisa</option>
                 </select>
               </div>
-            </div>
+              </div>
             {(payment === 'jazzcash' || payment === 'easypaisa') && (
-              <div style={{ marginTop: 15 }}>
-                <p style={{ color: 'green', fontWeight: 'bold' }}>Send payment to this number: JazzCash / EasyPaisa: <span style={{ color: '#000', fontSize: 18 }}>03003395535</span></p>
+              <div className="checkout-payment-box">
+                <p className="checkout-payment-note">Send payment to JazzCash / EasyPaisa: <strong>03003395535</strong></p>
                 <div className="form-group"><label>Your JazzCash/EasyPaisa Number</label><input value={senderNumber} onChange={e=>setSenderNumber(e.target.value)} placeholder="03XXXXXXXXX" /></div>
-                <div className="form-group"><label>Transaction ID</label><input value={transactionId} onChange={e=>setTransactionId(e.target.value)} placeholder="Enter Transaction ID" /></div>
+                <div className="form-group"><label>Transaction ID</label><input value={transactionId} onChange={e=>setTransactionId(e.target.value)} placeholder="Enter transaction ID" /></div>
               </div>
             )}
             <button type="submit" className="place-order-btn" disabled={placing}>{placing ? 'Placing...' : 'Place Order'}</button>
-          </form>
+            </form>
+
+            <aside className="checkout-summary-panel">
+              <h3>Order Summary</h3>
+              <div className="checkout-summary-items">
+                {cart.length === 0 ? (
+                  <p className="checkout-empty-text">Your cart is empty.</p>
+                ) : (
+                  cart.map(i => (
+                    <div className="checkout-summary-item" key={`${i.id}-${i.size || ''}-${i.color || ''}`}>
+                      <div className="checkout-summary-item-main">
+                        <div>
+                          <div className="checkout-item-name">{i.name}</div>
+                          <div className="checkout-item-meta">Qty: {i.quantity || 1}</div>
+                          {i.size && <div className="checkout-item-meta">Size: {i.size}</div>}
+                          {i.color && <div className="checkout-item-meta">Color: {i.color}</div>}
+                        </div>
+                        <div className="checkout-item-price">PKR {(effectivePrice(i) * (i.quantity || 1)).toLocaleString()}</div>
+                      </div>
+                      <button type="button" className="checkout-remove-btn" onClick={() => removeItem(i)}>Remove</button>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="checkout-totals">
+                <p><span>Subtotal</span><span className="subtotal-price">PKR {subtotal.toLocaleString()}</span></p>
+                <p><span>Shipping</span><span className="shipping-price">PKR {shippingPrice.toLocaleString()}</span></p>
+                <p className="checkout-total-row"><span>Total</span><span className="total-price">PKR {total.toLocaleString()}</span></p>
+              </div>
+            </aside>
+          </div>
         </div>
       </main>
       <Footer />

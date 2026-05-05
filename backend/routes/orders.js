@@ -6,6 +6,7 @@ const {
   checkTransaction,
   myOrders,
   cancelMyOrder,
+  submitCustomPayment,
   updateOrder,
   deleteOrder,
   reportOrders,
@@ -25,6 +26,7 @@ router.get("/report", requireAuth, requireAdmin, reportOrders);
 router.get("/check", checkTransaction);
 router.get("/my", requireAuth, myOrders);
 router.patch("/:id/cancel", requireAuth, cancelMyOrder);
+router.patch("/:id/custom-payment", requireAuth, submitCustomPayment);
 router.get("/:id", requireAuth, getOrder);
 router.put("/:id", requireAuth, requireAdmin, updateOrder);
 router.delete("/:id", requireAuth, requireAdmin, deleteOrder);

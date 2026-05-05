@@ -46,6 +46,7 @@ const OrderSchema = new mongoose.Schema({
     },
   },
   payment: { type: String },
+  senderNumber: { type: String },
   items: { type: [OrderItemSchema], default: [] },
   subtotal: { type: Number, default: 0 },
   shipping: { type: Number, default: 0 },

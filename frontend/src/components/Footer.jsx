@@ -1,12 +1,14 @@
+import { Link } from "react-router-dom";
+
 export default function Footer() {
   return (
     <footer>
       <div className="footer-container">
         <div className="footer-column">
-          <div className="footer-logo">
+          <Link to="/#home-hero" className="footer-logo" aria-label="Go to home hero section">
             <img src="/brandlogo.png" alt="The Classic Decor Logo" className="footer-logo-img" />
             <span className="footer-logo-text"></span>
-          </div>
+          </Link>
           <p>
             Your trusted destination for premium acrylic home décor. Explore
             modern wall art, elegant mirrors, clocks, and customized designs
@@ -16,7 +18,7 @@ export default function Footer() {
         <div className="footer-column">
           <h3>Customer Service</h3>
           <ul>
-            <li><a href="/custom-design">Custom Design Request</a></li>
+            <li><a href="/custom-design">Order Your Custom Design</a></li>
             <li><a href="/about">About Us</a></li>
             <li><a href="/contact">Contact Us</a></li>
             <li><a href="/shipping-returns">Shipping & Returns</a></li>
@@ -91,13 +93,6 @@ export default function Footer() {
             >
               <i className="fas fa-map-marker-alt"></i>
             </a>
-          </div>
-          <div className="newsletter">
-            <p>Sign up for our newsletter to get the latest updates.</p>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <input type="email" placeholder="Enter your email" />
-              <button type="submit">Subscribe</button>
-            </form>
           </div>
         </div>
       </div>

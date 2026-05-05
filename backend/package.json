@@ -4,6 +4,7 @@
   "description": "Minimal Express backend for Classic Decor website",
   "main": "server.js",
   "scripts": {
+    "build": "node -e \"console.log('Backend build: no compilation step required')\"",
     "dev": "nodemon server.js",
     "start": "node server.js",
     "seed": "node scripts/seedProducts.js",

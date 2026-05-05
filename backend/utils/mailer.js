@@ -7,6 +7,8 @@ const MAIL_USERNAME = process.env.MAIL_USERNAME || "";
 const MAIL_PASSWORD = process.env.MAIL_PASSWORD || "";
 const BREVO_SENDEREMAIL =
   process.env.BREVO_SENDEREMAIL || "support@theclassicdecor.com";
+const MAIL_SENDER_NAME = process.env.MAIL_SENDER_NAME || "TheClassicDecor";
+const MAIL_BRAND_NAME = process.env.MAIL_BRAND_NAME || "TheClassicDecor";
 
 // Fallback to older env vars if Brevo not configured
 const GMAIL_USER = process.env.GMAIL_USER || "";
@@ -63,6 +65,15 @@ const transporter = (() => {
   return null;
 })();
 
+function getFromAddress() {
+  const senderEmail =
+    BREVO_SENDEREMAIL ||
+    GMAIL_USER ||
+    SMTP_USER ||
+    "no-reply@classic-decor.local";
+  return `"${MAIL_SENDER_NAME}" <${senderEmail}>`;
+}
+
 async function sendWelcomeEmail(userDetails) {
   if (!transporter) {
     console.log("[mailer] Email not sent: mailer not configured");
@@ -75,19 +86,15 @@ async function sendWelcomeEmail(userDetails) {
     return false;
   }
 
-  const fromAddress =
-    BREVO_SENDEREMAIL ||
-    GMAIL_USER ||
-    SMTP_USER ||
-    "no-reply@classic-decor.local";
+  const fromAddress = getFromAddress();
   const mailOptions = {
     from: fromAddress,
     to: email,
-    subject: "Welcome to Classic Decore! 🎉",
+    subject: `Welcome to ${MAIL_BRAND_NAME}! 🎉`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #d4af37; margin: 0;">Classic Decore</h1>
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
           <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
         </div>
         
@@ -95,7 +102,7 @@ async function sendWelcomeEmail(userDetails) {
           <h2 style="color: #1a1a1a; margin-top: 0;">Welcome, ${name}! 👋</h2>
           
           <p style="color: #555; line-height: 1.6;">
-            Thank you for joining Classic Decore! We're thrilled to have you as part of our community. 
+            Thank you for joining ${MAIL_BRAND_NAME}! We're thrilled to have you as part of our community. 
             Get ready to explore our premium collection of home decor products.
           </p>
           
@@ -121,7 +128,7 @@ async function sendWelcomeEmail(userDetails) {
         </div>
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© 2026 Classic Decore. All rights reserved.</p>
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -143,8 +150,17 @@ async function sendOrderConfirmation(orderDetails) {
     return false;
   }
 
-  const { name, email, total, subtotal, shipping, items, orderId } =
+  const { name, email, total, subtotal, shipping, items, orderId, payment, metadata } =
     orderDetails;
+
+  const isCustomOrder =
+    String(payment || "").toLowerCase() === "custom-design-request" ||
+    (metadata &&
+      (String(metadata.requestType || "").toLowerCase() === "custom-design" ||
+        Boolean(metadata.needsQuote)));
+
+  const numericSubtotal = Number(subtotal || 0);
+  const numericShipping = Number(shipping || 0);
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
@@ -155,17 +171,27 @@ async function sendOrderConfirmation(orderDetails) {
   try {
     if (Array.isArray(items)) {
       itemRows = items
-        .map((item) => {
+        .map((item, index, list) => {
           const itemName = item.name || item.productName || "Unknown Item";
           const qty = item.quantity || item.qty || 1;
-          const price = item.price || item.productPrice || 0;
-          const total = qty * price;
+          const rawPrice = Number(item.price || item.productPrice || 0);
+          const customFallbackTotal =
+            isCustomOrder && numericSubtotal > 0 && rawPrice <= 0
+              ? index === list.length - 1
+                ? numericSubtotal
+                : 0
+              : qty * rawPrice;
+          const lineTotal = customFallbackTotal;
+          const price =
+            isCustomOrder && numericSubtotal > 0 && rawPrice <= 0
+              ? Math.round(lineTotal / Math.max(qty, 1))
+              : rawPrice;
           return `
         <tr>
           <td style="padding: 10px; border-bottom: 1px solid #eee;">${itemName}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${qty}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${price.toLocaleString()}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${total.toLocaleString()}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${lineTotal.toLocaleString()}</td>
         </tr>
       `;
         })
@@ -175,19 +201,15 @@ async function sendOrderConfirmation(orderDetails) {
     itemRows = `<tr><td colspan="4" style="padding: 10px; text-align: center;">See order details for items</td></tr>`;
   }
 
-  const fromAddress =
-    BREVO_SENDEREMAIL ||
-    GMAIL_USER ||
-    SMTP_USER ||
-    "no-reply@classic-decor.local";
+  const fromAddress = getFromAddress();
   const mailOptions = {
     from: fromAddress,
     to: email,
-    subject: `Order Confirmation #${orderId || "N/A"} - Classic Decore`,
+    subject: `Order Confirmation #${orderId || "N/A"} - ${MAIL_BRAND_NAME}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #d4af37; margin: 0;">Classic Decore</h1>
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
           <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
         </div>
         
@@ -201,6 +223,7 @@ async function sendOrderConfirmation(orderDetails) {
           <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0;">
             <p style="margin: 5px 0; color: #666;"><strong>Order ID:</strong> #${orderId || "N/A"}</p>
             <p style="margin: 5px 0; color: #666;"><strong>Order Date:</strong> ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+            <p style="margin: 5px 0; color: #666;"><strong>Estimated Delivery:</strong> 3 to 5 working days</p>
           </div>
           
           <h3 style="color: #1a1a1a; border-bottom: 2px solid #d4af37; padding-bottom: 10px;">Order Summary</h3>
@@ -219,8 +242,8 @@ async function sendOrderConfirmation(orderDetails) {
           </table>
 
           <div style="margin: 20px 0; padding: 16px; background: #fafafa; border-radius: 6px; border: 1px solid #eee;">
-            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Subtotal:</strong> PKR ${Number(subtotal || 0).toLocaleString()}</p>
-            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Shipping:</strong> PKR ${Number(shipping || 0).toLocaleString()}</p>
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Subtotal:</strong> PKR ${numericSubtotal.toLocaleString()}</p>
+            ${numericShipping > 0 ? `<p style="margin: 6px 0; color: #555; text-align: right;"><strong>Shipping:</strong> PKR ${numericShipping.toLocaleString()}</p>` : ''}
           </div>
           
           <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0; text-align: right;">
@@ -234,7 +257,7 @@ async function sendOrderConfirmation(orderDetails) {
               <li>We'll confirm your order and process the payment</li>
               <li>Your items will be carefully packed</li>
               <li>You'll receive tracking information via email</li>
-              <li>Enjoy your new decor items! 🏡</li>
+              <li>Your order should arrive within 3 to 5 working days</li>
             </ol>
           </div>
           
@@ -252,7 +275,7 @@ async function sendOrderConfirmation(orderDetails) {
         </div>
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© 2026 Classic Decore. All rights reserved.</p>
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -337,11 +360,7 @@ async function sendOrderStatusUpdate(orderDetails) {
     statusMessage = "Your order has been confirmed successfully.";
   }
 
-  const fromAddress =
-    BREVO_SENDEREMAIL ||
-    GMAIL_USER ||
-    SMTP_USER ||
-    "no-reply@classic-decor.local";
+  const fromAddress = getFromAddress();
   const mailOptions = {
     from: fromAddress,
     to: email,
@@ -349,7 +368,7 @@ async function sendOrderStatusUpdate(orderDetails) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #d4af37; margin: 0;">Classic Decore</h1>
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
           <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
         </div>
 
@@ -385,7 +404,7 @@ async function sendOrderStatusUpdate(orderDetails) {
         </div>
 
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© 2026 Classic Decore. All rights reserved.</p>
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -450,19 +469,15 @@ async function sendPaymentConfirmation(orderDetails) {
     itemRows = `<tr><td colspan="4" style="padding: 10px; text-align: center;">See order details for items</td></tr>`;
   }
 
-  const fromAddress =
-    BREVO_SENDEREMAIL ||
-    GMAIL_USER ||
-    SMTP_USER ||
-    "no-reply@classic-decor.local";
+  const fromAddress = getFromAddress();
   const mailOptions = {
     from: fromAddress,
     to: email,
-    subject: `Payment Confirmed #${orderId || "N/A"} - Classic Decore`,
+    subject: `Payment Confirmed #${orderId || "N/A"} - ${MAIL_BRAND_NAME}`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
         <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #d4af37; margin: 0;">Classic Decore</h1>
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
           <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
         </div>
         
@@ -519,7 +534,7 @@ async function sendPaymentConfirmation(orderDetails) {
               <li>Your items will be carefully packed by our team</li>
               <li>Tracking information will be sent to this email</li>
               <li>Your order will be delivered within 2-5 business days</li>
-              <li>Thank you for shopping with Classic Decore! 🏡</li>
+              <li>Thank you for shopping with ${MAIL_BRAND_NAME}! 🏡</li>
             </ol>
           </div>
           
@@ -537,7 +552,7 @@ async function sendPaymentConfirmation(orderDetails) {
         </div>
         
         <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
-          <p>© 2026 Classic Decore. All rights reserved.</p>
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
         </div>
       </div>
     `,

@@ -94,38 +94,14 @@ export default function Shop() {
   }, [items]);
 
   function addToCart(p) {
-    if (typeof window !== 'undefined' && typeof window.addToCart === 'function') {
-      window.addToCart(p);
-      return;
-    }
-    const next = [...JSON.parse(localStorage.getItem('cart') || '[]')];
-    const pid = p._id || p.id || p.slug;
-    const existing = next.find(i => i.id === pid);
-    if (existing) {
-      existing.quantity = (existing.quantity || 1) + 1;
-    } else {
-      next.push({
-        id: pid,
-        name: p.name,
-        price: Number(p.price) || 0,
-        saleDiscount: Number(p.saleDiscount) || 0,
-        image: imgUrl(p.image || ''),
-        quantity: 1
-      });
-    }
-    localStorage.setItem('cart', JSON.stringify(next));
-    if (typeof window !== 'undefined' && typeof window.updateCartCount === 'function') {
-      window.updateCartCount();
-    }
-    try {
-      const total = next.reduce((s, i) => s + (i.quantity || 1), 0);
-      window.dispatchEvent(new CustomEvent('cart-updated', { detail: { total } }));
-    } catch { void 0; }
+    const existing = document.querySelector('.cart-message');
+    if (existing) existing.remove();
     const m = document.createElement('div');
-    m.className = 'cart-message success';
-    m.textContent = 'Added to cart';
+    m.className = 'cart-message error';
+    m.textContent = 'Please select size and color first';
     document.body.appendChild(m);
     setTimeout(() => m.remove(), 2800);
+    navigate(`/product/${encodeURIComponent(p._id || p.id || p.slug)}`);
   }
 
   return (

@@ -31,6 +31,37 @@ function parseQuotedAmount(value) {
   return match ? Number(match[0]) || 0 : 0;
 }
 
+function isCustomDesignOrder(order) {
+  return (
+    String(order && order.payment ? order.payment : "").toLowerCase() ===
+      "custom-design-request" ||
+    (order &&
+      order.metadata &&
+      (String(order.metadata.requestType || "").toLowerCase() ===
+        "custom-design" ||
+        Boolean(order.metadata.needsQuote)))
+  );
+}
+
+function hasCustomPaymentDetails(order) {
+  const paymentMethod = String(order && order.payment ? order.payment : "")
+    .trim()
+    .toLowerCase();
+  const transactionId = String(
+    order && order.transactionId ? order.transactionId : "",
+  ).trim();
+  const senderNumber = String(
+    order && order.senderNumber ? order.senderNumber : "",
+  ).trim();
+
+  return (
+    paymentMethod &&
+    paymentMethod !== "custom-design-request" &&
+    transactionId &&
+    senderNumber
+  );
+}
+
 // Lazy-load Order model - will be available after mongoose connection
 function getOrderModel() {
   // Try to get from mongoose.models first (if already registered)
@@ -131,6 +162,18 @@ async function createOrder(req, res) {
       return res.status(400).json({ error: error.details[0].message });
     }
 
+    const isCustomQuoteRequest = isCustomDesignOrder(value);
+    if (isCustomQuoteRequest) {
+      const customBudget = parseQuotedAmount(
+        value && value.metadata ? value.metadata.budget : "",
+      );
+      if (customBudget <= 0) {
+        return res.status(400).json({
+          error: "Estimated budget is required for custom design requests",
+        });
+      }
+    }
+
     // ALWAYS try MongoDB first if configured
     const OrderModel = getOrderModel();
     console.log("[orders] OrderModel available:", !!OrderModel);
@@ -160,6 +203,7 @@ async function createOrder(req, res) {
           shipping: Number(value.shipping) || 0,
           total: Number(value.total) || 0,
           paymentStatus: value.paymentStatus || "pending",
+          senderNumber: value.senderNumber || "",
           transactionId: value.transactionId || "",
           metadata: value.metadata || {},
         };
@@ -168,18 +212,15 @@ async function createOrder(req, res) {
         const doc = new OrderModel(orderData);
         const saved = await doc.save();
         console.log("[orders] Order created in MongoDB:", saved._id);
-        const isCustomQuoteRequest =
-          String(orderData.payment || "").toLowerCase() ===
-            "custom-design-request" ||
-          (orderData.metadata &&
-            (String(orderData.metadata.requestType || "").toLowerCase() ===
-              "custom-design" ||
-              Boolean(orderData.metadata.needsQuote)));
         try {
           if (!isCustomQuoteRequest) {
             sendOrderConfirmation({
               name: orderData.name,
               total: orderData.total,
+              subtotal: orderData.subtotal,
+              shipping: orderData.shipping,
+              payment: orderData.payment,
+              metadata: orderData.metadata,
               items: orderData.items,
               email: orderData.email,
               orderId: saved._id || saved.id,
@@ -569,6 +610,79 @@ async function cancelMyOrder(req, res) {
   }
 }
 
+async function submitCustomPayment(req, res) {
+  try {
+    const id = req.params.id;
+    const OrderModel = getOrderModel();
+    const body = req.body || {};
+
+    if (!OrderModel || !req.app.locals.dbConnected) {
+      return res.status(404).json({ error: "Not found" });
+    }
+
+    const orConditions = await buildOrderOwnershipFilter(req);
+    if (orConditions.length === 0) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const existing = await OrderModel.findOne({ _id: id, $or: orConditions }).lean();
+    if (!existing) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    if (!isCustomDesignOrder(existing)) {
+      return res.status(400).json({ error: "Payment details can only be submitted for custom orders" });
+    }
+
+    if (Number(existing.total || 0) <= 0) {
+      return res.status(400).json({ error: "Please wait for the approved custom order amount before submitting payment details" });
+    }
+
+    const currentStatus = String(existing.paymentStatus || "pending").toLowerCase();
+    if (["approved", "shipped", "delivered", "cancelled"].includes(currentStatus)) {
+      return res.status(400).json({ error: "Payment details can no longer be changed for this order" });
+    }
+
+    const paymentMethod = String(body.payment || "").trim();
+    const senderNumber = String(body.senderNumber || "").trim();
+    const transactionId = String(body.transactionId || "").trim();
+
+    if (!paymentMethod) {
+      return res.status(400).json({ error: "Payment method is required" });
+    }
+
+    if (!senderNumber) {
+      return res.status(400).json({ error: "Sender number is required" });
+    }
+
+    if (!transactionId) {
+      return res.status(400).json({ error: "Transaction ID is required" });
+    }
+
+    const updated = await OrderModel.findByIdAndUpdate(
+      id,
+      {
+        payment: paymentMethod,
+        senderNumber,
+        transactionId,
+        metadata: {
+          ...(existing.metadata || {}),
+          customerPaymentSubmittedAt: new Date().toISOString(),
+        },
+      },
+      { new: true },
+    ).lean();
+
+    return res.json(updated);
+  } catch (e) {
+    console.error(
+      "[orders] submitCustomPayment error:",
+      e && e.message ? e.message : e,
+    );
+    return res.status(500).json({ error: "Failed" });
+  }
+}
+
 async function updateOrder(req, res) {
   try {
     const id = req.params.id;
@@ -583,13 +697,7 @@ async function updateOrder(req, res) {
     if (!existing) return res.status(404).json({ error: "Not found" });
 
     const requestedStatus = String(body.paymentStatus || "").toLowerCase();
-    const isCustomQuoteRequest =
-      String(existing.payment || "").toLowerCase() ===
-        "custom-design-request" ||
-      (existing.metadata &&
-        (String(existing.metadata.requestType || "").toLowerCase() ===
-          "custom-design" ||
-          Boolean(existing.metadata.needsQuote)));
+    const isCustomQuoteRequest = isCustomDesignOrder(existing);
     const approvedQuoteAmount =
       isCustomQuoteRequest && requestedStatus === "approved"
         ? parseQuotedAmount(
@@ -598,6 +706,18 @@ async function updateOrder(req, res) {
               (existing.metadata && existing.metadata.budget),
           )
         : null;
+
+    if (
+      isCustomQuoteRequest &&
+      requestedStatus === "approved" &&
+      approvedQuoteAmount !== null &&
+      approvedQuoteAmount <= 0 &&
+      Number(existing.total || 0) <= 0
+    ) {
+      return res.status(400).json({
+        error: "Share quote amount first before approving this custom order",
+      });
+    }
 
     const updatePayload = {
       paymentStatus: body.paymentStatus,
@@ -641,6 +761,8 @@ async function updateOrder(req, res) {
             total: doc.total,
             subtotal: doc.subtotal,
             shipping: doc.shipping,
+            payment: doc.payment,
+            metadata: doc.metadata,
             items: doc.items,
             email: doc.email,
             orderId: doc._id || doc.id,
@@ -743,6 +865,7 @@ module.exports = {
   checkTransaction,
   myOrders,
   cancelMyOrder,
+  submitCustomPayment,
   updateOrder,
   deleteOrder,
   reportOrders,

@@ -43,6 +43,83 @@ function formatOrderTotal(order) {
   return formatMoney(order.total || 0);
 }
 
+function isCustomDesignOrder(order) {
+  return String(order?.metadata?.requestType || '').toLowerCase() === 'custom-design' || Boolean(order?.metadata?.needsQuote);
+}
+
+function hasCustomQuoteAmount(order) {
+  const budget = String(order?.metadata?.budget || '').replace(/,/g, '').trim();
+  const numericBudget = Number(budget) || 0;
+  return Number(order?.total || 0) > 0 || numericBudget > 0;
+}
+
+function hasCustomPaymentDetails(order) {
+  const paymentMethod = String(order?.payment || '').trim().toLowerCase();
+  const senderNumber = String(order?.senderNumber || '').trim();
+  const transactionId = String(order?.transactionId || '').trim();
+
+  return Boolean(paymentMethod)
+    && paymentMethod !== 'custom-design-request'
+    && Boolean(senderNumber)
+    && Boolean(transactionId);
+}
+
+function canApproveCustomOrder(order) {
+  if (!isCustomDesignOrder(order)) return true;
+  return hasCustomQuoteAmount(order);
+}
+
+function getCustomApprovalBlockReason(order) {
+  if (!isCustomDesignOrder(order)) return '';
+  if (!hasCustomQuoteAmount(order)) return 'Share quote amount first before approving this custom order';
+  return '';
+}
+
+function getApprovalBadge(order) {
+  if (!isCustomDesignOrder(order)) return null;
+
+  if (canApproveCustomOrder(order)) {
+    return {
+      label: 'Ready to Approve',
+      background: '#e8f5e9',
+      color: '#2e7d32',
+      borderColor: '#c8e6c9',
+    };
+  }
+
+  if (Number(order?.total || 0) <= 0) {
+    return {
+      label: 'Quote Required',
+      background: '#fff8e1',
+      color: '#8d6e00',
+      borderColor: '#f0d98a',
+    };
+  }
+
+  return null;
+}
+
+function formatOrderPayment(order) {
+  const paymentMethod = String(order?.payment || '').trim();
+  const transactionId = String(order?.transactionId || '').trim();
+  const senderNumber = String(order?.senderNumber || '').trim();
+  const isCustomOrder = String(order?.metadata?.requestType || '').toLowerCase() === 'custom-design' || Boolean(order?.metadata?.needsQuote);
+
+  if (isCustomOrder && (!paymentMethod || paymentMethod.toLowerCase() === 'custom-design-request')) {
+    return {
+      title: Number(order?.total || 0) > 0 ? 'Awaiting customer payment details' : 'Quote not shared yet',
+      detail: '—',
+      sender: '',
+    };
+  }
+
+  return {
+    title: paymentMethod ? formatDisplayText(paymentMethod) : '—',
+    detail: transactionId ? `TX: ${transactionId}` : 'TX: —',
+    sender: senderNumber ? `Sender: ${senderNumber}` : '',
+  };
+}
+
 function formatMetaLabel(key) {
   return String(key || '')
     .replace(/([A-Z])/g, ' $1')
@@ -426,6 +503,11 @@ export default function Admin() {
 
   async function updateOrderStatus(orderId, newStatus) {
     try {
+      const targetOrder = orders.find(order => String(order._id) === String(orderId));
+      if (newStatus === 'approved' && targetOrder && !canApproveCustomOrder(targetOrder)) {
+        setStatus(getCustomApprovalBlockReason(targetOrder) || 'Custom order cannot be approved yet');
+        return;
+      }
       setUpdatingOrderStatus(orderId);
       await api('/api/orders/' + orderId, { method: 'PUT', body: JSON.stringify({ paymentStatus: newStatus }) });
       setStatus('Order status updated');
@@ -1101,7 +1183,39 @@ export default function Admin() {
                                         ) : '—'}
                                       </div>
                                     </td>
-                                    <td>{order.payment || (order.metadata && order.metadata.gateway) || '—'}</td>
+                                    <td>
+                                      {(() => {
+                                        const paymentInfo = formatOrderPayment(order);
+                                        const approvalBadge = getApprovalBadge(order);
+                                        return (
+                                          <div style={{ fontSize: '0.85rem', lineHeight: 1.5 }}>
+                                            <div><strong>{paymentInfo.title}</strong></div>
+                                            <div style={{ color: '#666' }}>{paymentInfo.detail}</div>
+                                            {paymentInfo.sender ? <div style={{ color: '#666' }}>{paymentInfo.sender}</div> : null}
+                                            {approvalBadge ? (
+                                              <div
+                                                style={{
+                                                  marginTop: 6,
+                                                  display: 'inline-flex',
+                                                  alignItems: 'center',
+                                                  padding: '0.22rem 0.55rem',
+                                                  borderRadius: 999,
+                                                  fontSize: '0.72rem',
+                                                  fontWeight: 700,
+                                                  letterSpacing: '0.02em',
+                                                  background: approvalBadge.background,
+                                                  color: approvalBadge.color,
+                                                  border: `1px solid ${approvalBadge.borderColor}`,
+                                                }}
+                                                title={getCustomApprovalBlockReason(order) || 'Custom order is ready for admin approval'}
+                                              >
+                                                {approvalBadge.label}
+                                              </div>
+                                            ) : null}
+                                          </div>
+                                        );
+                                      })()}
+                                    </td>
                                     <td>
                                       <div className="order-items">
                                         {order.items && order.items.length > 0 && (
@@ -1118,9 +1232,10 @@ export default function Admin() {
                                         value={order.paymentStatus}
                                         onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                                         disabled={updatingOrderStatus === order._id}
+                                        title={getCustomApprovalBlockReason(order) || 'Update order status'}
                                       >
                                         <option value="pending">Pending</option>
-                                        <option value="approved">Approved</option>
+                                        <option value="approved" disabled={order.paymentStatus !== 'approved' && !canApproveCustomOrder(order)}>Approved</option>
                                         <option value="completed">Completed</option>
                                         <option value="failed">Failed</option>
                                         <option value="shipped">Shipped</option>

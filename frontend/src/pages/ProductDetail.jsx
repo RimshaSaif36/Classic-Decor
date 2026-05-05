@@ -86,9 +86,10 @@ export default function ProductDetail() {
         const p = await r.json();
         if (!cancelled) {
           setItems([p]);
+          setSize('');
+          setColor('');
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
         if (!cancelled) setError('Failed to load product');
       } finally {
         if (!cancelled) setLoading(false);
@@ -123,14 +124,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!product) return;
-    
-    // Initialize state if not already set or if switching products
-    const vs = availableSizes;
-    const vc = availableColors;
 
-    setSize(prev => prev || (vs && vs.length ? String(vs[0].label || vs[0]) : ''));
-    setColor(prev => prev || (vc && vc.length ? String(vc[0]) : ''));
-    
     (async () => {
       try {
         const pid = product._id || product.id || product.slug;
@@ -171,6 +165,23 @@ export default function ProductDetail() {
       } catch { void 0; }
     })();
   }, [product, availableSizes, availableColors]);
+
+  function showCartMessage(message, type = 'success') {
+    const existing = document.querySelector('.cart-message');
+    if (existing) existing.remove();
+    const m = document.createElement('div');
+    m.className = `cart-message ${type}`;
+    m.textContent = message;
+    document.body.appendChild(m);
+    setTimeout(() => m.remove(), 2800);
+  }
+
+  function redirectToProductOptions(nextProduct) {
+    showCartMessage('Please select size and color first', 'error');
+    window.setTimeout(() => {
+      window.location.href = `/product/${encodeURIComponent(nextProduct._id || nextProduct.id || nextProduct.slug)}`;
+    }, 500);
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -214,6 +225,10 @@ export default function ProductDetail() {
   function addToCartDetail(p) {
     const sizeLabel = String(size || '');
     const colorLabel = String(color || '');
+    if (!sizeLabel || !colorLabel) {
+      showCartMessage('Size and color are required', 'error');
+      return;
+    }
     const payload = {
       ...p,
       size: sizeLabel,
@@ -252,11 +267,7 @@ export default function ProductDetail() {
       const total = next.reduce((s, i) => s + (i.quantity || 1), 0);
       window.dispatchEvent(new CustomEvent('cart-updated', { detail: { total } }));
     } catch { void 0; }
-    const m = document.createElement('div');
-    m.className = 'cart-message success';
-    m.textContent = 'Added to cart';
-    document.body.appendChild(m);
-    setTimeout(() => m.remove(), 2800);
+    showCartMessage('Added to cart', 'success');
   }
 
   async function submitReview(e){
@@ -337,6 +348,7 @@ export default function ProductDetail() {
                   <div className="option-group">
                     <label>Size</label>
                     <select value={size} onChange={e=>setSize(e.target.value)}>
+                      <option value="" disabled>Select a size</option>
                       {availableSizes.map(s => {
                         const sizeLabel = s.label || s;
                         return <option key={sizeLabel} value={sizeLabel}>{sizeLabel}</option>
@@ -348,6 +360,7 @@ export default function ProductDetail() {
                   <div className="option-group">
                     <label>Color</label>
                     <select value={color} onChange={e=>setColor(e.target.value)}>
+                      <option value="" disabled>Select a color</option>
                       {availableColors.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
@@ -410,7 +423,7 @@ export default function ProductDetail() {
                     <p className="price">PKR {Number(p.price) || 0}</p>
                     <div className="product-actions">
                       <a className="view-details" href={`/product/${encodeURIComponent(p._id || p.id)}`}>View Details</a>
-                    <button className="add-to-cart" onClick={() => addToCartDetail(p)}>Add to Cart</button>
+                    <button className="add-to-cart" onClick={() => redirectToProductOptions(p)}>Add to Cart</button>
                     </div>
                   </div>
                 ))}

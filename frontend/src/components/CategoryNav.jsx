@@ -78,7 +78,7 @@ export default function CategoryNav() {
             </li>
           ))}
           <li>
-            <Link to="/custom-design">Custom Design</Link>
+            <Link to="/custom-design" className="active">Custom Design</Link>
           </li>
         </ul>
       </div>

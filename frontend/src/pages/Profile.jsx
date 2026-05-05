@@ -4,9 +4,22 @@ import './Profile.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 
+const ORDER_STATUSES = [
+  'pending',
+  'approved',
+  'completed',
+  'paid',
+  'shipped',
+  'delivered',
+  'failed',
+  'cancelled',
+];
+
 export default function Profile() {
   const [orderMessage, setOrderMessage] = useState('');
   const [cancelingId, setCancelingId] = useState('');
+  const [submittingPaymentId, setSubmittingPaymentId] = useState('');
+  const [paymentForms, setPaymentForms] = useState({});
   const [user, setUser] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('user') || localStorage.getItem('currentUser') || 'null');
@@ -33,6 +46,43 @@ export default function Profile() {
   function formatStatusLabel(status) {
     const value = String(status || 'pending').toLowerCase();
     return value.charAt(0).toUpperCase() + value.slice(1);
+  }
+
+  function normalizeStatus(status) {
+    const value = String(status || 'pending').toLowerCase();
+    return ORDER_STATUSES.includes(value) ? value : 'pending';
+  }
+
+  function isCustomOrder(order) {
+    return String(order?.metadata?.requestType || '').toLowerCase() === 'custom-design' || Boolean(order?.metadata?.needsQuote);
+  }
+
+  function hasCustomPaymentDetails(order) {
+    return Boolean(String(order?.payment || '').trim()) && String(order?.payment || '').toLowerCase() !== 'custom-design-request'
+      && Boolean(String(order?.senderNumber || '').trim())
+      && Boolean(String(order?.transactionId || '').trim());
+  }
+
+  function canSubmitCustomPayment(order) {
+    const status = normalizeStatus(order?.paymentStatus);
+    return isCustomOrder(order)
+      && Number(order?.total || 0) > 0
+      && !hasCustomPaymentDetails(order)
+      && !['approved', 'shipped', 'delivered', 'cancelled'].includes(status);
+  }
+
+  function getPaymentForm(orderId) {
+    return paymentForms[orderId] || { payment: 'jazzcash', senderNumber: '', transactionId: '' };
+  }
+
+  function updatePaymentForm(orderId, key, value) {
+    setPaymentForms(prev => ({
+      ...prev,
+      [orderId]: {
+        ...getPaymentForm(orderId),
+        [key]: value,
+      }
+    }));
   }
 
   useEffect(() => {
@@ -135,6 +185,39 @@ export default function Profile() {
     }
   }
 
+  async function submitCustomPayment(orderId) {
+    const form = getPaymentForm(orderId);
+    setSubmittingPaymentId(orderId);
+    setOrderMessage('');
+
+    try {
+      const r = await fetch(API_BASE + '/api/orders/' + orderId + '/custom-payment', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(form),
+      });
+      const data = await r.json();
+      if (!r.ok) {
+        setOrderMessage(data && data.error ? data.error : 'Unable to submit payment details');
+        return;
+      }
+      setOrders(prev => prev.map(order => String(order._id) === String(orderId) ? data : order));
+      setPaymentForms(prev => {
+        const next = { ...prev };
+        delete next[orderId];
+        return next;
+      });
+      setOrderMessage('Payment details submitted. Admin can now review and approve your custom order.');
+    } catch {
+      setOrderMessage('Unable to submit payment details');
+    } finally {
+      setSubmittingPaymentId('');
+    }
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <Header />
@@ -148,6 +231,9 @@ export default function Profile() {
             <div className="profile-grid">
               <div className="profile-card">
                 <form onSubmit={saveProfile} className="profile-form">
+                  <div className="profile-note">
+                    Update your phone number and shipping address here. These details are used for your future orders.
+                  </div>
                   <div className="form-row">
                     <div className="form-field">
                       <label>Name</label>
@@ -160,7 +246,7 @@ export default function Profile() {
                   </div>
                   <div className="form-row">
                     <div className="form-field">
-                      <label>Address</label>
+                      <label>Shipping Address</label>
                       <input value={address} onChange={e=>setAddress(e.target.value)} className="form-input" />
                     </div>
                     <div className="form-field">
@@ -187,20 +273,91 @@ export default function Profile() {
                   <ul className="order-list">
                     {orders.map((o) => (
                       <li key={o._id} className="order-card">
+                        {(() => {
+                          const currentStatus = normalizeStatus(o.paymentStatus);
+
+                          return (
+                            <>
                         <div className="order-head">
                           <span className="order-id">#{String(o._id).slice(-8)}</span>
-                          <span className={"status-badge " + String(o.paymentStatus || 'pending').toLowerCase()}>{formatStatusLabel(o.paymentStatus)}</span>
+                          <span className={"status-badge " + currentStatus}>{formatStatusLabel(currentStatus)}</span>
+                        </div>
+                        <div className="order-status-track" aria-label="Order status progress">
+                          {ORDER_STATUSES.map((status) => (
+                            <span
+                              key={status}
+                              className={"status-step " + status + (currentStatus === status ? ' current' : '')}
+                            >
+                              {formatStatusLabel(status)}
+                            </span>
+                          ))}
                         </div>
                         <div className="order-meta">
                           <div className="order-line">
                             <span className="label">Total</span>
-                            <span className="value">PKR {Number(o.total || 0).toLocaleString()}</span>
+                            <span className="value">{Number(o.total || 0) > 0 ? `PKR ${Number(o.total || 0).toLocaleString()}` : 'Quote pending'}</span>
                           </div>
                           <div className="order-line">
                             <span className="label">Date</span>
                             <span className="value">{new Date(o.createdAt).toLocaleDateString()}</span>
                           </div>
+                          <div className="order-line">
+                            <span className="label">Phone</span>
+                            <span className="value">{o.phone || phone || 'Not provided'}</span>
+                          </div>
+                          <div className="order-line order-line-wide">
+                            <span className="label">Shipping Address</span>
+                            <span className="value">{[o.address, o.city].filter(Boolean).join(', ') || [address, city].filter(Boolean).join(', ') || 'Not provided'}</span>
+                          </div>
                         </div>
+                        {canSubmitCustomPayment(o) && (
+                          <div className="custom-payment-box">
+                            <h3 className="custom-payment-title">Submit Payment Details</h3>
+                            <p className="custom-payment-note">Your custom quote is ready. Submit your payment details here so the admin can approve your order.</p>
+                            <div className="custom-payment-grid">
+                              <div className="form-field">
+                                <label>Payment Method</label>
+                                <select
+                                  value={getPaymentForm(String(o._id)).payment}
+                                  onChange={e => updatePaymentForm(String(o._id), 'payment', e.target.value)}
+                                  className="form-input"
+                                >
+                                  <option value="jazzcash">JazzCash</option>
+                                  <option value="easypaisa">EasyPaisa</option>
+                                  <option value="bank transfer">Bank Transfer</option>
+                                </select>
+                              </div>
+                              <div className="form-field">
+                                <label>Sender Number</label>
+                                <input
+                                  value={getPaymentForm(String(o._id)).senderNumber}
+                                  onChange={e => updatePaymentForm(String(o._id), 'senderNumber', e.target.value)}
+                                  className="form-input"
+                                  placeholder="03XXXXXXXXX"
+                                />
+                              </div>
+                              <div className="form-field custom-payment-full">
+                                <label>Transaction ID</label>
+                                <input
+                                  value={getPaymentForm(String(o._id)).transactionId}
+                                  onChange={e => updatePaymentForm(String(o._id), 'transactionId', e.target.value)}
+                                  className="form-input"
+                                  placeholder="Enter transaction ID"
+                                />
+                              </div>
+                            </div>
+                            <div className="order-actions custom-payment-actions">
+                              <button
+                                type="button"
+                                className="btn-primary"
+                                onClick={() => submitCustomPayment(String(o._id))}
+                                disabled={submittingPaymentId === String(o._id)}
+                              >
+                                {submittingPaymentId === String(o._id) ? 'Submitting…' : 'Submit Payment'}
+                              </button>
+                            </div>
+                          </div>
+                        )}
                         {canCancelOrder(o) && (
                           <div className="order-actions">
                             <button
@@ -213,6 +370,9 @@ export default function Profile() {
                             </button>
                           </div>
                         )}
+                            </>
+                          );
+                        })()}
                       </li>
                     ))}
                   </ul>
