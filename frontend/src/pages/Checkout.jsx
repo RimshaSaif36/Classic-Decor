@@ -3,15 +3,10 @@ import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { computeShipping } from '../lib/utils';
+import { computeShipping, getEffectivePrice } from '../lib/utils';
 
 function effectivePrice(item) {
-  const base = Number(item && item.price || 0);
-  const discount = Number(item && item.saleDiscount || 0);
-  if (discount > 0) {
-    return Math.round(base - (base * discount / 100));
-  }
-  return base;
+  return getEffectivePrice(item && (item.basePrice ?? item.price), item && item.saleDiscount, item && item.size);
 }
 
 export default function Checkout() {

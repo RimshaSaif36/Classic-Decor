@@ -1,6 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
-const DEFAULT_SIZE_LABEL = "Small (S) - 8 × 8";
+const DEFAULT_SIZE_LABEL = "Medium (M) - 12 × 12";
 const DEFAULT_COLOR_LABEL = "Transparent";
+const SIZE_PRICE_DELTAS = {
+  small: -200,
+  medium: 0,
+  large: 200,
+};
 
 export function imgUrl(path) {
   if (!path) {
@@ -48,6 +53,20 @@ function normalizeOptionLabel(option) {
   return "";
 }
 
+function getNormalizedSizeKey(sizeLabel) {
+  const value = String(sizeLabel || "").trim().toLowerCase();
+
+  if (value.startsWith("small") || value.includes("(s)")) {
+    return "small";
+  }
+
+  if (value.startsWith("large") || value.includes("(l)")) {
+    return "large";
+  }
+
+  return "medium";
+}
+
 export function getDefaultSizeLabel(product) {
   const sizes = Array.isArray(product?.sizes)
     ? product.sizes.map(normalizeOptionLabel).filter(Boolean)
@@ -59,7 +78,7 @@ export function getDefaultSizeLabel(product) {
 
   return (
     sizes.find(
-      (label) => label === DEFAULT_SIZE_LABEL || /^small\b/i.test(label),
+      (label) => label === DEFAULT_SIZE_LABEL || /^medium\b/i.test(label),
     ) || sizes[0]
   );
 }
@@ -93,6 +112,8 @@ export function addProductToCart(product, overrides = {}) {
   const colorLabel = String(
     overrides.colorLabel || overrides.color || getDefaultColorLabel(product),
   ).trim();
+  const basePrice = Number(product.price) || 0;
+  const sizedPrice = getSizedPrice(basePrice, sizeLabel);
 
   if (!productId || !sizeLabel || !colorLabel) {
     return null;
@@ -113,6 +134,8 @@ export function addProductToCart(product, overrides = {}) {
       ...product,
       id: productId,
       quantity: 1,
+      basePrice,
+      price: sizedPrice,
       size: sizeLabel,
       color: colorLabel,
       sizeLabel,
@@ -132,4 +155,21 @@ export function addProductToCart(product, overrides = {}) {
   }
 
   return { productId, sizeLabel, colorLabel };
+}
+
+export function getSizedPrice(basePrice, sizeLabel) {
+  const numericBasePrice = Number(basePrice) || 0;
+  const delta = SIZE_PRICE_DELTAS[getNormalizedSizeKey(sizeLabel)] || 0;
+  return Math.max(0, numericBasePrice + delta);
+}
+
+export function getEffectivePrice(basePrice, saleDiscount = 0, sizeLabel) {
+  const sizedPrice = getSizedPrice(basePrice, sizeLabel);
+  const discount = Number(saleDiscount) || 0;
+
+  if (discount > 0) {
+    return Math.round(sizedPrice - (sizedPrice * discount) / 100);
+  }
+
+  return sizedPrice;
 }

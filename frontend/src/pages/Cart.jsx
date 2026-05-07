@@ -2,7 +2,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { imgUrl, computeShipping } from '../lib/utils';
+import { computeShipping, getEffectivePrice, imgUrl } from '../lib/utils';
 
 function formatPrice(n) {
   return Number(n || 0);
@@ -13,12 +13,7 @@ function getCartItemKey(item) {
 }
 
 function effectivePrice(item) {
-  const base = Number(item && item.price || 0);
-  const discount = Number(item && item.saleDiscount || 0);
-  if (discount > 0) {
-    return Math.round(base - (base * discount / 100));
-  }
-  return base;
+  return getEffectivePrice(item && (item.basePrice ?? item.price), item && item.saleDiscount, item && item.size);
 }
 
 export default function Cart() {

@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { addProductToCart, getDefaultColorLabel, getDefaultSizeLabel, imgUrl } from '../lib/utils';
+import { addProductToCart, getDefaultColorLabel, getDefaultSizeLabel, getEffectivePrice, getSizedPrice, imgUrl } from '../lib/utils';
 
 // Standard product sizes
 const PRODUCT_SIZES = [
@@ -121,6 +121,18 @@ export default function ProductDetail() {
     // Fallback to standard colors
     return ['Transparent', 'Black', 'Silver', 'Golden'];
   }, [product]);
+
+  const selectedSizeLabel = useMemo(() => {
+    return size || getDefaultSizeLabel(product);
+  }, [product, size]);
+
+  const selectedBasePrice = useMemo(() => {
+    return getSizedPrice(product?.price || 0, selectedSizeLabel);
+  }, [product, selectedSizeLabel]);
+
+  const selectedSalePrice = useMemo(() => {
+    return getEffectivePrice(product?.price || 0, product?.saleDiscount || 0, selectedSizeLabel);
+  }, [product, selectedSizeLabel]);
 
   useEffect(() => {
     if (!product) return;
@@ -250,7 +262,8 @@ export default function ProductDetail() {
       next.push({
         id: pid,
         name: p.name,
-        price: Number(p.price) || 0,
+        basePrice: Number(p.price) || 0,
+        price: getSizedPrice(p.price, sizeLabel),
         saleDiscount: Number(p.saleDiscount) || 0,
         image: imgUrl(p.image || ''),
         quantity: 1,
@@ -335,11 +348,11 @@ export default function ProductDetail() {
                 <p className="product-price">
                   {product.saleDiscount > 0 ? (
                     <>
-                      <span className="original-price">PKR {Number(product.price).toLocaleString()}</span>
-                      <span className="sale-price-detail">PKR {(product.price - (product.price * product.saleDiscount / 100)).toLocaleString()}</span>
+                      <span className="original-price">PKR {selectedBasePrice.toLocaleString()}</span>
+                      <span className="sale-price-detail">PKR {selectedSalePrice.toLocaleString()}</span>
                     </>
                   ) : (
-                    <>PKR {Number(product.price) || 0}</>
+                    <>PKR {selectedBasePrice.toLocaleString()}</>
                   )}
                 </p>
               </div>
