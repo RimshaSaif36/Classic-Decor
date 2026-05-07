@@ -57,7 +57,11 @@ export function getDefaultSizeLabel(product) {
     return DEFAULT_SIZE_LABEL;
   }
 
-  return sizes.find((label) => label === DEFAULT_SIZE_LABEL || /^small\b/i.test(label)) || sizes[0];
+  return (
+    sizes.find(
+      (label) => label === DEFAULT_SIZE_LABEL || /^small\b/i.test(label),
+    ) || sizes[0]
+  );
 }
 
 export function getDefaultColorLabel(product) {
@@ -69,7 +73,12 @@ export function getDefaultColorLabel(product) {
     return DEFAULT_COLOR_LABEL;
   }
 
-  return colors.find((label) => String(label).toLowerCase() === DEFAULT_COLOR_LABEL.toLowerCase()) || colors[0];
+  return (
+    colors.find(
+      (label) =>
+        String(label).toLowerCase() === DEFAULT_COLOR_LABEL.toLowerCase(),
+    ) || colors[0]
+  );
 }
 
 export function addProductToCart(product, overrides = {}) {
@@ -115,7 +124,9 @@ export function addProductToCart(product, overrides = {}) {
 
   try {
     const total = next.reduce((sum, item) => sum + (item.quantity || 1), 0);
-    window.dispatchEvent(new CustomEvent("cart-updated", { detail: { total } }));
+    window.dispatchEvent(
+      new CustomEvent("cart-updated", { detail: { total } }),
+    );
   } catch {
     void 0;
   }
