@@ -3,7 +3,7 @@ import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { imgUrl } from '../lib/utils';
+import { addProductToCart, imgUrl } from '../lib/utils';
 
 export default function Categories() {
   const { id } = useParams();
@@ -48,10 +48,11 @@ export default function Categories() {
   }
 
   function addToCart(p) {
-    showCartMessage('Please select size and color first', 'error');
-    window.setTimeout(() => {
-      window.location.href = `/product/${encodeURIComponent(p._id || p.id || p.slug)}`;
-    }, 500);
+    const added = addProductToCart(p);
+    showCartMessage(
+      added ? 'Added to cart' : 'Unable to add this product to cart',
+      added ? 'success' : 'error'
+    );
   }
 
   return (

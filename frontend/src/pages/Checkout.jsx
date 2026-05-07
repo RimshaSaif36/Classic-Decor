@@ -2,6 +2,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { computeShipping } from '../lib/utils';
 
 function effectivePrice(item) {
@@ -14,6 +15,7 @@ function effectivePrice(item) {
 }
 
 export default function Checkout() {
+  const navigate = useNavigate();
   const [cart, setCart] = useState(() => {
     try {
       const list = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -180,9 +182,10 @@ export default function Checkout() {
         alert(msg || 'Failed to place order');
         return;
       }
-      alert('Order placed successfully');
+      localStorage.setItem('lastOrder', JSON.stringify(payload));
       setCart([]);
       setName(''); setAddress(''); setCity(''); setPhone(''); setEmail(''); setPayment('cod'); setSenderNumber(''); setTransactionId('');
+      navigate('/success');
     } catch (err) {
       console.error(err);
       alert('Failed to place order');

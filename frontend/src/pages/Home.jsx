@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import { API_BASE } from "../lib/config";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { imgUrl } from "../lib/utils";
+import { addProductToCart, imgUrl } from "../lib/utils";
 
 export default function Home() {
   const [latest, setLatest] = useState([]);
@@ -98,10 +98,11 @@ export default function Home() {
   }
 
   function requireProductOptions(product) {
-    showCartMessage("Please select size and color first", "error");
-    window.setTimeout(() => {
-      window.location.href = `/product/${product._id || product.id || product.slug}`;
-    }, 500);
+    const added = addProductToCart(product);
+    showCartMessage(
+      added ? "Added to cart" : "Unable to add this product to cart",
+      added ? "success" : "error",
+    );
   }
 
   return (

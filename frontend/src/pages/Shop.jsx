@@ -2,15 +2,14 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { imgUrl } from '../lib/utils';
+import { Link, useSearchParams } from 'react-router-dom';
+import { addProductToCart, imgUrl } from '../lib/utils';
 
 export default function Shop() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [params] = useSearchParams();
-  const navigate = useNavigate();
 
   // filters & pagination
   const [categories, setCategories] = useState([]);
@@ -96,12 +95,12 @@ export default function Shop() {
   function addToCart(p) {
     const existing = document.querySelector('.cart-message');
     if (existing) existing.remove();
+    const added = addProductToCart(p);
     const m = document.createElement('div');
-    m.className = 'cart-message error';
-    m.textContent = 'Please select size and color first';
+    m.className = `cart-message ${added ? 'success' : 'error'}`;
+    m.textContent = added ? 'Added to cart' : 'Unable to add this product to cart';
     document.body.appendChild(m);
     setTimeout(() => m.remove(), 2800);
-    navigate(`/product/${encodeURIComponent(p._id || p.id || p.slug)}`);
   }
 
   return (

@@ -2,8 +2,8 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { imgUrl } from '../lib/utils';
+import { Link, useParams } from 'react-router-dom';
+import { addProductToCart, getDefaultColorLabel, getDefaultSizeLabel, imgUrl } from '../lib/utils';
 
 // Standard product sizes
 const PRODUCT_SIZES = [
@@ -86,8 +86,8 @@ export default function ProductDetail() {
         const p = await r.json();
         if (!cancelled) {
           setItems([p]);
-          setSize('');
-          setColor('');
+          setSize(getDefaultSizeLabel(p));
+          setColor(getDefaultColorLabel(p));
         }
       } catch {
         if (!cancelled) setError('Failed to load product');
@@ -177,10 +177,11 @@ export default function ProductDetail() {
   }
 
   function redirectToProductOptions(nextProduct) {
-    showCartMessage('Please select size and color first', 'error');
-    window.setTimeout(() => {
-      window.location.href = `/product/${encodeURIComponent(nextProduct._id || nextProduct.id || nextProduct.slug)}`;
-    }, 500);
+    const added = addProductToCart(nextProduct);
+    showCartMessage(
+      added ? 'Added to cart' : 'Unable to add this product to cart',
+      added ? 'success' : 'error'
+    );
   }
 
   useEffect(() => {
@@ -418,11 +419,16 @@ export default function ProductDetail() {
               <div className="product-grid">
                 {related.map(p => (
                   <div className="product-item" key={p.id}>
-                    <img src={imgUrl(p.image)} alt={p.name} title={p.name} />
+                    <Link
+                      to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}
+                      className="product-image-link"
+                    >
+                      <img src={imgUrl(p.image)} alt={p.name} title={p.name} />
+                    </Link>
                     <h3>{p.name}</h3>
                     <p className="price">PKR {Number(p.price) || 0}</p>
                     <div className="product-actions">
-                      <a className="view-details" href={`/product/${encodeURIComponent(p._id || p.id)}`}>View Details</a>
+                      <Link className="view-details" to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}>View Details</Link>
                     <button className="add-to-cart" onClick={() => redirectToProductOptions(p)}>Add to Cart</button>
                     </div>
                   </div>

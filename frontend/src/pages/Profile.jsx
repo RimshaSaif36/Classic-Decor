@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API_BASE } from '../lib/config';
+import { imgUrl } from '../lib/utils';
 import './Profile.css';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -51,6 +52,10 @@ export default function Profile() {
   function normalizeStatus(status) {
     const value = String(status || 'pending').toLowerCase();
     return ORDER_STATUSES.includes(value) ? value : 'pending';
+  }
+
+  function getOrderItems(order) {
+    return Array.isArray(order?.items) ? order.items.filter(Boolean) : [];
   }
 
   function isCustomOrder(order) {
@@ -275,11 +280,46 @@ export default function Profile() {
                       <li key={o._id} className="order-card">
                         {(() => {
                           const currentStatus = normalizeStatus(o.paymentStatus);
+                          const orderItems = getOrderItems(o);
 
                           return (
                             <>
                         <div className="order-head">
-                          <span className="order-id">#{String(o._id).slice(-8)}</span>
+                          <div className="order-products-preview">
+                            {orderItems.length > 0 ? orderItems.map((item, index) => {
+                              const imageSrc = imgUrl(item?.image);
+                              const productName = item?.name || item?.title || `Product ${index + 1}`;
+                              const quantity = Number(item?.quantity || 1);
+
+                              return (
+                                <div className="order-product-row" key={`${String(o._id)}-${index}-${productName}`}>
+                                  <a
+                                    className="order-product-thumb-link"
+                                    href={imageSrc || '#'}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    onClick={(event) => {
+                                      if (!imageSrc) event.preventDefault();
+                                    }}
+                                    aria-label={`Open image for ${productName}`}
+                                  >
+                                    {imageSrc ? (
+                                      <img src={imageSrc} alt={productName} className="order-product-thumb" />
+                                    ) : (
+                                      <div className="order-product-thumb order-product-thumb-placeholder">No Image</div>
+                                    )}
+                                  </a>
+                                  <div className="order-product-copy">
+                                    <div className="order-product-name">{productName}</div>
+                                    <div className="order-product-meta">Qty: {quantity}</div>
+                                  </div>
+                                </div>
+                              );
+                            }) : (
+                              <div className="order-product-empty">Product details unavailable</div>
+                            )}
+                            <div className="order-reference">Order #{String(o._id).slice(-8)}</div>
+                          </div>
                           <span className={"status-badge " + currentStatus}>{formatStatusLabel(currentStatus)}</span>
                         </div>
                         <div className="order-status-track" aria-label="Order status progress">
