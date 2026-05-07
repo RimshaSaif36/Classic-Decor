@@ -54,7 +54,9 @@ function normalizeOptionLabel(option) {
 }
 
 function getNormalizedSizeKey(sizeLabel) {
-  const value = String(sizeLabel || "").trim().toLowerCase();
+  const value = String(sizeLabel || "")
+    .trim()
+    .toLowerCase();
 
   if (value.startsWith("small") || value.includes("(s)")) {
     return "small";
