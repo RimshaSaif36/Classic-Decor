@@ -16,7 +16,9 @@ async function listProducts(req, res) {
   const sort = String(req.query.sort || "").trim();
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.max(1, Number(req.query.limit) || 24);
-  const statusQuery = String(req.query.status || "").trim().toLowerCase();
+  const statusQuery = String(req.query.status || "")
+    .trim()
+    .toLowerCase();
   const isAdmin = req.user && req.user.role === "admin";
 
   if (ProductModel && req.app.locals.dbConnected) {
@@ -57,12 +59,16 @@ async function listProducts(req, res) {
   try {
     let products = read("products") || [];
     const isAdmin = req.user && req.user.role === "admin";
-    const statusQuery = String(req.query.status || "").trim().toLowerCase();
+    const statusQuery = String(req.query.status || "")
+      .trim()
+      .toLowerCase();
 
     if (!isAdmin || statusQuery === "active") {
       products = products.filter((p) => (p.status || "active") === "active");
     } else if (statusQuery === "inactive") {
-      products = products.filter((p) => String(p.status || "active") === "inactive");
+      products = products.filter(
+        (p) => String(p.status || "active") === "inactive",
+      );
     }
 
     if (q) {
@@ -166,9 +172,15 @@ async function relatedProducts(req, res) {
             : [];
 
           if (manualRelated.length > 0) {
-            const objectIds = manualRelated.filter((value) => mongoose.Types.ObjectId.isValid(value));
-            const numericIds = manualRelated.filter((value) => !isNaN(Number(value))).map(Number);
-            const slugIds = manualRelated.filter((value) => !mongoose.Types.ObjectId.isValid(value));
+            const objectIds = manualRelated.filter((value) =>
+              mongoose.Types.ObjectId.isValid(value),
+            );
+            const numericIds = manualRelated
+              .filter((value) => !isNaN(Number(value)))
+              .map(Number);
+            const slugIds = manualRelated.filter(
+              (value) => !mongoose.Types.ObjectId.isValid(value),
+            );
             const orClauses = [];
             if (objectIds.length) orClauses.push({ _id: { $in: objectIds } });
             if (numericIds.length) orClauses.push({ id: { $in: numericIds } });
@@ -176,10 +188,12 @@ async function relatedProducts(req, res) {
 
             if (orClauses.length > 0) {
               const manual = await ProductModel.find({
-                status: 'active',
+                status: "active",
                 $or: orClauses,
                 _id: { $ne: main._id },
-              }).limit(8).lean();
+              })
+                .limit(8)
+                .lean();
               if (manual.length > 0) {
                 return res.json(manual);
               }
@@ -220,12 +234,13 @@ async function relatedProducts(req, res) {
 
     if (manualRelated.length > 0) {
       const related = products
-        .filter((p) =>
-          p.id !== main.id &&
-          manualRelated.some(
-            (relatedKey) =>
-              String(p.id) === relatedKey || String(p.slug) === relatedKey,
-          ),
+        .filter(
+          (p) =>
+            p.id !== main.id &&
+            manualRelated.some(
+              (relatedKey) =>
+                String(p.id) === relatedKey || String(p.slug) === relatedKey,
+            ),
         )
         .slice(0, 8);
       if (related.length > 0) return res.json(related);
@@ -294,7 +309,11 @@ async function createProduct(req, res) {
         colors: Array.isArray(p.colors) ? p.colors : p.colors ? p.colors : [],
         sizes: Array.isArray(p.sizes) ? p.sizes : p.sizes ? p.sizes : [],
         images: Array.isArray(p.images) ? p.images : p.images ? p.images : [],
-        relatedProducts: Array.isArray(p.relatedProducts) ? p.relatedProducts : p.relatedProducts ? p.relatedProducts : [],
+        relatedProducts: Array.isArray(p.relatedProducts)
+          ? p.relatedProducts
+          : p.relatedProducts
+            ? p.relatedProducts
+            : [],
         salePrice: salePrice,
       });
       return res.status(201).json(product);
@@ -330,7 +349,11 @@ async function createProduct(req, res) {
     colors: Array.isArray(p.colors) ? p.colors : p.colors ? p.colors : [],
     sizes: Array.isArray(p.sizes) ? p.sizes : p.sizes ? p.sizes : [],
     images: Array.isArray(p.images) ? p.images : p.images ? p.images : [],
-    relatedProducts: Array.isArray(p.relatedProducts) ? p.relatedProducts : p.relatedProducts ? p.relatedProducts : [],
+    relatedProducts: Array.isArray(p.relatedProducts)
+      ? p.relatedProducts
+      : p.relatedProducts
+        ? p.relatedProducts
+        : [],
     salePrice: salePrice,
     createdAt: new Date().toISOString(),
   };

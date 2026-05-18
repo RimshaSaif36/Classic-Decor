@@ -1,6 +1,10 @@
 const express = require("express");
 const { read, write } = require("../utils/store");
-const { requireAuth, optionalAuth, requireAdmin } = require("../middleware/auth");
+const {
+  requireAuth,
+  optionalAuth,
+  requireAdmin,
+} = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -31,7 +35,7 @@ router.post("/", requireAuth, requireAdmin, createProduct);
 router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = req.params.id;
   const updates = req.body || {};
-  
+
   // Handle MongoDB update if connected
   if (ProductModel && req.app.locals.dbConnected) {
     try {
@@ -43,7 +47,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
       const query = conds.length > 1 ? { $or: conds } : conds[0];
       const updated = await ProductModel.findOneAndUpdate(query, updates, {
         new: true,
-        runValidators: false
+        runValidators: false,
       }).lean();
       if (!updated) {
         return res.status(404).json({ error: "Product not found" });
@@ -52,12 +56,12 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
     } catch (err) {
       console.error(
         "[products] db update error:",
-        err && err.message ? err.message : err
+        err && err.message ? err.message : err,
       );
       return res.status(500).json({ error: "Failed to update product" });
     }
   }
-  
+
   // Fallback to JSON file update
   try {
     const products = read("products");
@@ -72,7 +76,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
   } catch (err) {
     console.error(
       "[products] file update error:",
-      err && err.message ? err.message : err
+      err && err.message ? err.message : err,
     );
     res.status(500).json({ error: "Failed to update product" });
   }
@@ -80,7 +84,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req, res) => {
 
 router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   const id = req.params.id;
-  
+
   // Handle MongoDB deletion if connected
   if (ProductModel && req.app.locals.dbConnected) {
     try {
@@ -98,12 +102,12 @@ router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
     } catch (err) {
       console.error(
         "[products] db delete error:",
-        err && err.message ? err.message : err
+        err && err.message ? err.message : err,
       );
       return res.status(500).json({ error: "Failed to delete product" });
     }
   }
-  
+
   // Fallback to JSON file deletion
   try {
     const products = read("products");
@@ -118,7 +122,7 @@ router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
   } catch (err) {
     console.error(
       "[products] file delete error:",
-      err && err.message ? err.message : err
+      err && err.message ? err.message : err,
     );
     res.status(500).json({ error: "Failed to delete product" });
   }
