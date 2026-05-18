@@ -1,6 +1,6 @@
 const express = require("express");
 const { read, write } = require("../utils/store");
-const { requireAuth, requireAdmin } = require("../middleware/auth");
+const { requireAuth, optionalAuth, requireAdmin } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -21,7 +21,7 @@ const {
 } = require("../controllers/productsController");
 
 // GET /api/products - supports filtering, search, sort, pagination
-router.get("/", listProducts);
+router.get("/", optionalAuth, listProducts);
 
 // GET /api/products/featured - get featured products
 router.get("/featured", listFeaturedProducts);
@@ -128,5 +128,5 @@ router.delete("/:id", requireAuth, requireAdmin, async (req, res) => {
 router.get("/:id/related", relatedProducts);
 
 // GET single product by numeric id or slug
-router.get("/:id", getProduct);
+router.get("/:id", optionalAuth, getProduct);
 module.exports = router;

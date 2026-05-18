@@ -16,9 +16,17 @@ async function listProducts(req, res) {
   const sort = String(req.query.sort || "").trim();
   const page = Math.max(1, Number(req.query.page) || 1);
   const limit = Math.max(1, Number(req.query.limit) || 24);
+  const statusQuery = String(req.query.status || "").trim().toLowerCase();
+  const isAdmin = req.user && req.user.role === "admin";
 
   if (ProductModel && req.app.locals.dbConnected) {
-    const filter = { status: "active" };
+    const filter = {};
+    if (!isAdmin || statusQuery === "active") {
+      filter.status = "active";
+    } else if (statusQuery === "inactive") {
+      filter.status = "inactive";
+    }
+
     if (q) filter.$text = { $search: q };
     if (category) filter.category = category;
     if (min) filter.price = { $gte: min };
@@ -48,6 +56,15 @@ async function listProducts(req, res) {
 
   try {
     let products = read("products") || [];
+    const isAdmin = req.user && req.user.role === "admin";
+    const statusQuery = String(req.query.status || "").trim().toLowerCase();
+
+    if (!isAdmin || statusQuery === "active") {
+      products = products.filter((p) => (p.status || "active") === "active");
+    } else if (statusQuery === "inactive") {
+      products = products.filter((p) => String(p.status || "active") === "inactive");
+    }
+
     if (q) {
       const qq = q.toLowerCase();
       products = products.filter(
@@ -83,6 +100,7 @@ async function listProducts(req, res) {
 
 async function getProduct(req, res) {
   const id = req.params.id;
+  const isAdmin = req.user && req.user.role === "admin";
 
   // Try MongoDB first if connected
   if (ProductModel && req.app.locals.dbConnected) {
@@ -94,7 +112,12 @@ async function getProduct(req, res) {
       conds.push({ slug: id });
       const q = conds.length > 1 ? { $or: conds } : conds[0];
       const p = await ProductModel.findOne(q).lean();
-      if (p) return res.json(p);
+      if (p) {
+        if (p.status !== "active" && !isAdmin) {
+          return res.status(404).json({ error: "Product not found" });
+        }
+        return res.json(p);
+      }
       // If not found in MongoDB, fall through to JSON
     } catch (e) {
       console.error(
@@ -111,7 +134,7 @@ async function getProduct(req, res) {
     const found = products.find(
       (p) => String(p.id) === String(id) || String(p.slug) === String(id),
     );
-    if (!found) {
+    if (!found || (String(found.status || "active") !== "active" && !isAdmin)) {
       return res.status(404).json({ error: "Product not found" });
     }
     return res.json(found);

@@ -1420,7 +1420,13 @@ export default function Admin() {
                           <input value={formCustomSizes} onChange={e => setFormCustomSizes(e.target.value)} placeholder="Custom (e.g., 10x10, 16x16, 20x20)" />
                         </div>
                         <div className="form-group"><label>Related Products</label><input value={form.relatedProductsText} onChange={e => setForm({ ...form, relatedProductsText: e.target.value })} placeholder="Enter related product IDs or slugs, comma-separated" /></div>
-                        <div className="form-group"><label>Status</label><input value={form.status} onChange={e=>setForm({ ...form, status: e.target.value })} /></div>
+                        <div className="form-group">
+                          <label>Status</label>
+                          <select value={form.status} onChange={e=>setForm({ ...form, status: e.target.value })}>
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                          </select>
+                        </div>
                         <div className="form-group"><label>Slug</label><input value={form.slug} onChange={e=>setForm({ ...form, slug: e.target.value })} /></div>
                         <div className="form-group"><label>Meta Title</label><input value={form.metaTitle} onChange={e=>setForm({ ...form, metaTitle: e.target.value })} /></div>
                         <div className="form-group"><label>Meta Description</label><input value={form.metaDescription} onChange={e=>setForm({ ...form, metaDescription: e.target.value })} /></div>
@@ -1510,7 +1516,13 @@ export default function Admin() {
                                   </div>
                                   <div className="form-group"><label>Related Products</label><input value={edit.relatedProductsText} onChange={e => setEdit({ ...edit, relatedProductsText: e.target.value })} placeholder="Enter related product IDs or slugs, comma-separated" /></div>
                                   
-                                  <div className="form-group"><label>Status</label><input value={edit.status} onChange={e => setEdit({ ...edit, status: e.target.value })} /></div>
+                                  <div className="form-group">
+                                    <label>Status</label>
+                                    <select value={edit.status} onChange={e => setEdit({ ...edit, status: e.target.value })}>
+                                      <option value="active">Active</option>
+                                      <option value="inactive">Inactive</option>
+                                    </select>
+                                  </div>
                                   <div className="form-group"><label>Slug</label><input value={edit.slug} onChange={e => setEdit({ ...edit, slug: e.target.value })} /></div>
                                   <div className="form-group"><label>Meta Title</label><input value={edit.metaTitle} onChange={e => setEdit({ ...edit, metaTitle: e.target.value })} /></div>
                                   <div className="form-group"><label>Meta Description</label><input value={edit.metaDescription} onChange={e => setEdit({ ...edit, metaDescription: e.target.value })} /></div>
@@ -1524,6 +1536,9 @@ export default function Admin() {
                                 <div className="admin-card-footer">
                                   <h3>{p.name}</h3>
                                   <p>PKR {Number(p.price) || 0}</p>
+                                  <div style={{ fontSize: '0.9rem', color: p.status === 'inactive' ? '#c62828' : '#2e7d32', marginBottom: 8 }}>
+                                    Status: {p.status || 'active'}
+                                  </div>
                                   <div style={{ display: 'flex', gap: 8 }}>
                                     <button className="admin-btn edit" onClick={() => startEdit(p)}>
                                       <i className="fa-solid fa-pen-to-square"></i>
