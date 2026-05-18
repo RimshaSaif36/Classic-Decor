@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Notification from '../components/Notification';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { computeShipping, getEffectivePrice, imgUrl } from '../lib/utils';
@@ -25,6 +26,7 @@ export default function Cart() {
       return [];
     }
   });
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -59,6 +61,16 @@ export default function Cart() {
 
   function clearCart() {
     setCart([]);
+  }
+
+  function handleCheckoutAttempt() {
+    if (cart.length === 0) {
+      setNotification({
+        message: 'Your cart is empty! Please add items before checking out.',
+        type: 'warning',
+        duration: 4000
+      });
+    }
   }
 
   return (
@@ -158,13 +170,25 @@ export default function Cart() {
                 <p><span>Tax</span><span>PKR {tax.toLocaleString()}</span></p>
                 <h4 className="total-price"><span>Total</span><span>PKR {total.toLocaleString()}</span></h4>
               </div>
-              <Link to="/checkout" className="checkout-button">Proceed to Checkout</Link>
+              {cart.length > 0 ? (
+                <Link to="/checkout" className="checkout-button">Proceed to Checkout</Link>
+              ) : (
+                <button type="button" className="checkout-button" disabled title="Add items to cart before checkout" onClick={handleCheckoutAttempt}>Proceed to Checkout</button>
+              )}
               <Link to="/shop" className="continue-shopping-link">Continue Shopping</Link>
             </aside>
           </div>
         </div>
       </main>
       <Footer />
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          duration={notification.duration}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }

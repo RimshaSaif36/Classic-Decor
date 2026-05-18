@@ -114,6 +114,10 @@ export default function Shop() {
     setTimeout(() => m.remove(), 2800);
   }
 
+  function productPath(product) {
+    return `/product/${encodeURIComponent(product._id || product.id || product.slug)}`;
+  }
+
   return (
     <>
       <Header />
@@ -212,70 +216,64 @@ export default function Shop() {
         ) : (
           <>
             <div className="products-grid">
-                {filtered.map(p => (
-                  <div key={p.id} className="shop-product-card">
-                    <div
+                {filtered.map((p, index) => (
+                  <article
+                    key={p._id || p.id || p.slug || `${p.name || 'product'}-${index}`}
+                    className="shop-product-card"
+                    onClick={() => navigate(productPath(p))}
+                    role="link"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate(productPath(p));
+                      }
+                    }}
+                  >
+                    <Link
+                      to={productPath(p)}
                       className="product-image-wrapper"
-                      onClick={() => navigate(`/product/${encodeURIComponent(p._id || p.id || p.slug)}`)}
-                      role="link"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          navigate(`/product/${encodeURIComponent(p._id || p.id || p.slug)}`);
-                        }
-                      }}
+                      onClick={(e) => e.stopPropagation()}
                     >
                       {p.saleDiscount > 0 && (
-                        <div className="sale-badge">{p.saleDiscount}% OFF</div>
+                        <div className="sale-badge-home">{p.saleDiscount}% OFF</div>
                       )}
-                      <Link
-                        to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}
-                        className="product-link"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img
-                          src={imgUrl(p.image)}
-                          alt={p.name}
-                          className="product-img"
-                        />
-                      </Link>
-                      <div className="product-overlay-action">
+                      <img
+                        src={imgUrl(p.image)}
+                        alt={p.name}
+                        className="product-img"
+                      />
+                    </Link>
+                    <div className="product-item-content">
+                      <h3 className="product-name">{p.name}</h3>
+                      <p className="product-description">
+                        {p.description || 'Premium acrylic decor item'}
+                      </p>
+                      <div className="product-footer">
+                        <p className="product-price">
+                          {p.saleDiscount > 0 ? (
+                            <>
+                              <span className="original-price-home">PKR {Number(p.price).toLocaleString()}</span>
+                              <span className="sale-price-home">PKR {(p.price - (p.price * p.saleDiscount / 100)).toLocaleString()}</span>
+                            </>
+                          ) : (
+                            <>PKR {Number(p.price).toLocaleString()}</>
+                          )}
+                        </p>
                         <button
+                          type="button"
+                          className="add-to-cart-btn"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             addToCart(p);
                           }}
-                          className="quick-add-btn"
                         >
                           <i className="fas fa-shopping-cart"></i> Add to Cart
                         </button>
                       </div>
                     </div>
-                    <div className="product-info">
-                      <h3 className="product-title">
-                        <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`}>
-                          {p.name}
-                        </Link>
-                      </h3>
-                      <p className="product-price">
-                        {p.saleDiscount > 0 ? (
-                          <>
-                            <span className="original-price">PKR {Number(p.price).toLocaleString()}</span>
-                            <span className="sale-price">PKR {(p.price - (p.price * p.saleDiscount / 100)).toLocaleString()}</span>
-                          </>
-                        ) : (
-                          <>PKR {Number(p.price).toLocaleString()}</>
-                        )}
-                      </p>
-                      <div className="product-actions">
-                        <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="view-details-btn">
-                          View Details
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
+                  </article>
                 ))}
             </div>
 

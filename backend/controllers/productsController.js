@@ -138,6 +138,31 @@ async function relatedProducts(req, res) {
         const q = conds.length > 1 ? { $or: conds } : conds[0];
         const main = await ProductModel.findOne(q).lean();
         if (main) {
+          const manualRelated = Array.isArray(main.relatedProducts)
+            ? main.relatedProducts.map(String).filter(Boolean)
+            : [];
+
+          if (manualRelated.length > 0) {
+            const objectIds = manualRelated.filter((value) => mongoose.Types.ObjectId.isValid(value));
+            const numericIds = manualRelated.filter((value) => !isNaN(Number(value))).map(Number);
+            const slugIds = manualRelated.filter((value) => !mongoose.Types.ObjectId.isValid(value));
+            const orClauses = [];
+            if (objectIds.length) orClauses.push({ _id: { $in: objectIds } });
+            if (numericIds.length) orClauses.push({ id: { $in: numericIds } });
+            if (slugIds.length) orClauses.push({ slug: { $in: slugIds } });
+
+            if (orClauses.length > 0) {
+              const manual = await ProductModel.find({
+                status: 'active',
+                $or: orClauses,
+                _id: { $ne: main._id },
+              }).limit(8).lean();
+              if (manual.length > 0) {
+                return res.json(manual);
+              }
+            }
+          }
+
           const filter = {
             _id: { $ne: main._id },
             status: "active",
@@ -165,6 +190,23 @@ async function relatedProducts(req, res) {
       (p) => String(p.id) === String(id) || String(p.slug) === String(id),
     );
     if (!main) return res.json([]);
+
+    const manualRelated = Array.isArray(main.relatedProducts)
+      ? main.relatedProducts.map(String).filter(Boolean)
+      : [];
+
+    if (manualRelated.length > 0) {
+      const related = products
+        .filter((p) =>
+          p.id !== main.id &&
+          manualRelated.some(
+            (relatedKey) =>
+              String(p.id) === relatedKey || String(p.slug) === relatedKey,
+          ),
+        )
+        .slice(0, 8);
+      if (related.length > 0) return res.json(related);
+    }
 
     const related = products
       .filter(
@@ -228,6 +270,8 @@ async function createProduct(req, res) {
         saleDiscount: discount,
         colors: Array.isArray(p.colors) ? p.colors : p.colors ? p.colors : [],
         sizes: Array.isArray(p.sizes) ? p.sizes : p.sizes ? p.sizes : [],
+        images: Array.isArray(p.images) ? p.images : p.images ? p.images : [],
+        relatedProducts: Array.isArray(p.relatedProducts) ? p.relatedProducts : p.relatedProducts ? p.relatedProducts : [],
         salePrice: salePrice,
       });
       return res.status(201).json(product);
@@ -262,6 +306,8 @@ async function createProduct(req, res) {
     saleDiscount: discount,
     colors: Array.isArray(p.colors) ? p.colors : p.colors ? p.colors : [],
     sizes: Array.isArray(p.sizes) ? p.sizes : p.sizes ? p.sizes : [],
+    images: Array.isArray(p.images) ? p.images : p.images ? p.images : [],
+    relatedProducts: Array.isArray(p.relatedProducts) ? p.relatedProducts : p.relatedProducts ? p.relatedProducts : [],
     salePrice: salePrice,
     createdAt: new Date().toISOString(),
   };

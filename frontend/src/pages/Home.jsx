@@ -195,7 +195,7 @@ export default function Home() {
 
           <div className="featured-cta">
             <Link to="/shop" className="view-all-btn">
-              View All Products
+              View More
             </Link>
           </div>
         </section>

@@ -1,5 +1,6 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import Notification from '../components/Notification';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -28,6 +29,7 @@ export default function Checkout() {
   const [transactionId, setTransactionId] = useState('');
   const [placing, setPlacing] = useState(false);
   const [errors, setErrors] = useState({});
+  const [notification, setNotification] = useState(null);
   const hasTrackedCheckoutRef = useRef(false);
 
   const subtotal = useMemo(
@@ -37,6 +39,21 @@ export default function Checkout() {
   // Free shipping for orders above PKR 5,000
   const shippingPrice = computeShipping(subtotal);
   const total = subtotal + shippingPrice;
+
+  useEffect(() => {
+    // Redirect to cart if it's empty
+    if (Array.isArray(cart) && cart.length === 0) {
+      setNotification({
+        message: 'Your cart is empty! Redirecting to cart...',
+        type: 'warning',
+        duration: 2000
+      });
+      const timer = setTimeout(() => {
+        navigate('/cart', { replace: true });
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [cart, navigate]);
 
   useEffect(() => {
     if (hasTrackedCheckoutRef.current || !Array.isArray(cart) || cart.length === 0) {
@@ -312,6 +329,14 @@ export default function Checkout() {
         </div>
       </main>
       <Footer />
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          duration={notification.duration}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </div>
   );
 }

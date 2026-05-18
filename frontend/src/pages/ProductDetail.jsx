@@ -59,6 +59,7 @@ export default function ProductDetail() {
   const [reviews, setReviews] = useState([]);
   const [reviewProducts, setReviewProducts] = useState({});
   const [related, setRelated] = useState([]);
+  const [selectedImage, setSelectedImage] = useState('');
   const [revForm, setRevForm] = useState({ name: '', rating: 5, title: '', comment: '' });
   const [canReview, setCanReview] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
@@ -103,6 +104,16 @@ export default function ProductDetail() {
   const product = useMemo(() => {
     return items && items.length ? items[0] : null;
   }, [items]);
+
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    return [product.image, ...(Array.isArray(product.images) ? product.images : [])].filter(Boolean);
+  }, [product]);
+
+  useEffect(() => {
+    if (!galleryImages || galleryImages.length === 0) return;
+    setSelectedImage(galleryImages[0]);
+  }, [galleryImages]);
 
   const availableSizes = useMemo(() => {
     if (!product) return [];
@@ -389,7 +400,21 @@ export default function ProductDetail() {
           <div>
           <section className="product-detail">
             <div className="product-image-gallery">
-              <img src={imgUrl(product.image)} alt={product.name} title={product.name} className="main-image" />
+              <img src={imgUrl(selectedImage || product.image)} alt={product.name} title={product.name} className="main-image" />
+              {galleryImages.length > 1 && (
+                <div className="image-thumbnails">
+                  {galleryImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      className={selectedImage === img ? 'thumb active' : 'thumb'}
+                      onClick={() => setSelectedImage(img)}
+                    >
+                      <img src={imgUrl(img)} alt={`${product.name} thumbnail ${idx + 1}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="product-info">
               <h2 className="product-name">{product.name}</h2>

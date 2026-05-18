@@ -201,9 +201,9 @@ export default function Admin() {
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState({ totalOrders: 0, totalRevenue: 0, totalProducts: 0, totalUsers: 0, pendingOrders: 0 });
   const [report, setReport] = useState({ daily: [], monthly: [] });
-  const [form, setForm] = useState({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
+  const [form, setForm] = useState({ name: '', price: '', category: '', image: '', images: [], relatedProductsText: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
   const [editingId, setEditingId] = useState(null);
-  const [edit, setEdit] = useState({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
+  const [edit, setEdit] = useState({ name: '', price: '', category: '', image: '', images: [], relatedProductsText: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
   const [cats, setCats] = useState([]);
   const [formColorChecks, setFormColorChecks] = useState({});
   const [formSizeChecks, setFormSizeChecks] = useState({});
@@ -375,16 +375,21 @@ export default function Admin() {
       const customSizesList = formCustomSizes ? formCustomSizes.split(',').map(s => s.trim()).filter(s => s) : [];
       const allSizes = [...selectedSizes, ...customSizesList];
       
+      const relatedProducts = form.relatedProductsText
+        ? form.relatedProductsText.split(',').map((item) => item.trim()).filter((item) => item)
+        : [];
       const payload = { 
         ...form, 
         price: Number(form.price)||0, 
         stock: Number(form.stock)||0,
         saleDiscount: Number(form.saleDiscount)||0,
         colors: allColors,
-        sizes: allSizes
+        sizes: allSizes,
+        images: form.images || [],
+        relatedProducts,
       };
       await api('/api/products', { method: 'POST', body: JSON.stringify(payload) });
-      setForm({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
+      setForm({ name: '', price: '', category: '', image: '', images: [], relatedProductsText: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
       setFormColorChecks({});
       setFormSizeChecks({});
       setFormCustomColors('');
@@ -418,6 +423,8 @@ export default function Admin() {
       price: p.price || 0,
       category: p.category || '',
       image: p.image || '',
+      images: Array.isArray(p.images) ? p.images : [],
+      relatedProductsText: Array.isArray(p.relatedProducts) ? p.relatedProducts.join(', ') : (p.relatedProducts || ''),
       stock: p.stock || 0,
       status: p.status || 'active',
       slug: p.slug || '',
@@ -459,7 +466,7 @@ export default function Admin() {
 
   function cancelEdit(){
     setEditingId(null);
-    setEdit({ name: '', price: '', category: '', image: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
+    setEdit({ name: '', price: '', category: '', image: '', images: [], relatedProductsText: '', stock: 0, status: 'active', slug: '', metaTitle: '', metaDescription: '', description: '', saleDiscount: 0, colors: '', sizes: '' });
     setEditColorChecks({});
     setEditSizeChecks({});
     setEditCustomColors('');
@@ -479,13 +486,18 @@ export default function Admin() {
       const customSizesList = editCustomSizes ? editCustomSizes.split(',').map(s => s.trim()).filter(s => s) : [];
       const allSizes = [...selectedSizes, ...customSizesList];
       
+      const relatedProducts = edit.relatedProductsText
+        ? edit.relatedProductsText.split(',').map((item) => item.trim()).filter((item) => item)
+        : [];
       const payload = { 
         ...edit, 
         price: Number(edit.price)||0, 
         stock: Number(edit.stock)||0,
         saleDiscount: Number(edit.saleDiscount)||0,
         colors: allColors,
-        sizes: allSizes
+        sizes: allSizes,
+        images: edit.images || [],
+        relatedProducts,
       };
       await api('/api/products/' + editingId, { method: 'PUT', body: JSON.stringify(payload) });
       setStatus('Product updated');
@@ -874,6 +886,30 @@ export default function Admin() {
       if (e.target) e.target.value = '';
     }
   }
+
+  async function onUploadGalleryCreate(e) {
+    const files = e.target && e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
+    setUploadingCreate(true);
+    try {
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append('image', file);
+        const r = await fetch(API_BASE + '/api/upload', { method: 'POST', body: fd });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok || !data.url) {
+          setStatus(data && data.error ? data.error : 'Upload failed');
+          continue;
+        }
+        setForm((prev) => ({ ...prev, images: [...(prev.images || []), data.url] }));
+      }
+    } catch {
+      setStatus('Upload failed');
+    } finally {
+      setUploadingCreate(false);
+      if (e.target) e.target.value = '';
+    }
+  }
   async function onUploadEdit(e){
     const file = e.target && e.target.files && e.target.files[0] ? e.target.files[0] : null;
     if (!file) return;
@@ -894,6 +930,38 @@ export default function Admin() {
       setUploadingEdit(false);
       if (e.target) e.target.value = '';
     }
+  }
+
+  async function onUploadGalleryEdit(e) {
+    const files = e.target && e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
+    setUploadingEdit(true);
+    try {
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append('image', file);
+        const r = await fetch(API_BASE + '/api/upload', { method: 'POST', body: fd });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok || !data.url) {
+          setStatus(data && data.error ? data.error : 'Upload failed');
+          continue;
+        }
+        setEdit((prev) => ({ ...prev, images: [...(prev.images || []), data.url] }));
+      }
+    } catch {
+      setStatus('Upload failed');
+    } finally {
+      setUploadingEdit(false);
+      if (e.target) e.target.value = '';
+    }
+  }
+
+  function removeFormImage(url) {
+    setForm((prev) => ({ ...prev, images: (prev.images || []).filter((img) => img !== url) }));
+  }
+
+  function removeEditImage(url) {
+    setEdit((prev) => ({ ...prev, images: (prev.images || []).filter((img) => img !== url) }));
   }
 
   const restricted = !auth.token || !auth.user || auth.user.role !== 'admin';
@@ -1308,6 +1376,21 @@ export default function Admin() {
                           <input type="file" accept="image/*" onChange={onUploadCreate} />
                           {uploadingCreate ? <div>Uploading...</div> : null}
                         </div>
+                        <div className="form-group">
+                          <label>Gallery Images</label>
+                          <input type="file" accept="image/*" multiple onChange={onUploadGalleryCreate} />
+                          {uploadingCreate ? <div>Uploading...</div> : null}
+                          {form.images && form.images.length > 0 ? (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                              {form.images.map((imgUrl, idx) => (
+                                <div key={idx} style={{ position: 'relative' }}>
+                                  <img src={imgUrl} alt={`Gallery ${idx + 1}`} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ddd' }} />
+                                  <button type="button" onClick={() => removeFormImage(imgUrl)} style={{ position: 'absolute', top: 4, right: 4, background: '#000', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer' }}>×</button>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
                         <div className="form-group"><label>Stock</label><input type="number" value={form.stock} onChange={e=>setForm({ ...form, stock: e.target.value })} /></div>
                         <div className="form-group"><label>Sale Discount (%)</label><input type="number" min="0" max="100" value={form.saleDiscount} onChange={e=>setForm({ ...form, saleDiscount: e.target.value })} placeholder="0-100" /></div>
                         
@@ -1336,7 +1419,7 @@ export default function Admin() {
                           </div>
                           <input value={formCustomSizes} onChange={e => setFormCustomSizes(e.target.value)} placeholder="Custom (e.g., 10x10, 16x16, 20x20)" />
                         </div>
-                        
+                        <div className="form-group"><label>Related Products</label><input value={form.relatedProductsText} onChange={e => setForm({ ...form, relatedProductsText: e.target.value })} placeholder="Enter related product IDs or slugs, comma-separated" /></div>
                         <div className="form-group"><label>Status</label><input value={form.status} onChange={e=>setForm({ ...form, status: e.target.value })} /></div>
                         <div className="form-group"><label>Slug</label><input value={form.slug} onChange={e=>setForm({ ...form, slug: e.target.value })} /></div>
                         <div className="form-group"><label>Meta Title</label><input value={form.metaTitle} onChange={e=>setForm({ ...form, metaTitle: e.target.value })} /></div>
@@ -1382,6 +1465,21 @@ export default function Admin() {
                                     <input type="file" accept="image/*" onChange={onUploadEdit} />
                                     {uploadingEdit ? <div>Uploading...</div> : null}
                                   </div>
+                                  <div className="form-group">
+                                    <label>Gallery Images</label>
+                                    <input type="file" accept="image/*" multiple onChange={onUploadGalleryEdit} />
+                                    {uploadingEdit ? <div>Uploading...</div> : null}
+                                    {edit.images && edit.images.length > 0 ? (
+                                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                                        {edit.images.map((imgUrl, idx) => (
+                                          <div key={idx} style={{ position: 'relative' }}>
+                                            <img src={imgUrl} alt={`Gallery ${idx + 1}`} style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #ddd' }} />
+                                            <button type="button" onClick={() => removeEditImage(imgUrl)} style={{ position: 'absolute', top: 4, right: 4, background: '#000', color: '#fff', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer' }}>×</button>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                  </div>
                                   <div className="form-group"><label>Stock</label><input type="number" value={edit.stock} onChange={e => setEdit({ ...edit, stock: e.target.value })} /></div>
                                   <div className="form-group"><label>Sale Discount (%)</label><input type="number" min="0" max="100" value={edit.saleDiscount} onChange={e => setEdit({ ...edit, saleDiscount: e.target.value })} placeholder="0-100" /></div>
                                   
@@ -1410,6 +1508,7 @@ export default function Admin() {
                                     </div>
                                     <input value={editCustomSizes} onChange={e => setEditCustomSizes(e.target.value)} placeholder="Custom (e.g., 10x10, 16x16, 20x20)" />
                                   </div>
+                                  <div className="form-group"><label>Related Products</label><input value={edit.relatedProductsText} onChange={e => setEdit({ ...edit, relatedProductsText: e.target.value })} placeholder="Enter related product IDs or slugs, comma-separated" /></div>
                                   
                                   <div className="form-group"><label>Status</label><input value={edit.status} onChange={e => setEdit({ ...edit, status: e.target.value })} /></div>
                                   <div className="form-group"><label>Slug</label><input value={edit.slug} onChange={e => setEdit({ ...edit, slug: e.target.value })} /></div>

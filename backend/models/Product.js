@@ -41,6 +41,8 @@ const ProductSchema = new mongoose.Schema({
   isFeatured: { type: Boolean, default: false },
   saleDiscount: { type: Number, default: 0, min: 0, max: 100 }, // Discount percentage (0-100)
   salePrice: { type: Number, default: 0 }, // Automatically calculated price after discount
+  images: { type: [String], default: [] },
+  relatedProducts: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 

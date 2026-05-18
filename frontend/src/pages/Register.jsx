@@ -70,13 +70,13 @@ export default function Register() {
 
               <p style={{ textAlign: 'center', margin: '6px 0' }}>
                 <a href="#" onClick={e => { e.preventDefault(); setShowAdmin(v => !v); }}>
-                  I have an admin code
+                  Register as staff?
                 </a>
               </p>
               {showAdmin && (
                 <div className="form-group">
-                  <label>Admin Code</label>
-                  <input value={adminCode} onChange={e => setAdminCode(e.target.value)} placeholder="Enter admin invite code" />
+                  <label>Staff Code</label>
+                  <input value={adminCode} onChange={e => setAdminCode(e.target.value)} placeholder="Enter staff invite code" />
                 </div>
               )}
 
