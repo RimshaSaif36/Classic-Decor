@@ -33,8 +33,12 @@ export default function Footer() {
           </ul>
         </div>
         <div className="footer-column">
-          <h3>Office Address</h3>
-          <p>Plot#3, Behind Climax Garden Masijid, Near Jinnah Flyour, G.T Road, Gujranwala, Pakistan</p>
+          <h3>Contact Information</h3>
+          <ul>
+            <li><a href="mailto:support@theclassicdecor.com">support@theclassicdecor.com</a></li>
+            <li><a href="tel:+923103395111">+923103395111</a></li>
+          </ul>
+          <p>Maverick Engineers Innovista Rachna DHA Gujranwala Pakistan</p>
         </div>
         <div className="footer-column">
           <h3>Stay Connected</h3>

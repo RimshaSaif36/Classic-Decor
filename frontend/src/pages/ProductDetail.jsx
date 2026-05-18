@@ -1,8 +1,9 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { pushGtmEcommerceEvent } from '../lib/gtm';
 import { addProductToCart, getDefaultColorLabel, getDefaultSizeLabel, getEffectivePrice, getSizedPrice, imgUrl } from '../lib/utils';
 
 // Standard product sizes
@@ -20,6 +21,19 @@ const PRODUCT_SIZES = [
     label: 'Large (L) - 15 × 15'
   }
 ];
+
+function reviewBelongsToUser(review, storedUser) {
+  if (!review || !storedUser) return false;
+
+  const userId = String(storedUser.id || '').trim();
+  const userEmail = String(storedUser.email || '').trim().toLowerCase();
+
+  if (userId && String(review.userId || '').trim() === userId) return true;
+  if (userId && !isNaN(Number(userId)) && Number(review.legacyUserId) === Number(userId)) return true;
+  if (userEmail && String(review.reviewerEmail || '').trim().toLowerCase() === userEmail) return true;
+
+  return false;
+}
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -48,6 +62,7 @@ export default function ProductDetail() {
   const [revForm, setRevForm] = useState({ name: '', rating: 5, title: '', comment: '' });
   const [canReview, setCanReview] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const viewedProductKeyRef = useRef('');
 
   function orderContainsProduct(order, productId) {
     const target = String(productId || '');
@@ -57,19 +72,6 @@ export default function ProductDetail() {
       const candidates = [item && item.productId, item && item.id, item && item._id, item && item.slug];
       return candidates.some((value) => String(value || '') === target);
     });
-  }
-
-  function reviewBelongsToUser(review) {
-    if (!review || !storedUser) return false;
-
-    const userId = String(storedUser.id || '').trim();
-    const userEmail = String(storedUser.email || '').trim().toLowerCase();
-
-    if (userId && String(review.userId || '').trim() === userId) return true;
-    if (userId && !isNaN(Number(userId)) && Number(review.legacyUserId) === Number(userId)) return true;
-    if (userEmail && String(review.reviewerEmail || '').trim().toLowerCase() === userEmail) return true;
-
-    return false;
   }
 
   // fetch single product by id/slug
@@ -135,6 +137,35 @@ export default function ProductDetail() {
   }, [product, selectedSizeLabel]);
 
   useEffect(() => {
+    if (typeof window === 'undefined' || !product) return;
+
+    const itemId = product.productId || product._id || product.id || product.sku || product.slug;
+    const itemName = product.name || product.title;
+    const rawPrice = selectedSalePrice;
+
+    if (!itemId || !itemName || rawPrice == null) return;
+
+    const viewKey = String(itemId);
+    if (viewedProductKeyRef.current === viewKey) return;
+
+    pushGtmEcommerceEvent('view_item', {
+      entity: product,
+      id: itemId,
+      value: rawPrice,
+      source: 'ProductDetail',
+      items: [
+        {
+          ...product,
+          productId: itemId,
+          quantity: 1,
+        },
+      ],
+    });
+
+    viewedProductKeyRef.current = viewKey;
+  }, [product, selectedSalePrice]);
+
+  useEffect(() => {
     if (!product) return;
 
     (async () => {
@@ -144,7 +175,7 @@ export default function ProductDetail() {
         const list = await r.json();
         const nextReviews = Array.isArray(list) ? list : [];
         setReviews(nextReviews);
-        setHasReviewed(nextReviews.some((review) => reviewBelongsToUser(review)));
+        setHasReviewed(nextReviews.some((review) => reviewBelongsToUser(review, storedUser)));
         
         // Fetch product images for all reviews
         const productMap = {};
@@ -176,7 +207,7 @@ export default function ProductDetail() {
         if (Array.isArray(list)) setRelated(list);
       } catch { void 0; }
     })();
-  }, [product, availableSizes, availableColors]);
+  }, [product, availableSizes, availableColors, storedUser]);
 
   function showCartMessage(message, type = 'success') {
     const existing = document.querySelector('.cart-message');
@@ -190,6 +221,15 @@ export default function ProductDetail() {
 
   function redirectToProductOptions(nextProduct) {
     const added = addProductToCart(nextProduct);
+    if (added) {
+      const gtmPrice = getEffectivePrice(nextProduct?.price, nextProduct?.saleDiscount, added.sizeLabel);
+      pushGtmEcommerceEvent('AddToCart', {
+        entity: nextProduct,
+        id: added.productId,
+        value: gtmPrice,
+        items: [{ ...nextProduct, productId: added.productId, quantity: 1, size: added.sizeLabel, sizeLabel: added.sizeLabel, color: added.colorLabel, colorLabel: added.colorLabel }]
+      });
+    }
     showCartMessage(
       added ? 'Added to cart' : 'Unable to add this product to cart',
       added ? 'success' : 'error'
@@ -251,6 +291,13 @@ export default function ProductDetail() {
     };
     if (typeof window !== 'undefined' && typeof window.addToCart === 'function') {
       window.addToCart(payload);
+      const gtmPrice = getEffectivePrice(p?.price, p?.saleDiscount, sizeLabel);
+      pushGtmEcommerceEvent('AddToCart', {
+        entity: payload,
+        id: p?._id || p?.id || p?.slug,
+        value: gtmPrice,
+        items: [{ ...payload, productId: p?._id || p?.id || p?.slug, quantity: 1 }]
+      });
       return;
     }
     const next = [...JSON.parse(localStorage.getItem('cart') || '[]')];
@@ -281,6 +328,12 @@ export default function ProductDetail() {
       const total = next.reduce((s, i) => s + (i.quantity || 1), 0);
       window.dispatchEvent(new CustomEvent('cart-updated', { detail: { total } }));
     } catch { void 0; }
+    pushGtmEcommerceEvent('AddToCart', {
+      entity: payload,
+      id: pid,
+      value: getEffectivePrice(p?.price, p?.saleDiscount, sizeLabel),
+      items: [{ ...payload, productId: pid, quantity: 1 }]
+    });
     showCartMessage('Added to cart', 'success');
   }
 

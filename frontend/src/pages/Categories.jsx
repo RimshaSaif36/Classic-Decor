@@ -3,7 +3,8 @@ import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { addProductToCart, imgUrl } from '../lib/utils';
+import { pushGtmEcommerceEvent } from '../lib/gtm';
+import { addProductToCart, getEffectivePrice, imgUrl } from '../lib/utils';
 
 export default function Categories() {
   const { id } = useParams();
@@ -49,6 +50,15 @@ export default function Categories() {
 
   function addToCart(p) {
     const added = addProductToCart(p);
+    if (added) {
+      const gtmPrice = getEffectivePrice(p?.price, p?.saleDiscount, added.sizeLabel);
+      pushGtmEcommerceEvent('AddToCart', {
+        entity: p,
+        id: added.productId,
+        value: gtmPrice,
+        items: [{ ...p, productId: added.productId, quantity: 1, size: added.sizeLabel, sizeLabel: added.sizeLabel, color: added.colorLabel, colorLabel: added.colorLabel }]
+      });
+    }
     showCartMessage(
       added ? 'Added to cart' : 'Unable to add this product to cart',
       added ? 'success' : 'error'
@@ -65,8 +75,8 @@ export default function Categories() {
           {error && <div>{error}</div>}
           {!loading && !error && (
             <div className="product-grid">
-              {filtered.map(p => (
-                <div className="product-item" key={p.id}>
+              {filtered.map((p, index) => (
+                <div className="product-item" key={p._id || p.id || p.slug || `${p.name || 'product'}-${index}`}>
                   <Link to={`/product/${encodeURIComponent(p._id || p.id || p.slug)}`} className="product-image-link">
                     <img src={imgUrl(p.image)} alt={p.name} title={p.name} />
                   </Link>

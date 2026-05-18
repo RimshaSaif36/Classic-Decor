@@ -74,6 +74,47 @@ function getFromAddress() {
   return `"${MAIL_SENDER_NAME}" <${senderEmail}>`;
 }
 
+function getNormalizedItemQuantity(item) {
+  return Math.max(1, Number(item && (item.quantity || item.qty)) || 1);
+}
+
+function getNormalizedItemUnitPrice(item) {
+  const explicitUnitPrice = Number(
+    item && (item.unitPrice ?? item.salePrice ?? item.discountedPrice),
+  );
+  if (explicitUnitPrice > 0) return explicitUnitPrice;
+
+  const basePrice = Number(
+    item && (item.basePrice ?? item.productPrice ?? item.price),
+  );
+  const sizeLabel = String(item && (item.sizeLabel ?? item.size) ? item.sizeLabel ?? item.size : "")
+    .trim()
+    .toLowerCase();
+  const sizeDeltaMap = {
+    small: 0,
+    medium: 600,
+    large: 1200,
+    xl: 1800,
+    xlarge: 1800,
+  };
+  const sizedPrice = Math.max(0, basePrice + (sizeDeltaMap[sizeLabel] || 0));
+  const discount = Number(item && item.saleDiscount) || 0;
+
+  if (discount > 0) {
+    return Math.max(0, Math.round(sizedPrice - (sizedPrice * discount) / 100));
+  }
+
+  return Math.max(0, sizedPrice);
+}
+
+function getNormalizedItemLineTotal(item, unitPrice, quantity) {
+  const explicitLineTotal = Number(
+    item && (item.lineTotal ?? item.totalPrice ?? item.total),
+  );
+  if (explicitLineTotal > 0) return explicitLineTotal;
+  return unitPrice * quantity;
+}
+
 async function sendWelcomeEmail(userDetails) {
   if (!transporter) {
     console.log("[mailer] Email not sent: mailer not configured");
@@ -159,8 +200,40 @@ async function sendOrderConfirmation(orderDetails) {
       (String(metadata.requestType || "").toLowerCase() === "custom-design" ||
         Boolean(metadata.needsQuote)));
 
-  const numericSubtotal = Number(subtotal || 0);
+  const normalizedItems = Array.isArray(items)
+    ? items.map((item) => {
+        const quantity = getNormalizedItemQuantity(item);
+        const unitPrice = getNormalizedItemUnitPrice(item);
+        const lineTotal = getNormalizedItemLineTotal(item, unitPrice, quantity);
+        return {
+          ...item,
+          quantity,
+          unitPrice,
+          lineTotal,
+        };
+      })
+    : [];
+
+  const derivedSubtotal = normalizedItems.reduce(
+    (sum, item) => sum + item.lineTotal,
+    0,
+  );
+  const numericSubtotal =
+    Number(subtotal) > 0 ? Number(subtotal) : derivedSubtotal;
   const numericShipping = Number(shipping || 0);
+  const numericTotal =
+    Number(total) > 0 ? Number(total) : numericSubtotal + numericShipping;
+  const reconciledItems =
+    !isCustomOrder &&
+    normalizedItems.length === 1 &&
+    numericSubtotal > 0 &&
+    Math.abs(derivedSubtotal - numericSubtotal) >= 1
+      ? normalizedItems.map((item) => ({
+          ...item,
+          lineTotal: numericSubtotal,
+          unitPrice: Math.round(numericSubtotal / Math.max(item.quantity, 1)),
+        }))
+      : normalizedItems;
 
   if (!email) {
     console.log("[mailer] Email not sent: missing recipient email");
@@ -169,18 +242,18 @@ async function sendOrderConfirmation(orderDetails) {
 
   let itemRows = "";
   try {
-    if (Array.isArray(items)) {
-      itemRows = items
+    if (reconciledItems.length > 0) {
+      itemRows = reconciledItems
         .map((item, index, list) => {
           const itemName = item.name || item.productName || "Unknown Item";
-          const qty = item.quantity || item.qty || 1;
-          const rawPrice = Number(item.price || item.productPrice || 0);
+          const qty = item.quantity;
+          const rawPrice = item.unitPrice;
           const customFallbackTotal =
             isCustomOrder && numericSubtotal > 0 && rawPrice <= 0
               ? index === list.length - 1
                 ? numericSubtotal
                 : 0
-              : qty * rawPrice;
+              : item.lineTotal;
           const lineTotal = customFallbackTotal;
           const price =
             isCustomOrder && numericSubtotal > 0 && rawPrice <= 0
@@ -247,7 +320,7 @@ async function sendOrderConfirmation(orderDetails) {
           </div>
           
           <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0; text-align: right;">
-            <h3 style="color: #d4af37; margin: 0; font-size: 24px;">PKR ${Number(total || 0).toLocaleString()}</h3>
+            <h3 style="color: #d4af37; margin: 0; font-size: 24px;">PKR ${numericTotal.toLocaleString()}</h3>
             <p style="color: #666; margin: 5px 0;">Total Amount</p>
           </div>
           

@@ -1,8 +1,9 @@
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { pushGtmEcommerceEvent } from '../lib/gtm';
 import { computeShipping, getEffectivePrice } from '../lib/utils';
 
 function effectivePrice(item) {
@@ -27,6 +28,7 @@ export default function Checkout() {
   const [transactionId, setTransactionId] = useState('');
   const [placing, setPlacing] = useState(false);
   const [errors, setErrors] = useState({});
+  const hasTrackedCheckoutRef = useRef(false);
 
   const subtotal = useMemo(
     () => cart.reduce((s, i) => s + effectivePrice(i) * (i.quantity || 1), 0),
@@ -35,6 +37,19 @@ export default function Checkout() {
   // Free shipping for orders above PKR 5,000
   const shippingPrice = computeShipping(subtotal);
   const total = subtotal + shippingPrice;
+
+  useEffect(() => {
+    if (hasTrackedCheckoutRef.current || !Array.isArray(cart) || cart.length === 0) {
+      return;
+    }
+
+    pushGtmEcommerceEvent('InitiateCheckout', {
+      entity: cart[0],
+      value: total,
+      items: cart,
+    });
+    hasTrackedCheckoutRef.current = true;
+  }, [cart, total]);
 
   useEffect(() => {
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -177,7 +192,26 @@ export default function Checkout() {
         alert(msg || 'Failed to place order');
         return;
       }
-      localStorage.setItem('lastOrder', JSON.stringify(payload));
+      const createdOrder = await r.json().catch(() => null);
+      if (createdOrder && typeof createdOrder === 'object' && createdOrder.success === false) {
+        alert(createdOrder.error || 'Failed to place order');
+        return;
+      }
+      const successfulOrder = createdOrder && typeof createdOrder === 'object'
+        ? {
+            ...payload,
+            ...createdOrder,
+            items: Array.isArray(createdOrder.items) ? createdOrder.items : payload.items
+          }
+        : payload;
+      pushGtmEcommerceEvent('Purchase', {
+        entity: successfulOrder,
+        id: successfulOrder.transactionId || successfulOrder.orderId || successfulOrder._id || successfulOrder.id,
+        value: successfulOrder.total ?? payload.total,
+        shipping: successfulOrder.shipping ?? payload.shipping,
+        items: Array.isArray(successfulOrder.items) ? successfulOrder.items : payload.items
+      });
+      localStorage.setItem('lastOrder', JSON.stringify(successfulOrder));
       setCart([]);
       setName(''); setAddress(''); setCity(''); setPhone(''); setEmail(''); setPayment('cod'); setSenderNumber(''); setTransactionId('');
       navigate('/success');

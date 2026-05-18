@@ -2,13 +2,15 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { addProductToCart, imgUrl } from '../lib/utils';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { pushGtmEcommerceEvent } from '../lib/gtm';
+import { addProductToCart, getEffectivePrice, imgUrl } from '../lib/utils';
 
 export default function Shop() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
   const [params] = useSearchParams();
 
   // filters & pagination
@@ -96,6 +98,15 @@ export default function Shop() {
     const existing = document.querySelector('.cart-message');
     if (existing) existing.remove();
     const added = addProductToCart(p);
+    if (added) {
+      const gtmPrice = getEffectivePrice(p?.price, p?.saleDiscount, added.sizeLabel);
+      pushGtmEcommerceEvent('AddToCart', {
+        entity: p,
+        id: added.productId,
+        value: gtmPrice,
+        items: [{ ...p, productId: added.productId, quantity: 1, size: added.sizeLabel, sizeLabel: added.sizeLabel, color: added.colorLabel, colorLabel: added.colorLabel }]
+      });
+    }
     const m = document.createElement('div');
     m.className = `cart-message ${added ? 'success' : 'error'}`;
     m.textContent = added ? 'Added to cart' : 'Unable to add this product to cart';

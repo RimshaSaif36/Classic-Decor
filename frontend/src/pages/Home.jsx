@@ -3,7 +3,8 @@ import Footer from "../components/Footer";
 import { API_BASE } from "../lib/config";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { addProductToCart, imgUrl } from "../lib/utils";
+import { pushGtmEcommerceEvent } from "../lib/gtm";
+import { addProductToCart, getEffectivePrice, imgUrl } from "../lib/utils";
 
 export default function Home() {
   const [latest, setLatest] = useState([]);
@@ -99,6 +100,15 @@ export default function Home() {
 
   function requireProductOptions(product) {
     const added = addProductToCart(product);
+    if (added) {
+      const gtmPrice = getEffectivePrice(product?.price, product?.saleDiscount, added.sizeLabel);
+      pushGtmEcommerceEvent("AddToCart", {
+        entity: product,
+        id: added.productId,
+        value: gtmPrice,
+        items: [{ ...product, productId: added.productId, quantity: 1, size: added.sizeLabel, sizeLabel: added.sizeLabel, color: added.colorLabel, colorLabel: added.colorLabel }],
+      });
+    }
     showCartMessage(
       added ? "Added to cart" : "Unable to add this product to cart",
       added ? "success" : "error",
@@ -138,8 +148,8 @@ export default function Home() {
             </div>
           ) : (
             <div className="product-grid">
-              {featuredProducts.map((p) => (
-                <div className="product-item" key={p.id}>
+              {featuredProducts.map((p, index) => (
+                <div className="product-item" key={p._id || p.id || p.slug || `${p.name || 'product'}-${index}`}>
                   <Link
                     to={`/product/${p._id || p.id}`}
                     className="product-image-wrapper"
@@ -195,8 +205,8 @@ export default function Home() {
         <h2>New Arrivals</h2>
         <div className="arrival-slider">
           <div className="slider-track">
-            {newArrivals.map((p) => (
-              <div className="slide" key={p._id || p.id}>
+            {newArrivals.map((p, index) => (
+              <div className="slide" key={p._id || p.id || p.slug || `${p.name || 'arrival'}-${index}`}>
                 <Link to={`/product/${p._id || p.id}`}>
                   <img src={imgUrl(p.image)} alt={p.name} />
                 </Link>

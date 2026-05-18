@@ -2,6 +2,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { API_BASE } from '../lib/config';
 import { useEffect, useState } from 'react';
+import defaultCustomDesignImage from '../assets/custom.jpg';
 
 export default function CustomDesign() {
   const token = (() => {
@@ -213,14 +214,11 @@ export default function CustomDesign() {
         <section className="custom-design-shell">
           <div className="custom-design-media-card">
             <div className="custom-design-preview-frame">
-              {form.uploadedImage ? (
-                <img src={form.uploadedImage} alt="Reference preview" className="custom-design-preview" />
-              ) : (
-                <div className="custom-design-placeholder">
-                  <i className="fa-regular fa-image"></i>
-                  <strong>No image uploaded yet</strong>
-                </div>
-              )}
+              <img
+                src={form.uploadedImage || defaultCustomDesignImage}
+                alt={form.uploadedImage ? 'Reference preview' : 'Custom design reference'}
+                className="custom-design-preview"
+              />
             </div>
           </div>
 
