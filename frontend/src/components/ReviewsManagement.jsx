@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE } from '../lib/config';
 
 const ReviewsManagement = ({ token, onReviewUpdate }) => {
   const [reviews, setReviews] = useState([]);
@@ -12,7 +13,7 @@ const ReviewsManagement = ({ token, onReviewUpdate }) => {
   const loadReviews = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/reviews');
+      const response = await fetch(API_BASE + '/api/reviews');
       const data = await response.json();
       setReviews(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -25,7 +26,7 @@ const ReviewsManagement = ({ token, onReviewUpdate }) => {
 
   const updateReviewStatus = async (reviewId, newStatus) => {
     try {
-      const response = await fetch(`/api/reviews/${reviewId}`, {
+      const response = await fetch(`${API_BASE}/api/reviews/${reviewId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -48,7 +49,7 @@ const ReviewsManagement = ({ token, onReviewUpdate }) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
 
     try {
-      const response = await fetch(`/api/reviews/${reviewId}`, {
+      const response = await fetch(`${API_BASE}/api/reviews/${reviewId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`,

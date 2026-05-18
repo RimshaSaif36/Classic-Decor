@@ -21,7 +21,7 @@ export default function Shop() {
   const [sort, setSort] = useState(params.get('sort') || 'newest');
   const [page, setPage] = useState(Number(params.get('page') || 1));
   const [searchInput, setSearchInput] = useState(params.get('q') || '');
-  const limit = 24;
+  const limit = 25;
 
   useEffect(() => {
     // fetch categories

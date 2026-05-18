@@ -86,11 +86,19 @@ textarea {
 }
 
 .cart-message.success {
-  background: linear-gradient(135deg, rgba(50, 143, 83, 0.96) 0%, rgba(72, 173, 102, 0.96) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(50, 143, 83, 0.96) 0%,
+    rgba(72, 173, 102, 0.96) 100%
+  );
 }
 
 .cart-message.error {
-  background: linear-gradient(135deg, rgba(198, 52, 52, 0.96) 0%, rgba(233, 88, 88, 0.96) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(198, 52, 52, 0.96) 0%,
+    rgba(233, 88, 88, 0.96) 100%
+  );
 }
 
 @keyframes fadeInOut {
@@ -3672,7 +3680,10 @@ footer {
   border-radius: 8px;
   background: #fff;
   border: 1px solid #efe8dc;
-  transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
 }
 
 .cart-item-card:hover {
@@ -3898,7 +3909,11 @@ footer {
   margin-top: 1.25rem;
   padding: 1rem 1rem;
   border-radius: 8px;
-  background: linear-gradient(180deg, rgba(212, 175, 55, 0.12), rgba(212, 175, 55, 0.06));
+  background: linear-gradient(
+    180deg,
+    rgba(212, 175, 55, 0.12),
+    rgba(212, 175, 55, 0.06)
+  );
   border: 1px solid rgba(212, 175, 55, 0.14);
   color: #6d5f4f;
   line-height: 1.6;
@@ -3957,7 +3972,11 @@ footer {
   padding: 3rem 1.5rem;
   text-align: center;
   border-radius: 8px;
-  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(250,247,241,0.98));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1),
+    rgba(250, 247, 241, 0.98)
+  );
   border: 1px dashed rgba(212, 175, 55, 0.28);
 }
 
