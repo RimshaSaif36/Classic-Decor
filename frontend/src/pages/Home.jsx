@@ -166,9 +166,6 @@ export default function Home() {
                   </Link>
                   <div className="product-item-content">
                     <h3 className="product-name">{p.name}</h3>
-                    <p className="product-description">
-                      {p.description || "Premium acrylic decor item"}
-                    </p>
                     <div className="product-footer">
                       <p className="product-price">
                         {p.saleDiscount > 0 ? (
