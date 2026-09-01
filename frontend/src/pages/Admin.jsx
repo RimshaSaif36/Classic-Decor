@@ -1830,7 +1830,7 @@ export default function Admin() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <input
                               type="color"
-                              value={announcement.bgColor || '#1a1a1a'}
+                              value={/^#[0-9a-fA-F]{6}$/.test(announcement.bgColor) ? announcement.bgColor : '#1a1a1a'}
                               onChange={(e) => setAnnouncement((prev) => ({ ...prev, bgColor: e.target.value }))}
                               style={{ width: '42px', height: '42px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
                             />
@@ -1857,7 +1857,7 @@ export default function Admin() {
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <input
                               type="color"
-                              value={announcement.textColor || '#ffffff'}
+                              value={/^#[0-9a-fA-F]{6}$/.test(announcement.textColor) ? announcement.textColor : '#ffffff'}
                               onChange={(e) => setAnnouncement((prev) => ({ ...prev, textColor: e.target.value }))}
                               style={{ width: '42px', height: '42px', border: '1px solid #cbd5e1', borderRadius: '6px', cursor: 'pointer', padding: 0 }}
                             />
