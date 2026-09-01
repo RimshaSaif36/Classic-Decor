@@ -1,0 +1,34 @@
+const express = require("express");
+const {
+  createOrder,
+  listOrders,
+  getOrder,
+  checkTransaction,
+  myOrders,
+  cancelMyOrder,
+  submitCustomPayment,
+  updateOrder,
+  deleteOrder,
+  reportOrders,
+} = require("../controllers/ordersController");
+const {
+  requireAuth,
+  optionalAuth,
+  requireAdmin,
+} = require("../middleware/auth");
+
+const router = express.Router();
+
+router.post("/", optionalAuth, createOrder);
+router.get("/", requireAuth, requireAdmin, listOrders);
+router.get("/report", requireAuth, requireAdmin, reportOrders);
+// Public check endpoint (kept for legacy clients) - must come before /:id
+router.get("/check", checkTransaction);
+router.get("/my", requireAuth, myOrders);
+router.patch("/:id/cancel", requireAuth, cancelMyOrder);
+router.patch("/:id/custom-payment", requireAuth, submitCustomPayment);
+router.get("/:id", requireAuth, getOrder);
+router.put("/:id", requireAuth, requireAdmin, updateOrder);
+router.delete("/:id", requireAuth, requireAdmin, deleteOrder);
+
+module.exports = router;

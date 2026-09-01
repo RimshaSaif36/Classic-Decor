@@ -1,0 +1,652 @@
+const nodemailer = require("nodemailer");
+
+// Brevo SMTP Configuration
+const MAIL_HOST = process.env.MAIL_HOST || "smtp-relay.brevo.com";
+const MAIL_PORT = process.env.MAIL_PORT || 587;
+const MAIL_USERNAME = process.env.MAIL_USERNAME || "";
+const MAIL_PASSWORD = process.env.MAIL_PASSWORD || "";
+const BREVO_SENDEREMAIL =
+  process.env.BREVO_SENDEREMAIL || "support@theclassicdecor.com";
+const MAIL_SENDER_NAME = process.env.MAIL_SENDER_NAME || "TheClassicDecor";
+const MAIL_BRAND_NAME = process.env.MAIL_BRAND_NAME || "TheClassicDecor";
+
+// Fallback to older env vars if Brevo not configured
+const GMAIL_USER = process.env.GMAIL_USER || "";
+const GMAIL_PASS = process.env.GMAIL_PASS || "";
+const SMTP_HOST = process.env.SMTP_HOST || MAIL_HOST;
+const SMTP_PORT = process.env.SMTP_PORT || MAIL_PORT;
+const SMTP_SECURE = process.env.SMTP_SECURE || "false";
+const SMTP_USER = process.env.SMTP_USER || MAIL_USERNAME;
+const SMTP_PASS = process.env.SMTP_PASS || MAIL_PASSWORD;
+
+const transporter = (() => {
+  try {
+    // Try Brevo first
+    if (MAIL_USERNAME && MAIL_PASSWORD) {
+      const t = nodemailer.createTransport({
+        host: MAIL_HOST,
+        port: Number(MAIL_PORT) || 587,
+        secure: false,
+        auth: {
+          user: MAIL_USERNAME,
+          pass: MAIL_PASSWORD,
+        },
+      });
+      console.log("[mailer] Brevo SMTP transporter configured");
+      return t;
+    }
+    // Fallback to other SMTP
+    if (SMTP_HOST && SMTP_USER && SMTP_PASS) {
+      const t = nodemailer.createTransport({
+        host: SMTP_HOST,
+        port: Number(SMTP_PORT) || 587,
+        secure: String(SMTP_SECURE).toLowerCase() === "true",
+        auth: { user: SMTP_USER, pass: SMTP_PASS },
+      });
+      console.log("[mailer] SMTP transporter configured");
+      return t;
+    }
+    // Fallback to Gmail
+    if (GMAIL_USER && GMAIL_PASS) {
+      const t = nodemailer.createTransport({
+        service: "gmail",
+        auth: { user: GMAIL_USER, pass: GMAIL_PASS },
+      });
+      console.log("[mailer] Gmail transporter configured");
+      return t;
+    }
+  } catch (e) {
+    console.error(
+      "[mailer] transporter init failed:",
+      e && e.message ? e.message : e,
+    );
+  }
+  console.log("[mailer] Email not configured (missing env)");
+  return null;
+})();
+
+function getFromAddress() {
+  const senderEmail =
+    BREVO_SENDEREMAIL ||
+    GMAIL_USER ||
+    SMTP_USER ||
+    "no-reply@classic-decor.local";
+  return `"${MAIL_SENDER_NAME}" <${senderEmail}>`;
+}
+
+function getNormalizedItemQuantity(item) {
+  return Math.max(1, Number(item && (item.quantity || item.qty)) || 1);
+}
+
+function getNormalizedItemUnitPrice(item) {
+  const explicitUnitPrice = Number(
+    item && (item.unitPrice ?? item.salePrice ?? item.discountedPrice),
+  );
+  if (explicitUnitPrice > 0) return explicitUnitPrice;
+
+  const basePrice = Number(
+    item && (item.basePrice ?? item.productPrice ?? item.price),
+  );
+  const sizeLabel = String(item && (item.sizeLabel ?? item.size) ? item.sizeLabel ?? item.size : "")
+    .trim()
+    .toLowerCase();
+  const sizeDeltaMap = {
+    small: 0,
+    medium: 600,
+    large: 1200,
+    xl: 1800,
+    xlarge: 1800,
+  };
+  const sizedPrice = Math.max(0, basePrice + (sizeDeltaMap[sizeLabel] || 0));
+  const discount = Number(item && item.saleDiscount) || 0;
+
+  if (discount > 0) {
+    return Math.max(0, Math.round(sizedPrice - (sizedPrice * discount) / 100));
+  }
+
+  return Math.max(0, sizedPrice);
+}
+
+function getNormalizedItemLineTotal(item, unitPrice, quantity) {
+  const explicitLineTotal = Number(
+    item && (item.lineTotal ?? item.totalPrice ?? item.total),
+  );
+  if (explicitLineTotal > 0) return explicitLineTotal;
+  return unitPrice * quantity;
+}
+
+async function sendWelcomeEmail(userDetails) {
+  if (!transporter) {
+    console.log("[mailer] Email not sent: mailer not configured");
+    return false;
+  }
+
+  const { name, email } = userDetails;
+  if (!email) {
+    console.log("[mailer] Email not sent: missing recipient email");
+    return false;
+  }
+
+  const fromAddress = getFromAddress();
+  const mailOptions = {
+    from: fromAddress,
+    to: email,
+    subject: `Welcome to ${MAIL_BRAND_NAME}! 🎉`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
+          <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <h2 style="color: #1a1a1a; margin-top: 0;">Welcome, ${name}! 👋</h2>
+          
+          <p style="color: #555; line-height: 1.6;">
+            Thank you for joining ${MAIL_BRAND_NAME}! We're thrilled to have you as part of our community. 
+            Get ready to explore our premium collection of home decor products.
+          </p>
+          
+          <div style="background: #f0f0f0; padding: 15px; border-left: 4px solid #d4af37; margin: 20px 0;">
+            <h3 style="color: #d4af37; margin-top: 0;">What's Next?</h3>
+            <ul style="color: #555; line-height: 1.8; margin: 10px 0; padding-left: 20px;">
+              <li>Browse our exclusive collection</li>
+              <li>Add items to your wishlist</li>
+              <li>Track your orders in real-time</li>
+              <li>Enjoy special member discounts</li>
+            </ul>
+          </div>
+          
+          <p style="color: #555; text-align: center; margin: 30px 0;">
+            <a href="https://www.theclassicdecor.com" style="display: inline-block; background: #d4af37; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+              Start Shopping
+            </a>
+          </p>
+          
+          <p style="color: #999; font-size: 12px; text-align: center; margin-top: 30px;">
+            Questions? Contact us at support@theclassicdecor.com
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("[mailer] Welcome email sent to", email);
+    return true;
+  } catch (error) {
+    console.error("[mailer] Error sending welcome email:", error.message);
+    return false;
+  }
+}
+
+async function sendOrderConfirmation(orderDetails) {
+  if (!transporter) {
+    console.log("[mailer] Email not sent: mailer not configured");
+    return false;
+  }
+
+  const { name, email, total, subtotal, shipping, items, orderId, payment, metadata } =
+    orderDetails;
+
+  const isCustomOrder =
+    String(payment || "").toLowerCase() === "custom-design-request" ||
+    (metadata &&
+      (String(metadata.requestType || "").toLowerCase() === "custom-design" ||
+        Boolean(metadata.needsQuote)));
+
+  const normalizedItems = Array.isArray(items)
+    ? items.map((item) => {
+        const quantity = getNormalizedItemQuantity(item);
+        const unitPrice = getNormalizedItemUnitPrice(item);
+        const lineTotal = getNormalizedItemLineTotal(item, unitPrice, quantity);
+        return {
+          ...item,
+          quantity,
+          unitPrice,
+          lineTotal,
+        };
+      })
+    : [];
+
+  const derivedSubtotal = normalizedItems.reduce(
+    (sum, item) => sum + item.lineTotal,
+    0,
+  );
+  const numericSubtotal =
+    Number(subtotal) > 0 ? Number(subtotal) : derivedSubtotal;
+  const numericShipping = Number(shipping || 0);
+  const numericTotal =
+    Number(total) > 0 ? Number(total) : numericSubtotal + numericShipping;
+  const reconciledItems =
+    !isCustomOrder &&
+    normalizedItems.length === 1 &&
+    numericSubtotal > 0 &&
+    Math.abs(derivedSubtotal - numericSubtotal) >= 1
+      ? normalizedItems.map((item) => ({
+          ...item,
+          lineTotal: numericSubtotal,
+          unitPrice: Math.round(numericSubtotal / Math.max(item.quantity, 1)),
+        }))
+      : normalizedItems;
+
+  if (!email) {
+    console.log("[mailer] Email not sent: missing recipient email");
+    return false;
+  }
+
+  let itemRows = "";
+  try {
+    if (reconciledItems.length > 0) {
+      itemRows = reconciledItems
+        .map((item, index, list) => {
+          const itemName = item.name || item.productName || "Unknown Item";
+          const qty = item.quantity;
+          const rawPrice = item.unitPrice;
+          const customFallbackTotal =
+            isCustomOrder && numericSubtotal > 0 && rawPrice <= 0
+              ? index === list.length - 1
+                ? numericSubtotal
+                : 0
+              : item.lineTotal;
+          const lineTotal = customFallbackTotal;
+          const price =
+            isCustomOrder && numericSubtotal > 0 && rawPrice <= 0
+              ? Math.round(lineTotal / Math.max(qty, 1))
+              : rawPrice;
+          return `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${itemName}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${qty}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${price.toLocaleString()}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${lineTotal.toLocaleString()}</td>
+        </tr>
+      `;
+        })
+        .join("");
+    }
+  } catch (_) {
+    itemRows = `<tr><td colspan="4" style="padding: 10px; text-align: center;">See order details for items</td></tr>`;
+  }
+
+  const fromAddress = getFromAddress();
+  const mailOptions = {
+    from: fromAddress,
+    to: email,
+    subject: `Order Confirmation #${orderId || "N/A"} - ${MAIL_BRAND_NAME}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
+          <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <h2 style="color: #1a1a1a; margin-top: 0;">Order Confirmed! 🎉</h2>
+          
+          <p style="color: #555; line-height: 1.6;">
+            Thank you for your order, <strong>${name}</strong>! We've received your order and will process it shortly.
+          </p>
+          
+          <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 5px 0; color: #666;"><strong>Order ID:</strong> #${orderId || "N/A"}</p>
+            <p style="margin: 5px 0; color: #666;"><strong>Order Date:</strong> ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+            <p style="margin: 5px 0; color: #666;"><strong>Estimated Delivery:</strong> 3 to 5 working days</p>
+          </div>
+          
+          <h3 style="color: #1a1a1a; border-bottom: 2px solid #d4af37; padding-bottom: 10px;">Order Summary</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+              <tr style="background: #f5f5f5; border-bottom: 2px solid #d4af37;">
+                <th style="padding: 10px; text-align: left; color: #333; font-weight: bold;">Item</th>
+                <th style="padding: 10px; text-align: center; color: #333; font-weight: bold;">Qty</th>
+                <th style="padding: 10px; text-align: right; color: #333; font-weight: bold;">Price</th>
+                <th style="padding: 10px; text-align: right; color: #333; font-weight: bold;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemRows}
+            </tbody>
+          </table>
+
+          <div style="margin: 20px 0; padding: 16px; background: #fafafa; border-radius: 6px; border: 1px solid #eee;">
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Subtotal:</strong> PKR ${numericSubtotal.toLocaleString()}</p>
+            ${numericShipping > 0 ? `<p style="margin: 6px 0; color: #555; text-align: right;"><strong>Shipping:</strong> PKR ${numericShipping.toLocaleString()}</p>` : ''}
+          </div>
+          
+          <div style="background: #f0f0f0; padding: 15px; border-radius: 6px; margin: 20px 0; text-align: right;">
+            <h3 style="color: #d4af37; margin: 0; font-size: 24px;">PKR ${numericTotal.toLocaleString()}</h3>
+            <p style="color: #666; margin: 5px 0;">Total Amount</p>
+          </div>
+          
+          <div style="background: #e8f5e9; padding: 15px; border-left: 4px solid #4caf50; margin: 20px 0; border-radius: 4px;">
+            <h4 style="color: #2e7d32; margin-top: 0;">What happens next?</h4>
+            <ol style="color: #555; line-height: 1.8; margin: 10px 0; padding-left: 20px;">
+              <li>We'll confirm your order and process the payment</li>
+              <li>Your items will be carefully packed</li>
+              <li>You'll receive tracking information via email</li>
+              <li>Your order should arrive within 3 to 5 working days</li>
+            </ol>
+          </div>
+          
+          <p style="color: #555; text-align: center; margin: 30px 0;">
+            <a href="https://www.theclassicdecor.com" style="display: inline-block; background: #d4af37; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+              Track Your Order
+            </a>
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          
+          <p style="color: #999; font-size: 12px;">
+            Have questions about your order? Contact us at support@theclassicdecor.com or reply to this email.
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("[mailer] Order confirmation email sent to", email);
+    return true;
+  } catch (error) {
+    console.error(
+      "[mailer] Error sending order confirmation email:",
+      error.message,
+    );
+    return false;
+  }
+}
+
+function formatOrderStatus(status) {
+  const normalized = String(status || "pending")
+    .trim()
+    .toLowerCase();
+  switch (normalized) {
+    case "approved":
+      return "Approved";
+    case "cancelled":
+      return "Cancelled";
+    case "paid":
+      return "Paid";
+    case "completed":
+      return "Completed";
+    case "failed":
+      return "Failed";
+    case "shipped":
+      return "Shipped";
+    case "delivered":
+      return "Delivered";
+    case "pending":
+    default:
+      return "Pending";
+  }
+}
+
+async function sendOrderStatusUpdate(orderDetails) {
+  if (!transporter) {
+    console.log("[mailer] Email not sent: mailer not configured");
+    return false;
+  }
+
+  const { name, email, total, orderId, paymentStatus, previousStatus } =
+    orderDetails;
+
+  if (!email) {
+    console.log("[mailer] Email not sent: missing recipient email");
+    return false;
+  }
+
+  const friendlyStatus = formatOrderStatus(paymentStatus);
+  const friendlyPreviousStatus = previousStatus
+    ? formatOrderStatus(previousStatus)
+    : null;
+
+  let accentColor = "#d4af37";
+  let statusMessage = "Your order status has been updated.";
+  if (friendlyStatus === "Shipped") {
+    accentColor = "#1976d2";
+    statusMessage = "Your order is on the way.";
+  } else if (friendlyStatus === "Approved") {
+    accentColor = "#2e7d32";
+    statusMessage = "Your request has been approved by our team.";
+  } else if (friendlyStatus === "Cancelled") {
+    accentColor = "#6d4c41";
+    statusMessage = "Your order has been cancelled as requested.";
+  } else if (friendlyStatus === "Delivered") {
+    accentColor = "#2e7d32";
+    statusMessage = "Your order has been delivered.";
+  } else if (friendlyStatus === "Failed") {
+    accentColor = "#c62828";
+    statusMessage = "There was a problem processing your order status.";
+  } else if (friendlyStatus === "Completed" || friendlyStatus === "Paid") {
+    accentColor = "#388e3c";
+    statusMessage = "Your order has been confirmed successfully.";
+  }
+
+  const fromAddress = getFromAddress();
+  const mailOptions = {
+    from: fromAddress,
+    to: email,
+    subject: `Order Status Updated #${orderId || "N/A"} - ${friendlyStatus}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
+          <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
+        </div>
+
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <h2 style="color: #1a1a1a; margin-top: 0;">Order Status Update</h2>
+
+          <p style="color: #555; line-height: 1.6;">
+            Hi <strong>${name || "Customer"}</strong>,
+          </p>
+
+          <p style="color: #555; line-height: 1.6;">
+            ${statusMessage}
+          </p>
+
+          <div style="background: #fafafa; padding: 18px; border-radius: 8px; margin: 20px 0; border-left: 4px solid ${accentColor};">
+            <p style="margin: 8px 0; color: #555;"><strong>Order ID:</strong> #${orderId || "N/A"}</p>
+            ${friendlyPreviousStatus ? `<p style="margin: 8px 0; color: #555;"><strong>Previous Status:</strong> ${friendlyPreviousStatus}</p>` : ""}
+            <p style="margin: 8px 0; color: #555;"><strong>Current Status:</strong> <span style="color: ${accentColor}; font-weight: bold;">${friendlyStatus}</span></p>
+            <p style="margin: 8px 0; color: #555;"><strong>Order Total:</strong> PKR ${Number(total || 0).toLocaleString()}</p>
+          </div>
+
+          <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 20px 0;">
+            <p style="margin: 0; color: #555; line-height: 1.7;">
+              We will keep you informed as your order moves forward. If you have any questions, you can contact our support team at support@theclassicdecor.com.
+            </p>
+          </div>
+
+          <p style="color: #555; text-align: center; margin: 30px 0;">
+            <a href="https://www.theclassicdecor.com" style="display: inline-block; background: ${accentColor}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+              View Store
+            </a>
+          </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("[mailer] Order status update email sent to", email);
+    return true;
+  } catch (error) {
+    console.error(
+      "[mailer] Error sending order status update email:",
+      error.message,
+    );
+    return false;
+  }
+}
+
+async function sendPaymentConfirmation(orderDetails) {
+  if (!transporter) {
+    console.log("[mailer] Email not sent: mailer not configured");
+    return false;
+  }
+
+  const {
+    name,
+    email,
+    total,
+    subtotal,
+    shipping,
+    items,
+    orderId,
+    transactionId,
+  } = orderDetails;
+
+  if (!email) {
+    console.log("[mailer] Email not sent: missing recipient email");
+    return false;
+  }
+
+  let itemRows = "";
+  try {
+    if (Array.isArray(items)) {
+      itemRows = items
+        .map((item) => {
+          const itemName = item.name || item.productName || "Unknown Item";
+          const qty = item.quantity || item.qty || 1;
+          const price = item.price || item.productPrice || 0;
+          const total = qty * price;
+          return `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${itemName}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${qty}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${price.toLocaleString()}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">PKR ${total.toLocaleString()}</td>
+        </tr>
+      `;
+        })
+        .join("");
+    }
+  } catch (_) {
+    itemRows = `<tr><td colspan="4" style="padding: 10px; text-align: center;">See order details for items</td></tr>`;
+  }
+
+  const fromAddress = getFromAddress();
+  const mailOptions = {
+    from: fromAddress,
+    to: email,
+    subject: `Payment Confirmed #${orderId || "N/A"} - ${MAIL_BRAND_NAME}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h1 style="color: #d4af37; margin: 0;">${MAIL_BRAND_NAME}</h1>
+          <p style="color: #666; margin: 5px 0;">Premium Home Decor</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #4caf50; margin: 0; font-size: 32px;">✓ Payment Confirmed!</h2>
+          </div>
+          
+          <p style="color: #555; line-height: 1.6;">
+            Hi <strong>${name}</strong>,
+          </p>
+          
+          <p style="color: #555; line-height: 1.6;">
+            Great news! We've successfully received and verified your payment. Your order is now confirmed and will be processed immediately.
+          </p>
+          
+          <div style="background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50;">
+            <h3 style="color: #2e7d32; margin-top: 0;">Payment Verified ✓</h3>
+            <p style="margin: 8px 0; color: #555;">
+              <strong>Order ID:</strong> #${orderId || "N/A"}
+            </p>
+            <p style="margin: 8px 0; color: #555;">
+              <strong>Transaction ID:</strong> ${transactionId || "N/A"}
+            </p>
+            <p style="margin: 8px 0; color: #555;">
+              <strong>Amount Paid:</strong> <span style="font-size: 20px; color: #4caf50; font-weight: bold;">PKR ${Number(total || 0).toLocaleString()}</span>
+            </p>
+          </div>
+          
+          <h3 style="color: #1a1a1a; border-bottom: 2px solid #d4af37; padding-bottom: 10px;">Order Details</h3>
+          <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+            <thead>
+              <tr style="background: #f5f5f5; border-bottom: 2px solid #d4af37;">
+                <th style="padding: 10px; text-align: left; color: #333; font-weight: bold;">Item</th>
+                <th style="padding: 10px; text-align: center; color: #333; font-weight: bold;">Qty</th>
+                <th style="padding: 10px; text-align: right; color: #333; font-weight: bold;">Price</th>
+                <th style="padding: 10px; text-align: right; color: #333; font-weight: bold;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemRows}
+            </tbody>
+          </table>
+
+          <div style="margin: 20px 0; padding: 16px; background: #fafafa; border-radius: 6px; border: 1px solid #eee;">
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Subtotal:</strong> PKR ${Number(subtotal || 0).toLocaleString()}</p>
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Shipping:</strong> PKR ${Number(shipping || 0).toLocaleString()}</p>
+            <p style="margin: 6px 0; color: #555; text-align: right;"><strong>Grand Total:</strong> PKR ${Number(total || 0).toLocaleString()}</p>
+          </div>
+          
+          <div style="background: #e3f2fd; padding: 15px; border-radius: 6px; margin: 20px 0; border-left: 4px solid #2196f3;">
+            <h4 style="color: #1565c0; margin-top: 0;">What happens next?</h4>
+            <ol style="color: #555; line-height: 1.8; margin: 10px 0; padding-left: 20px;">
+              <li>Your items will be carefully packed by our team</li>
+              <li>Tracking information will be sent to this email</li>
+              <li>Your order will be delivered within 2-5 business days</li>
+              <li>Thank you for shopping with ${MAIL_BRAND_NAME}! 🏡</li>
+            </ol>
+          </div>
+          
+          <p style="color: #555; text-align: center; margin: 30px 0;">
+            <a href="https://www.theclassicdecor.com" style="display: inline-block; background: #4caf50; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold;">
+              Track Your Order
+            </a>
+          </p>
+          
+          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+          
+          <p style="color: #999; font-size: 12px;">
+            If you have any questions about your payment or order, please contact us at support@theclassicdecor.com
+          </p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px; color: #999; font-size: 12px;">
+          <p>© 2026 ${MAIL_BRAND_NAME}. All rights reserved.</p>
+        </div>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("[mailer] Payment confirmation email sent to", email);
+    return true;
+  } catch (error) {
+    console.error(
+      "[mailer] Error sending payment confirmation email:",
+      error.message,
+    );
+    return false;
+  }
+}
+
+module.exports = {
+  sendWelcomeEmail,
+  sendOrderConfirmation,
+  sendOrderStatusUpdate,
+  sendPaymentConfirmation,
+};

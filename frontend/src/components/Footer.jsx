@@ -1,0 +1,108 @@
+import { Link } from "react-router-dom";
+
+export default function Footer() {
+  return (
+    <footer>
+      <div className="footer-container">
+        <div className="footer-column">
+          <Link to="/#home-hero" className="footer-logo" aria-label="Go to home hero section">
+            <img src="/brandlogo.png" alt="The Classic Decor Logo" className="footer-logo-img" />
+            <span className="footer-logo-text"></span>
+          </Link>
+          <p>
+            Your trusted destination for premium acrylic home décor. Explore
+            modern wall art, elegant mirrors, clocks, and customized designs
+            crafted to elevate your living space with style.
+          </p>
+        </div>
+        <div className="footer-column">
+          <h3>Customer Service</h3>
+          <ul>
+            <li><a href="/custom-design">Order Your Custom Design</a></li>
+            <li><a href="/about">About Us</a></li>
+            {/* <li><a href="/contact">Contact Us</a></li> */}
+            <li><a href="/shipping-returns">Shipping & Returns</a></li>
+            <li><a href="/faq">FAQ</a></li>
+          </ul>
+        </div>
+        <div className="footer-column">
+          <h3>Legal</h3>
+          <ul>
+            <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div className="footer-column">
+          <h3>Contact Information</h3>
+          <ul>
+            <li><a href="mailto:support@theclassicdecor.com">support@theclassicdecor.com</a></li>
+            <li><a href="tel:+923103395111">+923717014445</a></li>
+          </ul>
+          <p>Maverick Engineers Innovista Rachna DHA Gujranwala Pakistan</p>
+        </div>
+        <div className="footer-column">
+          <h3>Stay Connected</h3>
+          <div className="social-media">
+            <a 
+              href="https://www.facebook.com/people/The-Classic-Decor/61585245614907/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Follow us on Facebook"
+              aria-label="Facebook"
+            >
+              <i className="fab fa-facebook-f"></i>
+            </a>
+            <a 
+              href="https://www.instagram.com/theclassicdecorofficial/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Follow us on Instagram"
+              aria-label="Instagram"
+            >
+              <i className="fab fa-instagram"></i>
+            </a>
+            <a 
+              href="https://www.tiktok.com/@theclassicdecorofficial?lang=en" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Follow us on TikTok"
+              aria-label="TikTok"
+            >
+              <i className="fab fa-tiktok"></i>
+            </a>
+            <a 
+              href="https://www.youtube.com/@TheClassicDecor" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Subscribe on YouTube"
+              aria-label="YouTube"
+            >
+              <i className="fab fa-youtube"></i>
+            </a>
+            {/* <a 
+              href="https://www.linkedin.com/company/theclassicdecor/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              title="Connect on LinkedIn"
+              aria-label="LinkedIn"
+            >
+              <i className="fab fa-linkedin-in"></i>
+            </a> */}
+            <a 
+              href="https://www.google.com/maps/search/Plot%233,+Behind+Climax+Garden+Masijid,+Near+Jinnah+Flyour,+G.T+Road,+Gujranwala,+Pakistan/@32.2796808,74.1343503,13z?entry=ttu&g_ep=EgoyMDI2MDIyNC4wIKXMDSoASAFQAw%3D%3D"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="Visit Our Office"
+              aria-label="Office Address"
+            >
+              <i className="fas fa-map-marker-alt"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="footer-bottom">
+        <p>&copy; 2026 The Classic Decor. All Rights Reserved.</p>
+      </div>
+    </footer>
+  );
+}

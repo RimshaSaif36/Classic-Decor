@@ -1,0 +1,51 @@
+[
+  {
+    "id": 1766127276996,
+    "productId": "2000000004005",
+    "rating": 3,
+    "title": "Excellent Experience",
+    "comment": "Smooth process, great quality, and very professional service.",
+    "name": "Saba",
+    "userId": null,
+    "status": "approved",
+    "createdAt": "2025-12-19T06:54:36.996Z",
+    "approvedAt": "2025-12-19T06:54:36.996Z"
+  },
+  {
+    "id": 1766129716954,
+    "productId": "1765532633813",
+    "rating": 4,
+    "title": "Elegant & Professional",
+    "comment": "The desk name plate looks premium and perfectly finished.",
+    "name": "Ali",
+    "userId": null,
+    "status": "approved",
+    "createdAt": "2025-12-19T07:35:16.954Z",
+    "approvedAt": "2025-12-19T07:35:16.954Z"
+  },
+  {
+    "id": 1766130937130,
+    "productId": "2000000000003",
+    "rating": 5,
+    "title": "Beautiful & Spiritual",
+    "comment": "The calligraphy is stunning and brings a peaceful feel to the space.",
+    "name": "Zulkarnain",
+    "userId": null,
+    "status": "approved",
+    "createdAt": "2025-12-19T07:55:37.130Z",
+    "approvedAt": "2025-12-19T07:55:37.130Z"
+  },
+  {
+    "id": 1766131039125,
+    "productId": "2000000007005",
+    "rating": 5,
+    "title": "Lovely Decorative Piece",
+    "comment": "The acrylic quality is premium and the design is eye-catching.",
+    "name": "Zubair",
+    "userId": null,
+    "status": "approved",
+    "createdAt": "2025-12-19T07:57:19.125Z",
+    "approvedAt": "2025-12-19T07:57:19.125Z"
+  }
+  
+]
