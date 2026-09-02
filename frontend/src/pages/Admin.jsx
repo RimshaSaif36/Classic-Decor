@@ -223,6 +223,8 @@ export default function Admin() {
   const [announcement, setAnnouncement] = useState({
     enabled: true,
     text: '',
+    // multiline editor: one message per line
+    messagesText: '',
     link: '',
     bgColor: '#1a1a1a',
     textColor: '#ffffff',
@@ -361,9 +363,12 @@ export default function Admin() {
       const res = await fetch(`${API_BASE}/api/settings/announcement`);
       if (res.ok) {
         const data = await res.json();
+        // Normalize messages: prefer array `messages`, otherwise fall back to `text`.
+        const messagesArray = Array.isArray(data.messages) && data.messages.length > 0 ? data.messages : (data.text ? [data.text] : []);
         setAnnouncement({
           enabled: Boolean(data.enabled),
-          text: data.text || '',
+          text: data.text || (messagesArray[0] || ''),
+          messagesText: messagesArray.join('\n'),
           link: data.link || '',
           bgColor: data.bgColor || '#1a1a1a',
           textColor: data.textColor || '#ffffff',
@@ -380,9 +385,21 @@ export default function Admin() {
     setAnnouncementSaving(true);
     setAnnouncementMsg({ type: '', text: '' });
     try {
+      // Convert messagesText (multiline) into messages array for API
+      const payload = { ...announcement };
+      try {
+        const lines = (announcement.messagesText || '')
+          .split(/\r?\n/)
+          .map(l => l.trim())
+          .filter(Boolean);
+        payload.messages = lines.length ? lines : (announcement.text ? [announcement.text] : []);
+      } catch {
+        payload.messages = announcement.text ? [announcement.text] : [];
+      }
+
       const data = await api('/api/settings/announcement', {
         method: 'PUT',
-        body: JSON.stringify(announcement),
+        body: JSON.stringify(payload),
       });
       if (data && data.announcement) {
         setAnnouncement(data.announcement);
@@ -1820,6 +1837,31 @@ export default function Admin() {
                         />
                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
                           Add a URL or route (e.g. /shop) if you want visitors to click the banner.
+                        </span>
+                      </div>
+
+                      {/* MESSAGES (multiple lines) */}
+                      <div>
+                        <label style={{ display: 'block', fontWeight: '600', marginBottom: '6px', color: '#334155' }}>
+                          Announcement Messages (one per line)
+                        </label>
+                        <textarea
+                          rows={3}
+                          placeholder={"Enter each announcement on a new line, e.g.\nFree delivery over PKR 3,000\nNew arrivals this week"}
+                          value={announcement.messagesText}
+                          onChange={(e) => setAnnouncement((prev) => ({ ...prev, messagesText: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            border: '1px solid #cbd5e1',
+                            fontSize: '0.95rem',
+                            resize: 'vertical',
+                            boxSizing: 'border-box',
+                          }}
+                        />
+                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+                          Each line will be shown as a separate message in the scrolling announcement.
                         </span>
                       </div>
 

@@ -14,6 +14,8 @@ try {
 const DEFAULT_ANNOUNCEMENT = {
   enabled: true,
   text: "🎉 Free Delivery Nationwide on orders over PKR 3,000! Limited Time Offer",
+  // new: support multiple messages (array). Keep `text` for backward compatibility.
+  messages: ["🎉 Free Delivery Nationwide on orders over PKR 3,000! Limited Time Offer"],
   link: "/shop",
   bgColor: "#1a1a1a",
   textColor: "#ffffff",
@@ -65,7 +67,7 @@ router.get("/announcement", async (req, res) => {
 // PUT /api/settings/announcement (Admin only)
 router.put("/announcement", requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { enabled, text, link, bgColor, textColor, scroll } = req.body || {};
+    const { enabled, text, messages, link, bgColor, textColor, scroll } = req.body || {};
 
     const parseBool = (v) => {
       if (typeof v === 'boolean') return v;
@@ -73,9 +75,21 @@ router.put("/announcement", requireAuth, requireAdmin, async (req, res) => {
       return Boolean(v);
     };
 
+    // Normalize messages: prefer `messages` array; fall back to `text` string
+    let normalizedMessages = [];
+    if (Array.isArray(messages)) {
+      normalizedMessages = messages.map((m) => (typeof m === 'string' ? m.trim() : '')).filter(Boolean);
+    } else if (typeof messages === 'string' && messages.trim()) {
+      // allow newline separated input
+      normalizedMessages = messages.split(/\r?\n/).map((m) => m.trim()).filter(Boolean);
+    } else if (typeof text === 'string' && text.trim()) {
+      normalizedMessages = [text.trim()];
+    }
+
     const announcementData = {
       enabled: enabled !== undefined ? parseBool(enabled) : true,
-      text: typeof text === "string" ? text.trim() : "",
+      text: normalizedMessages.length > 0 ? normalizedMessages[0] : (typeof text === 'string' ? text.trim() : ''),
+      messages: normalizedMessages,
       link: typeof link === "string" ? link.trim() : "",
       bgColor: typeof bgColor === "string" && bgColor.trim() ? bgColor.trim() : "#1a1a1a",
       textColor: typeof textColor === "string" && textColor.trim() ? textColor.trim() : "#ffffff",
