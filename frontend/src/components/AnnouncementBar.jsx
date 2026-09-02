@@ -15,15 +15,25 @@ export default function AnnouncementBar() {
 
   const fetchAnnouncement = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/settings/announcement`);
+      const url = `${API_BASE}/api/settings/announcement`;
+      console.log('[AnnouncementBar] fetching announcement from:', url);
+      const res = await fetch(url);
       if (res.ok) {
         const json = await res.json();
+        console.log('[AnnouncementBar] announcement response JSON:', json);
         setData({
           enabled: Boolean(json.enabled),
           text: json.text || '',
           link: json.link || '',
           bgColor: json.bgColor || '#1a1a1a',
           textColor: json.textColor || '#ffffff',
+          // include messages from server so render uses them (avoid falling back to local hardcoded messages)
+          messages: Array.isArray(json.messages) && json.messages.length > 0 ? json.messages : undefined,
+        });
+        console.log('[AnnouncementBar] state set to:', {
+          enabled: Boolean(json.enabled),
+          text: json.text || '',
+          messages: json.messages || undefined,
         });
       }
     } catch {
@@ -38,12 +48,14 @@ export default function AnnouncementBar() {
 
     const handleUpdate = (e) => {
       if (e && e.detail) {
+        console.log('[AnnouncementBar] announcement-updated event detail:', e.detail);
         setData({
           enabled: Boolean(e.detail.enabled),
           text: e.detail.text || '',
           link: e.detail.link || '',
           bgColor: e.detail.bgColor || '#1a1a1a',
           textColor: e.detail.textColor || '#ffffff',
+          messages: e.detail.messages || undefined,
         });
         setClosed(false);
       } else {
@@ -51,9 +63,17 @@ export default function AnnouncementBar() {
       }
     };
 
+    // Listen for announcement-updated events (same-tab admin save)
     window.addEventListener('announcement-updated', handleUpdate);
+    // Also refetch when the window/tab gains focus (covers cross-tab updates)
+    window.addEventListener('focus', fetchAnnouncement);
+    // Also refetch on storage changes (if another tab writes a key)
+    window.addEventListener('storage', fetchAnnouncement);
+
     return () => {
       window.removeEventListener('announcement-updated', handleUpdate);
+      window.removeEventListener('focus', fetchAnnouncement);
+      window.removeEventListener('storage', fetchAnnouncement);
     };
   }, []);
 
@@ -61,16 +81,16 @@ export default function AnnouncementBar() {
     return null;
   }
 
-  // Minimal local messages array (RIGHT->LEFT marquee). Use fetched `data.text` as first message if available,
-  // then append a couple of local messages. This keeps changes local to this file only.
+  // Use server-provided messages when available; otherwise use a small local set.
   const base = data.text && data.text.trim() ? data.text.trim() : 'EXCLUSIVE OFFERS UP TO 47% OFF';
-  const messages = [
+  const localMessages = [
     base,
     'FREE DELIVERY on orders over PKR 3,000',
     'NEW ARRIVALS — Shop the latest collection',
     'LIMITED TIME: 10% OFF SITEWIDE',
-    'SHOP NOW — Easy Returns & Secure Payment',
   ];
+  const messages = Array.isArray(data.messages) && data.messages.length > 0 ? data.messages : localMessages;
+  console.log('[AnnouncementBar] messages used for render:', messages);
 
   const isInternalLink = data.link && (data.link.startsWith('/') || data.link.startsWith('#'));
 

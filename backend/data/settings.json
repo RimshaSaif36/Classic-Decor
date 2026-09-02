@@ -1,12 +1,13 @@
 {
   "announcement": {
     "enabled": true,
-    "text": "Need help contact on whatsapp,",
+    "text": "SALE ALERT! Get Flat 40% OFF Today,",
     "messages": [
-      "Need help contact on whatsapp,",
-      "upto 50% off"
+      "SALE ALERT! Get Flat 40% OFF Today,",
+      "Meet Us at Pakistan Lifestyle Furniture Expo — Gujranwala!  ,",
+      "Visit Our Stall at Executive Marquee, Gujranwala — 4th–6th September!"
     ],
-    "link": "/shop",
+    "link": "",
     "bgColor": "#D4A51C",
     "textColor": "#ffffff",
     "scroll": false
