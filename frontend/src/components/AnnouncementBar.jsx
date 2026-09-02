@@ -61,21 +61,22 @@ export default function AnnouncementBar() {
     return null;
   }
 
-  // Support multiple messages; fall back to single text for backward compatibility
-  const messages = Array.isArray(data.messages) && data.messages.length > 0
-    ? data.messages
-    : (data.text ? [data.text] : []);
+  // Minimal local messages array (RIGHT->LEFT marquee). Use fetched `data.text` as first message if available,
+  // then append a couple of local messages. This keeps changes local to this file only.
+  const base = data.text && data.text.trim() ? data.text.trim() : 'EXCLUSIVE OFFERS UP TO 47% OFF';
+  const messages = [
+    base,
+    'FREE DELIVERY on orders over PKR 3,000',
+    'NEW ARRIVALS — Shop the latest collection',
+    'LIMITED TIME: 10% OFF SITEWIDE',
+    'SHOP NOW — Easy Returns & Secure Payment',
+  ];
 
   const isInternalLink = data.link && (data.link.startsWith('/') || data.link.startsWith('#'));
 
   const contentForText = (text) => (
     <span className="announcement-text" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
       <span>{text}</span>
-      {data.link && (
-        <span className="announcement-cta">
-          <i className="fa-solid fa-arrow-right-long announcement-arrow"></i>
-        </span>
-      )}
     </span>
   );
 
@@ -89,30 +90,32 @@ export default function AnnouncementBar() {
       aria-label="Store Announcement"
     >
       <div className="announcement-container">
-        {data.scroll && messages.length > 0 ? (
+        {messages.length > 0 ? (
           // Smooth CSS marquee: duplicate the messages so animation can loop seamlessly
           <div style={{ width: '100%', overflow: 'hidden' }}>
             <style>{`
-              .cd-announcement-marquee-track { display: flex; gap: 48px; align-items: center; }
               .cd-announcement-marquee { overflow: hidden; width: 100%; }
-              @keyframes cd-marquee { from { transform: translateX(0%);} to { transform: translateX(-50%);} }
+              .cd-announcement-marquee-track { display: flex; align-items: center; }
+              @keyframes cd-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
             `}</style>
             <div className="cd-announcement-marquee" aria-hidden="false">
               <div
-                className="cd-announcement-marquee-track"
-                style={{
-                  color: data.textColor || '#ffffff',
-                  animation: `cd-marquee ${Math.max(12, messages.join(' ').length / 8 * 6)}s linear infinite`,
-                  whiteSpace: 'nowrap',
-                }}
-              >
+                  className="cd-announcement-marquee-track"
+                  style={{
+                    color: data.textColor || '#ffffff',
+                      // Fixed duration for visible smooth motion (right -> left). Adjust if needed.
+                      animation: `cd-marquee 22s linear infinite`,
+                    whiteSpace: 'nowrap',
+                    // force items to be on a single line
+                  }}
+                >
                 {/* Render messages twice for seamless loop */}
-                {messages.map((m, i) => (
-                  <div key={`m1-${i}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>{contentForText(m)}</div>
-                ))}
-                {messages.map((m, i) => (
-                  <div key={`m2-${i}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>{contentForText(m)}</div>
-                ))}
+                  {messages.map((m, i) => (
+                    <div key={`m1-${i}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginRight: 80 }}>{contentForText(m)}</div>
+                  ))}
+                  {messages.map((m, i) => (
+                    <div key={`m2-${i}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 12, marginRight: 80 }}>{contentForText(m)}</div>
+                  ))}
               </div>
             </div>
           </div>

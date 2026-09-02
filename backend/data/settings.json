@@ -1,0 +1,14 @@
+{
+  "announcement": {
+    "enabled": true,
+    "text": "Need help contact on whatsapp,",
+    "messages": [
+      "Need help contact on whatsapp,",
+      "upto 50% off"
+    ],
+    "link": "/shop",
+    "bgColor": "#D4A51C",
+    "textColor": "#ffffff",
+    "scroll": false
+  }
+}

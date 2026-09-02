@@ -23,26 +23,30 @@ export default function ShippingReturns() {
             </ul>
           </section>
 
-          <section className="policy-section">
-            <h2>Return Policy</h2>
-            <p>
-              We want you to be completely satisfied with your purchase. If you need to return an item, please follow these guidelines:
-            </p>
-            <ul>
-              <li><strong>Return Window:</strong> Items can be returned within 14 days of delivery</li>
-              <li><strong>Condition:</strong> Items must be in original condition with packaging intact</li>
-              <li><strong>Process:</strong> Contact our customer service team to initiate a return</li>
-              <li><strong>Refund:</strong> Refunds are processed within 7-10 business days after we receive the item</li>
-              <li><strong>Return Shipping:</strong> Return shipping costs are the customer's responsibility unless the item is defective</li>
-            </ul>
-          </section>
+          
+          
+<section className="policy-section">
+  <h2>Return Policy</h2>
+  <p>
+    We accept returns only for genuine issues with your order. Please contact our support team within 7 days of delivery:
+  </p>
+  <ul>
+    <li><strong>Accepted:</strong> Wrong, damaged, defective, or incorrectly sized products</li>
+    <li><strong>Not Accepted:</strong> Change of mind, colour preference, normal wear, or damage after delivery</li>
+    <li><strong>Process:</strong> Contact support with your order number, item name, and clear photo or video of the issue</li>
+    <li><strong>Verification:</strong> Our team will verify the issue and may request additional details</li>
+    <li><strong>Resolution:</strong> Approved returns or replacements will receive instructions via email or WhatsApp</li>
+  </ul>
+</section>
 
-          <section className="policy-section">
+
+
+          {/* <section className="policy-section">
             <h2>Defective Items</h2>
             <p>
               If you receive a defective item, we'll replace it at no cost. Please contact us immediately with photos of the damage.
             </p>
-          </section>
+          </section> */}
 
           <section className="policy-section">
             <h2>Contact Us</h2>

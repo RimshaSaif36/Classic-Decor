@@ -27,10 +27,10 @@ export default function FAQ() {
       question: "Do you ship internationally?",
       answer: "Currently, we ship within Pakistan. We're working on expanding our international shipping options. Follow us on social media for updates."
     },
-    {
-      question: "What payment methods do you accept?",
-      answer: "We accept multiple payment methods including credit/debit cards, bank transfers, and mobile payment solutions for your convenience."
-    },
+    // {
+    //   question: "What payment methods do you accept?",
+    //   answer: "We accept multiple payment methods including credit/debit cards, bank transfers, and mobile payment solutions for your convenience."
+    // },
     {
       question: "How can I track my order?",
       answer: "Once your order ships, you'll receive an email with a tracking number. You can use this number to track your package with the courier."

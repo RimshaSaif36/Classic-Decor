@@ -20,17 +20,40 @@ export default function Footer() {
           <ul>
             <li><a href="/custom-design">Order Your Custom Design</a></li>
             <li><a href="/about">About Us</a></li>
+             <li><a href="/terms">Terms of Service</a></li>
+            <li><a href="/privacy">Privacy Policy</a></li>
             {/* <li><a href="/contact">Contact Us</a></li> */}
             <li><a href="/shipping-returns">Shipping & Returns</a></li>
             <li><a href="/faq">FAQ</a></li>
           </ul>
         </div>
         <div className="footer-column">
-          <h3>Legal</h3>
-          <ul>
-            <li><a href="/terms">Terms of Service</a></li>
-            <li><a href="/privacy">Privacy Policy</a></li>
+          <h3>Location</h3>
+
+          <ul className="footer-locations" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <li style={{ marginBottom: '18px' }}>
+              <div style={{ fontSize: '0.92rem', color: '#cfcfcf', lineHeight: 1.35 }}>
+                <div style={{ fontWeight: 400, marginBottom: 6 }}>Head Office:</div>
+                <div>House # 230, Block-C, Ghulshan,</div>
+                <div>Ravi, Lahore, Pakistan</div>
+              </div>
+            </li>
+            <li style={{ marginBottom: '18px' }}>
+              <div style={{ fontSize: '0.92rem', color: '#cfcfcf', lineHeight: 1.35 }}>
+                <div style={{ fontWeight: 400, marginBottom: 6 }}>Corporate Office:</div>
+                <div>Plot # 3, Climax Garden, Near Allena Hotel</div>
+                <div>GT Road, Gujranwala, Pakistan</div>
+              </div>
+            </li>
+            <li style={{ marginBottom: 0 }}>
+              <div style={{ fontSize: '0.92rem', color: '#cfcfcf', lineHeight: 1.35 }}>
+                <div style={{ fontWeight: 400, marginBottom: 6 }}>Production Office:</div>
+                <div>Rana Market, Railway Road</div>
+                <div>Sillanwali, Sargodha, Pakistan</div>
+              </div>
+            </li>
           </ul>
+
         </div>
         <div className="footer-column">
           <h3>Contact Information</h3>
@@ -38,7 +61,7 @@ export default function Footer() {
             <li><a href="mailto:support@theclassicdecor.com">support@theclassicdecor.com</a></li>
             <li><a href="tel:+923103395111">+923717014445</a></li>
           </ul>
-          <p>Maverick Engineers Innovista Rachna DHA Gujranwala Pakistan</p>
+          {/* <p>Maverick Engineers Innovista Rachna DHA Gujranwala Pakistan</p> */}
         </div>
         <div className="footer-column">
           <h3>Stay Connected</h3>

@@ -79,7 +79,7 @@ export default function PrivacyPolicy() {
             </p>
             <p>
               <strong>By email:</strong> support@theclassicdecor.com<br />
-              <strong>By phone:</strong> 03110721400
+              <strong>By phone:</strong> +923717014445
             </p>
           </section>
         </div>
