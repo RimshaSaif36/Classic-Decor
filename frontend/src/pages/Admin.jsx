@@ -230,6 +230,11 @@ export default function Admin() {
     textColor: '#ffffff',
     scroll: false,
   });
+  const [hero, setHero] = useState({
+    image: '',
+    heading: '',
+    subtitle: '',
+  });
   const [announcementSaving, setAnnouncementSaving] = useState(false);
   const [announcementMsg, setAnnouncementMsg] = useState({ type: '', text: '' });
 
@@ -380,6 +385,22 @@ export default function Admin() {
     }
   }
 
+  async function loadHero() {
+    try {
+      const res = await fetch(`${API_BASE}/api/settings/hero`);
+      if (res.ok) {
+        const data = await res.json();
+        setHero({
+          image: data.image || '',
+          heading: data.heading || '',
+          subtitle: data.subtitle || '',
+        });
+      }
+    } catch (err) {
+      console.error('Failed to load hero settings:', err);
+    }
+  }
+
   async function handleSaveAnnouncement(e) {
     if (e) e.preventDefault();
     setAnnouncementSaving(true);
@@ -414,6 +435,40 @@ export default function Admin() {
     }
   }
 
+  async function handleUploadHeroImage(file) {
+    if (!file) return null;
+    const fd = new FormData();
+    fd.append('image', file);
+    try {
+      const r = await fetch(API_BASE + '/api/upload', { method: 'POST', body: fd });
+      const result = await r.json();
+      if (result && result.url) return result.url;
+    } catch (err) {
+      console.error('Hero image upload failed:', err);
+    }
+    return null;
+  }
+
+  async function handleSaveHero(e) {
+    if (e) e.preventDefault();
+    try {
+      const payload = {
+        image: hero.image,
+        heading: hero.heading,
+        subtitle: hero.subtitle,
+      };
+      const data = await api('/api/settings/hero', { method: 'PUT', body: JSON.stringify(payload) });
+      if (data && data.hero) {
+        setHero(data.hero);
+      }
+      setAnnouncementMsg({ type: 'success', text: 'Hero settings updated' });
+      setTimeout(() => setAnnouncementMsg({ type: '', text: '' }), 3000);
+    } catch (err) {
+      setAnnouncementMsg({ type: 'error', text: err.message || 'Failed to update hero settings.' });
+      setTimeout(() => setAnnouncementMsg({ type: '', text: '' }), 4000);
+    }
+  }
+
   useEffect(() => {
     if (auth.token && auth.user && auth.user.role === 'admin') {
       load();
@@ -422,6 +477,7 @@ export default function Admin() {
       loadUsers();
       loadReport();
       loadAnnouncement();
+      loadHero();
     }
   }, [auth.token, auth.user]);
 
@@ -1863,6 +1919,43 @@ export default function Admin() {
                         <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
                           Each line will be shown as a separate message in the scrolling announcement.
                         </span>
+                      </div>
+
+                      {/* HERO SETTINGS */}
+                      <div style={{ marginTop: '18px', padding: '12px', borderRadius: 8, border: '1px solid #e6edf3', background: '#fff' }}>
+                        <h4 style={{ margin: 0, marginBottom: 8 }}>Home Page Hero</h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '160px 1fr', gap: '12px', alignItems: 'start' }}>
+                          <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Hero Image</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                              {hero.image ? (
+                                <img src={hero.image} alt="Hero preview" style={{ width: '160px', height: '100px', objectFit: 'cover', borderRadius: 6 }} />
+                              ) : (
+                                <div style={{ width: '160px', height: '100px', background: '#f3f4f6', borderRadius: 6 }} />
+                              )}
+                              <label className="custom-upload-button admin-btn upload" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={async (e) => {
+                                  const f = e.target.files && e.target.files[0];
+                                  if (!f) return;
+                                  const url = await handleUploadHeroImage(f);
+                                  if (url) setHero(prev => ({ ...prev, image: url }));
+                                }} />
+                                Upload image
+                              </label>
+                            </div>
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontWeight: 600, marginBottom: 6 }}>Heading</label>
+                            <input type="text" value={hero.heading} onChange={(e) => setHero(prev => ({ ...prev, heading: e.target.value }))} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1' }} />
+                            <label style={{ display: 'block', fontWeight: 600, marginTop: 8, marginBottom: 6 }}>Subtitle</label>
+                            <textarea rows={2} value={hero.subtitle} onChange={(e) => setHero(prev => ({ ...prev, subtitle: e.target.value }))} style={{ width: '100%', padding: '8px 10px', borderRadius: 6, border: '1px solid #cbd5e1' }} />
+                            <div style={{ marginTop: 10 }}>
+                              <button className="admin-btn" onClick={handleSaveHero} disabled={announcementSaving}>
+                                Save Hero
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                         {/* SCROLL / MARQUEE OPTION */}

@@ -11,5 +11,10 @@
     "bgColor": "#D4A51C",
     "textColor": "#ffffff",
     "scroll": false
+  },
+  "hero": {
+    "image": "/images/1788349380721-z7.png",
+    "heading": ".",
+    "subtitle": "."
   }
 }

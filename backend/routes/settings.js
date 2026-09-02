@@ -23,6 +23,85 @@ const DEFAULT_ANNOUNCEMENT = {
   scroll: false,
 };
 
+const DEFAULT_HERO = {
+  image: '',
+  heading: 'Bring Art & Elegance to Every Corner',
+  subtitle: 'Modern. Elegant. Handcrafted for your space.',
+};
+
+// GET /api/settings/hero (Public)
+router.get('/hero', async (req, res) => {
+  try {
+    if (SettingModel && req.app.locals.dbConnected) {
+      const doc = await SettingModel.findOne({ key: 'hero' }).lean();
+      if (doc && doc.value) {
+        return res.json({ ...DEFAULT_HERO, ...doc.value });
+      }
+    }
+
+    try {
+      const settings = read('settings');
+      if (settings && typeof settings === 'object' && !Array.isArray(settings) && settings.hero) {
+        return res.json({ ...DEFAULT_HERO, ...settings.hero });
+      } else if (Array.isArray(settings)) {
+        const item = settings.find((s) => s && s.key === 'hero');
+        if (item && item.value) {
+          return res.json({ ...DEFAULT_HERO, ...item.value });
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    return res.json(DEFAULT_HERO);
+  } catch (err) {
+    console.error('[settings] error fetching hero:', err);
+    return res.json(DEFAULT_HERO);
+  }
+});
+
+// PUT /api/settings/hero (Admin only)
+router.put('/hero', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { image, heading, subtitle } = req.body || {};
+
+    const heroData = {
+      image: typeof image === 'string' ? image.trim() : '',
+      heading: typeof heading === 'string' ? heading.trim() : DEFAULT_HERO.heading,
+      subtitle: typeof subtitle === 'string' ? subtitle.trim() : DEFAULT_HERO.subtitle,
+    };
+
+    if (SettingModel && req.app.locals.dbConnected) {
+      await SettingModel.findOneAndUpdate(
+        { key: 'hero' },
+        { key: 'hero', value: heroData, updatedAt: new Date() },
+        { upsert: true, new: true }
+      );
+    }
+
+    try {
+      let currentSettings = {};
+      try {
+        const raw = read('settings');
+        if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+          currentSettings = raw;
+        }
+      } catch {
+        currentSettings = {};
+      }
+      currentSettings.hero = heroData;
+      write('settings', currentSettings);
+    } catch (e) {
+      console.error('[settings] file write error (hero):', e);
+    }
+
+    return res.json({ success: true, hero: heroData });
+  } catch (err) {
+    console.error('[settings] update hero error:', err);
+    return res.status(500).json({ error: 'Failed to update hero settings' });
+  }
+});
+
 // GET /api/settings/announcement (Public)
 router.get("/announcement", async (req, res) => {
   try {

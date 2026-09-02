@@ -7,6 +7,7 @@ import { pushGtmEcommerceEvent } from "../lib/gtm";
 import { addProductToCart, getEffectivePrice, imgUrl } from "../lib/utils";
 
 export default function Home() {
+  const [hero, setHero] = useState({ image: '', heading: '', subtitle: '' });
   const [latest, setLatest] = useState([]);
   const [products, setProducts] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
@@ -17,6 +18,16 @@ export default function Home() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
+      // Load hero settings
+      try {
+        const h = await fetch(API_BASE + "/api/settings/hero");
+        if (h.ok) {
+          const hv = await h.json();
+          if (!cancelled) setHero({ image: hv.image || '', heading: hv.heading || '', subtitle: hv.subtitle || '' });
+        }
+      } catch (e) {
+        console.error('Failed to load hero settings:', e);
+      }
       try {
         // Request only approved reviews from the API when possible
         const r = await fetch(API_BASE + "/api/reviews?onlyApproved=true");
@@ -119,16 +130,15 @@ export default function Home() {
     <div className="home-page">
       <Header />
       <main>
-        <section className="hero" id="home-hero">
+        <section className="hero" id="home-hero" style={{
+          backgroundImage: hero.image ? `url(${imgUrl(hero.image)})` : undefined,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center'
+        }}>
           <div className="hero-overlay">
             <div className="hero-content">
-              <h1 className="typewriter">
-                Bring Art & Elegance to Every Corner
-              </h1>
-              <p>Modern. Elegant. Handcrafted for your space.</p>
-              <Link to="/shop" className="shop-btn">
-                Shop Now
-              </Link>
+              <h1 className="typewriter">{hero.heading || 'Bring Art & Elegance to Every Corner'}</h1>
+              <p>{hero.subtitle || 'Modern. Elegant. Handcrafted for your space.'}</p>
             </div>
           </div>
         </section>
