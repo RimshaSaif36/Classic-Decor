@@ -226,6 +226,7 @@ export default function Admin() {
     link: '',
     bgColor: '#1a1a1a',
     textColor: '#ffffff',
+    scroll: false,
   });
   const [announcementSaving, setAnnouncementSaving] = useState(false);
   const [announcementMsg, setAnnouncementMsg] = useState({ type: '', text: '' });
@@ -366,6 +367,7 @@ export default function Admin() {
           link: data.link || '',
           bgColor: data.bgColor || '#1a1a1a',
           textColor: data.textColor || '#ffffff',
+          scroll: data.scroll || false,
         });
       }
     } catch (err) {
@@ -1820,6 +1822,23 @@ export default function Admin() {
                           Add a URL or route (e.g. /shop) if you want visitors to click the banner.
                         </span>
                       </div>
+
+                        {/* SCROLL / MARQUEE OPTION */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e6edf3', background: '#fff' }}>
+                          <input
+                            type="checkbox"
+                            id="announcement-scroll-check"
+                            checked={announcement.scroll}
+                            onChange={(e) => setAnnouncement((prev) => ({ ...prev, scroll: e.target.checked }))}
+                            style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                          />
+                          <label htmlFor="announcement-scroll-check" style={{ cursor: 'pointer', margin: 0, fontWeight: '600', fontSize: '0.95rem' }}>
+                            Scroll announcement text (marquee)
+                          </label>
+                          <span style={{ fontSize: '0.8rem', color: '#64748b', marginLeft: '8px' }}>
+                            When enabled, the announcement text will scroll horizontally on the storefront.
+                          </span>
+                        </div>
 
                       {/* COLOR CUSTOMIZATION */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>

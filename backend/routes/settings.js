@@ -17,6 +17,8 @@ const DEFAULT_ANNOUNCEMENT = {
   link: "/shop",
   bgColor: "#1a1a1a",
   textColor: "#ffffff",
+  // whether the announcement text should scroll (marquee) on the frontend
+  scroll: false,
 };
 
 // GET /api/settings/announcement (Public)
@@ -63,14 +65,21 @@ router.get("/announcement", async (req, res) => {
 // PUT /api/settings/announcement (Admin only)
 router.put("/announcement", requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { enabled, text, link, bgColor, textColor } = req.body || {};
+    const { enabled, text, link, bgColor, textColor, scroll } = req.body || {};
+
+    const parseBool = (v) => {
+      if (typeof v === 'boolean') return v;
+      if (typeof v === 'string') return v === 'true' || v === '1';
+      return Boolean(v);
+    };
 
     const announcementData = {
-      enabled: enabled !== undefined ? Boolean(enabled) : true,
+      enabled: enabled !== undefined ? parseBool(enabled) : true,
       text: typeof text === "string" ? text.trim() : "",
       link: typeof link === "string" ? link.trim() : "",
       bgColor: typeof bgColor === "string" && bgColor.trim() ? bgColor.trim() : "#1a1a1a",
       textColor: typeof textColor === "string" && textColor.trim() ? textColor.trim() : "#ffffff",
+      scroll: scroll !== undefined ? parseBool(scroll) : false,
     };
 
     // Save to DB if connected

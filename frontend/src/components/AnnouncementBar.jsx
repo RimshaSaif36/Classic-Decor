@@ -57,7 +57,7 @@ export default function AnnouncementBar() {
     };
   }, []);
 
-  if (!loaded || !data.enabled || !data.text || closed) {
+  if (!loaded || !data.enabled || !data.text) {
     return null;
   }
 
@@ -91,7 +91,12 @@ export default function AnnouncementBar() {
               className="announcement-link"
               style={{ color: data.textColor || '#ffffff' }}
             >
-              {content}
+              {/* If scroll is enabled, use a marquee for scrolling text */}
+              {data.scroll ? (
+                <marquee style={{ color: data.textColor || '#ffffff' }}>{data.text}{data.link && <span className="announcement-cta"><i className="fa-solid fa-arrow-right-long announcement-arrow"></i></span>}</marquee>
+              ) : (
+                content
+              )}
             </Link>
           ) : (
             <a
@@ -101,21 +106,17 @@ export default function AnnouncementBar() {
               className="announcement-link"
               style={{ color: data.textColor || '#ffffff' }}
             >
-              {content}
+              {data.scroll ? (
+                <marquee style={{ color: data.textColor || '#ffffff' }}>{data.text}{data.link && <span className="announcement-cta"><i className="fa-solid fa-arrow-right-long announcement-arrow"></i></span>}</marquee>
+              ) : (
+                content
+              )}
             </a>
           )
         ) : (
-          <div className="announcement-content">{content}</div>
+          <div className="announcement-content">{data.scroll ? <marquee style={{ color: data.textColor || '#ffffff' }}>{data.text}</marquee> : content}</div>
         )}
-        <button
-          type="button"
-          className="announcement-close"
-          onClick={() => setClosed(true)}
-          aria-label="Close announcement"
-          style={{ color: data.textColor || '#ffffff' }}
-        >
-          <i className="fa-solid fa-xmark"></i>
-        </button>
+        {/* Close button removed: announcement cannot be dismissed from storefront (admin-only control) */}
       </div>
     </aside>
   );
